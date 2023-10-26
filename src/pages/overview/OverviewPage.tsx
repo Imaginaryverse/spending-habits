@@ -3,13 +3,14 @@ import {
   useFetchSpendingItems,
   useUpdateSpendingItem,
 } from "@src/api/spending-items";
-import { CreateSpendingCTA } from "@src/components/create-spending-cta/CreateSpendingCTA";
 import { useAuth } from "@src/features/auth/useAuth";
 import { SpendingItem } from "@src/types";
 import { useEffect, useMemo } from "react";
 import dayjs from "dayjs";
 import { FourtyEightHourSummary } from "./components/fourty-eight-hour-Summary/FourtyEightHoursSummary";
 import { ThirtyDaySummary } from "./components/thirty-day-summary/ThirtyDaySummary";
+import { CurrentMonthChart } from "@src/components/charts/CurrentMonthChart";
+import { Typography } from "@mui/material";
 
 function getThirtyDaysAgoDate(now: Date): Date {
   return dayjs(now).subtract(30, "day").toDate();
@@ -81,11 +82,17 @@ export function OverviewPage() {
 
   return (
     <>
-      <CreateSpendingCTA />
+      <Typography variant="h1" sx={{ alignSelf: "flex-start" }}>
+        Overview
+      </Typography>
+
+      <CurrentMonthChart spendingItems={spendingItems} />
+
       <FourtyEightHourSummary
         spendingItems={spendingItemsInLastFortyEightHours}
         isLoading={isFetchingSpendingItems}
       />
+
       <ThirtyDaySummary
         spendingItems={spendingItemsInLastThirtyDays}
         isLoading={isFetchingSpendingItems}

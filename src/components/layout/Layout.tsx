@@ -1,6 +1,7 @@
 import { PropsWithChildren, useState } from "react";
 import {
   AppBar,
+  Button,
   Container,
   IconButton,
   Menu,
@@ -13,6 +14,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useSignOut } from "@src/api/auth";
+import { useSpendingEditor } from "@src/features/spending-editor/useSpendingEditor";
 
 const navigationLinks = [
   {
@@ -48,7 +50,7 @@ export function Layout({ children }: PropsWithChildren) {
         flex={1}
         py={4}
         px={1}
-        spacing={4}
+        spacing={2}
         justifyContent="flex-start"
         alignItems="center"
       >
@@ -60,6 +62,8 @@ export function Layout({ children }: PropsWithChildren) {
 
 function Navigation() {
   const { signOut } = useSignOut();
+  const { openAddDialog } = useSpendingEditor();
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   function handleOpenMenu(event: React.MouseEvent<HTMLButtonElement>) {
@@ -71,10 +75,18 @@ function Navigation() {
   }
 
   return (
-    <AppBar position="sticky">
+    <AppBar
+      position="sticky"
+      sx={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingRight: "1rem",
+      }}
+    >
       <Toolbar>
         <IconButton
-          size="large"
+          size="medium"
           edge="start"
           color="inherit"
           aria-label="menu"
@@ -123,6 +135,10 @@ function Navigation() {
           </MenuItem>
         </Menu>
       </Toolbar>
+
+      <Button size="small" variant="contained" onClick={openAddDialog}>
+        Add spending
+      </Button>
     </AppBar>
   );
 }

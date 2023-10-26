@@ -4,11 +4,11 @@ import { SpendingEditorProvider } from "./features/spending-editor/SpendingEdito
 
 function App() {
   return (
-    <Layout>
-      <SpendingEditorProvider>
+    <SpendingEditorProvider>
+      <Layout>
         <Outlet />
-      </SpendingEditorProvider>
-    </Layout>
+      </Layout>
+    </SpendingEditorProvider>
   );
 }
 
