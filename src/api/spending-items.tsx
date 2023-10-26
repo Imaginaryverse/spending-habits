@@ -1,4 +1,9 @@
-import { useQuery, useMutation, QueryObserverOptions } from "react-query";
+import {
+  useQuery,
+  useMutation,
+  QueryObserverOptions,
+  UseMutationOptions,
+} from "react-query";
 import { supabase } from "./client";
 import { CreateSpendingItem, SpendingItem } from "@src/types";
 
@@ -171,12 +176,19 @@ export function useFetchSpendingItemById(
   };
 }
 
-export function useCreateSpendingItem() {
+type CustomMutationOptions<T, E, P> = Omit<
+  UseMutationOptions<T, E, P>,
+  "mutationFn"
+>;
+
+export function useCreateSpendingItem(
+  options?: CustomMutationOptions<SpendingItem, unknown, CreateSpendingItem>
+) {
   const {
     mutateAsync,
     isLoading: isCreatingSpendingItem,
     isSuccess: isSpendingItemCreated,
-  } = useMutation(createSpendingItem);
+  } = useMutation(createSpendingItem, options);
 
   return {
     createSpendingItem: mutateAsync,
@@ -185,12 +197,14 @@ export function useCreateSpendingItem() {
   };
 }
 
-export function useUpdateSpendingItem() {
+export function useUpdateSpendingItem(
+  options?: CustomMutationOptions<SpendingItem, unknown, Partial<SpendingItem>>
+) {
   const {
     mutateAsync,
     isLoading: isUpdatingSpendingItem,
     isSuccess: isSpendingItemUpdated,
-  } = useMutation(updateSpendingItem);
+  } = useMutation(updateSpendingItem, options);
 
   return {
     updateSpendingItem: mutateAsync,
@@ -199,12 +213,14 @@ export function useUpdateSpendingItem() {
   };
 }
 
-export function useDeleteSpendingItem() {
+export function useDeleteSpendingItem(
+  options?: CustomMutationOptions<SpendingItem, unknown, string>
+) {
   const {
     mutateAsync,
     isLoading: isDeletingSpendingItem,
     isSuccess: isSpendingItemDeleted,
-  } = useMutation(deleteSpendingItem);
+  } = useMutation(deleteSpendingItem, options);
 
   return {
     deleteSpendingItem: mutateAsync,

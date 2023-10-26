@@ -19,11 +19,10 @@ import {
   removeFromLocalStorage,
   saveToLocalStorage,
 } from "@src/utils/local-storage-utils";
-import { useFetchSpendingItemById } from "@src/api/spending-items";
 
 type UpdateSpendingFormProps = {
   isOpen: boolean;
-  spendingItemId: string | null;
+  spendingItem: SpendingItem | null;
   onSubmit: (item: SpendingItem) => void;
   onClose: () => void;
   isUpdatingSpendingItem: boolean;
@@ -31,18 +30,11 @@ type UpdateSpendingFormProps = {
 
 export const UpdateSpendingForm = ({
   isOpen,
-  spendingItemId,
+  spendingItem,
   onSubmit,
   onClose,
   isUpdatingSpendingItem,
 }: UpdateSpendingFormProps) => {
-  const { spendingItem, isFetchingSpendingItem } = useFetchSpendingItemById(
-    spendingItemId,
-    {
-      enabled: !!spendingItemId,
-    }
-  );
-
   const { spendingCategories, isFetchingSpendingCategories } =
     useFetchSpendingCategories();
 
@@ -63,6 +55,10 @@ export const UpdateSpendingForm = ({
     const MAX_TITLE_LENGTH = 20;
 
     if (key === "title" && String(value).length > MAX_TITLE_LENGTH) {
+      return;
+    }
+
+    if (key === "amount" && Number.isNaN(Number(value))) {
       return;
     }
 
@@ -142,7 +138,7 @@ export const UpdateSpendingForm = ({
             id="title"
             value={input.title}
             onChange={(e) => updateInput("title", e.target.value)}
-            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+            disabled={isUpdatingSpendingItem}
           />
         </FormGroup>
 
@@ -152,7 +148,7 @@ export const UpdateSpendingForm = ({
             id="comment"
             value={input.comment}
             onChange={(e) => updateInput("comment", e.target.value)}
-            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+            disabled={isUpdatingSpendingItem}
           />
         </FormGroup>
 
@@ -166,7 +162,7 @@ export const UpdateSpendingForm = ({
               onChange={(e) =>
                 setInput({ ...input, category_id: e.target.value })
               }
-              disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+              disabled={isUpdatingSpendingItem}
             >
               {spendingCategories.map((category) => (
                 <MenuItem key={category.id} value={category.id}>
@@ -183,18 +179,18 @@ export const UpdateSpendingForm = ({
             id="amount"
             value={input.amount}
             onChange={(e) => updateInput("amount", Number(e.target.value))}
-            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+            disabled={isUpdatingSpendingItem}
           />
         </FormGroup>
 
         <FormGroup>
           <FormLabel htmlFor="created_at">Date</FormLabel>
           <DateTimePicker
-            value={input.created_at}
+            value={dayjs(input.created_at)}
             onChange={(date) => updateInput("created_at", date)}
             referenceDate={dayjs(new Date())}
             slotProps={{ textField: { id: "created_at" } }}
-            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+            disabled={isUpdatingSpendingItem}
           />
 
           <Typography variant="caption" mt={0.5} ml={2}>

@@ -71,6 +71,10 @@ export const CreateSpendingForm = ({
       return;
     }
 
+    if (key === "amount" && Number.isNaN(Number(value))) {
+      return;
+    }
+
     setInput({
       ...input,
       [key]: value,

@@ -2,7 +2,6 @@ import {
   PropsWithChildren,
   createContext,
   useMemo,
-  useEffect,
   useState,
   useCallback,
 } from "react";
@@ -22,7 +21,6 @@ import { DeleteSpendingConfirmation } from "@src/components/spending-editor-dial
 type DialogMode = "add" | "edit" | "delete" | null;
 
 type SpendingEditorContextType = {
-  spendingEditItem: SpendingItem | null;
   dialogMode: DialogMode;
   openAddDialog: () => void;
   openEditDialog: (item: SpendingItem) => void;
@@ -31,7 +29,6 @@ type SpendingEditorContextType = {
 };
 
 export const SpendingEditorContext = createContext<SpendingEditorContextType>({
-  spendingEditItem: null,
   dialogMode: null,
   openAddDialog: () => {},
   openEditDialog: () => {},
@@ -44,6 +41,9 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
 
   const { user } = useAuth();
 
+  const [spendingEditItem, setSpendingEditItem] = useState<SpendingItem | null>(
+    null
+  );
   const [spendingDeleteItem, setSpendingDeleteItem] =
     useState<SpendingItem | null>(null);
 
@@ -52,31 +52,23 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
     [params]
   );
 
-  const spendingItemId = useMemo(() => params.get("spendingItemId"), [params]);
-
   const { refetchSpendingItems } = useFetchSpendingItems(
     { user_id: user?.id },
     { enabled: !!user?.id }
   );
 
-  const { createSpendingItem, isCreatingSpendingItem, isSpendingItemCreated } =
-    useCreateSpendingItem();
-
-  const { updateSpendingItem, isUpdatingSpendingItem, isSpendingItemUpdated } =
-    useUpdateSpendingItem();
-
-  const { deleteSpendingItem, isDeletingSpendingItem, isSpendingItemDeleted } =
-    useDeleteSpendingItem();
+  function onMutationSuccess() {
+    refetchSpendingItems();
+    closeDialog();
+  }
 
   function openAddDialog() {
-    // navigate to add the dialogMode query param
     setParams({ dialogMode: "add" });
   }
 
   function openEditDialog(item: SpendingItem) {
-    // navigate to add the dialogMode query param
-    setParams({ dialogMode: "edit", spendingItemId: item.id });
-    // setSpendingEditItem(item);
+    setParams({ dialogMode: "edit" });
+    setSpendingEditItem(item);
   }
 
   function openDeleteDialog(item: SpendingItem) {
@@ -100,29 +92,21 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
     deleteSpendingItem(item.id);
   }
 
-  // Refetch spending items after a spending item is created or updated
-  // This will update the spending items list and the spending items chart
-  useEffect(() => {
-    if (
-      isSpendingItemCreated ||
-      isSpendingItemUpdated ||
-      isSpendingItemDeleted
-    ) {
-      refetchSpendingItems();
-      closeDialog();
-    }
-  }, [
-    isSpendingItemCreated,
-    isSpendingItemUpdated,
-    isSpendingItemDeleted,
-    refetchSpendingItems,
-    closeDialog,
-  ]);
+  const { createSpendingItem, isCreatingSpendingItem } = useCreateSpendingItem({
+    onSuccess: onMutationSuccess,
+  });
+
+  const { updateSpendingItem, isUpdatingSpendingItem } = useUpdateSpendingItem({
+    onSuccess: onMutationSuccess,
+  });
+
+  const { deleteSpendingItem, isDeletingSpendingItem } = useDeleteSpendingItem({
+    onSuccess: onMutationSuccess,
+  });
 
   return (
     <SpendingEditorContext.Provider
       value={{
-        spendingEditItem: spendingDeleteItem,
         dialogMode,
         openAddDialog,
         openEditDialog,
@@ -138,8 +122,8 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
       />
 
       <UpdateSpendingForm
-        isOpen={dialogMode === "edit" && !!spendingItemId}
-        spendingItemId={spendingItemId}
+        isOpen={dialogMode === "edit" && !!spendingEditItem}
+        spendingItem={spendingEditItem}
         onSubmit={handleEditSpendingItem}
         onClose={closeDialog}
         isUpdatingSpendingItem={isUpdatingSpendingItem}

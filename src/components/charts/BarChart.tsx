@@ -4,6 +4,7 @@ import {
   ResponsiveContainer,
   BarChart as RechartsBarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -41,6 +42,8 @@ type BarChartProps<T extends ValidBarChartDataItem> = {
   height?: number;
   showLegend?: boolean;
   cartesianGrid?: CartesianGridProps;
+  orientation?: "horizontal" | "vertical";
+  colors?: string[];
 };
 
 export function BarChart<T extends ValidBarChartDataItem>({
@@ -55,15 +58,25 @@ export function BarChart<T extends ValidBarChartDataItem>({
   height = 300,
   showLegend = true,
   cartesianGrid,
+  orientation = "horizontal",
+  colors,
 }: BarChartProps<T>) {
   const cartesianGridProps = useMemo(
     () => ({ ...defaultCartesianGridProps, ...cartesianGrid }),
     [cartesianGrid]
   );
 
+  const colorsArray = useMemo(() => {
+    if (colors) {
+      return colors;
+    }
+
+    return [theme.palette.primary.main];
+  }, [colors]);
+
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RechartsBarChart data={data}>
+      <RechartsBarChart data={data} layout={orientation}>
         <CartesianGrid
           strokeDasharray={cartesianGridProps.strokeDasharray}
           stroke={cartesianGridProps.stroke}
@@ -72,12 +85,15 @@ export function BarChart<T extends ValidBarChartDataItem>({
         />
 
         <XAxis
-          dataKey={xAxisKey as string}
+          type={orientation === "horizontal" ? "category" : "number"}
+          dataKey={String(orientation === "horizontal" ? xAxisKey : yAxisKey)}
           orientation={xAxisAnchor}
           tickFormatter={xAxisFormatter}
         />
 
         <YAxis
+          type={orientation === "horizontal" ? "number" : "category"}
+          dataKey={String(orientation === "horizontal" ? yAxisKey : xAxisKey)}
           orientation={yAxisAnchor}
           mirror={yAxisLabelPosition === "inside"}
           tickFormatter={yAxisFormatter}
@@ -97,7 +113,14 @@ export function BarChart<T extends ValidBarChartDataItem>({
 
         {!!showLegend && <Legend />}
 
-        <Bar dataKey={yAxisKey as string} fill={theme.palette.primary.main} />
+        <Bar dataKey={yAxisKey as string}>
+          {data.map((_, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={colorsArray[index % colorsArray.length]}
+            />
+          ))}
+        </Bar>
       </RechartsBarChart>
     </ResponsiveContainer>
   );

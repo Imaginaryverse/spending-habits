@@ -4,6 +4,8 @@ import { BarChart } from "../../../../components/charts/BarChart";
 import { Collapse, Stack, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
+import { MonthlyLimitChart } from "@src/pages/overview/components/current-month-chart/MonthlyLimitChart";
+import { useAuth } from "@src/features/auth/useAuth";
 
 type BarChartDataItem = {
   date: string;
@@ -39,13 +41,31 @@ type CurrentMonthChartProps = {
 };
 
 export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
-  const timespan = dayjs().format("MMMM, YYYY");
+  const { userProfile } = useAuth();
+
+  const timespan = dayjs().format("MMMM YYYY");
   const chartData = generateChartData(spendingItems);
 
   const totalAmount = useMemo(
     () => sumValueOfObjects(chartData, "amount"),
     [chartData]
   );
+
+  const monthlySpendingLimit = userProfile?.monthly_spending_limit ?? 0;
+
+  const percentageSpentText = useMemo(() => {
+    const percentage = monthlySpendingLimit
+      ? (totalAmount / monthlySpendingLimit) * 100
+      : 0;
+
+    if (percentage > 100) {
+      const percentOver = formatNumber(percentage - 100);
+      return `is ${percentOver}% over monthly spending limit (${monthlySpendingLimit} kr)`;
+    }
+
+    const formattedPercentage = formatNumber(percentage);
+    return `is ${formattedPercentage}% of monthly spending limit (${monthlySpendingLimit} kr)`;
+  }, [monthlySpendingLimit, totalAmount]);
 
   return (
     <Collapse
@@ -59,7 +79,16 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
     >
       <Stack spacing={2}>
         <Typography variant="h2">{timespan}:</Typography>
-        <Typography>Total spent: {formatNumber(totalAmount)} kr</Typography>
+
+        <Stack>
+          <Typography>Total spent: {formatNumber(totalAmount)} kr</Typography>
+          <Typography variant="caption">{percentageSpentText}</Typography>
+        </Stack>
+
+        <MonthlyLimitChart
+          spendingLimit={monthlySpendingLimit}
+          totalSpent={totalAmount}
+        />
 
         <BarChart
           data={chartData}

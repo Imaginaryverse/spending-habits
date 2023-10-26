@@ -36,7 +36,7 @@ export function Layout({ children }: PropsWithChildren) {
 
   return (
     <Container
-      maxWidth="lg"
+      maxWidth="md"
       sx={{
         height: "100vh",
         py: "4 !important",
