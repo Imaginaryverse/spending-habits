@@ -1,6 +1,11 @@
-import { SpendingItem } from "@src/types";
 import dayjs from "dayjs";
 
+/**
+ * Sums the value of a key in an array of objects. The value of the key must be a number.
+ * @param objects - The array of objects.
+ * @param key - The key to sum.
+ * @returns The sum of the value of the key in the array of objects.
+ */
 export function sumValueOfObjects<T>(objects: T[], key: keyof T): number {
   return objects.reduce((acc, curr) => {
     if (typeof curr[key] === "number") {
@@ -9,15 +14,6 @@ export function sumValueOfObjects<T>(objects: T[], key: keyof T): number {
       return acc;
     }
   }, 0);
-}
-
-export function calcSevenDaysAmount(items: SpendingItem[]): number {
-  const now = new Date();
-  const sevenDaysAgo = dayjs(now).subtract(7, "day").toDate();
-  const sevenDaysAmount = items
-    .filter((item) => dayjs(item.created_at).isAfter(sevenDaysAgo))
-    .reduce((acc, curr) => acc + curr.amount, 0);
-  return sevenDaysAmount;
 }
 
 export function calcWeeklySpendingLimitAverage(
@@ -35,6 +31,16 @@ export function calcWeeklySpendingLimitAverage(
   return weeklySpendingLimitAverageRounded / fractions;
 }
 
+/**
+ * Calculates the percentage of a portion of a total.
+ * @param portion - The portion of the total.
+ * @param total - The total.
+ * @param fractions - The number of decimal places to round to.
+ * @returns The percentage of the portion of the total.
+ * @example
+ * calcPercentage(1, 2); // 50
+ * calcPercentage(1, 2, 1); // 50.0
+ */
 export function calcPercentage(
   portion: number,
   total: number,
@@ -49,4 +55,36 @@ export function calcPercentage(
   const percentageRounded = Math.round(percentage * fractions);
 
   return percentageRounded / fractions;
+}
+
+/**
+ * Formats a number to a string.
+ * @param value - The number to format.
+ * @param options - The options to use when formatting the number. Defaults to `{ fractions: 2, autoFormatInteger: true }`.
+ * @returns The formatted number as a string.
+ */
+export function formatNumber(
+  value: number,
+  options?: {
+    fractions?: number;
+    autoFormatInteger?: boolean;
+  }
+): string {
+  const defaultOptions = {
+    fractions: 2,
+    autoFormatInteger: true,
+  };
+
+  const { fractions, autoFormatInteger } = {
+    ...defaultOptions,
+    ...options,
+  };
+
+  if (autoFormatInteger && Number.isInteger(value)) {
+    return value.toString();
+  }
+
+  const valueRounded = Math.round(value * fractions);
+
+  return (valueRounded / fractions).toString();
 }

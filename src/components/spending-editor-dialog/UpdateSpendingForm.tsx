@@ -60,6 +60,12 @@ export const UpdateSpendingForm = ({
     !spendingItem || isFetchingSpendingCategories || isUpdatingSpendingItem;
 
   function updateInput(key: keyof SpendingItemInput, value: unknown) {
+    const MAX_TITLE_LENGTH = 20;
+
+    if (key === "title" && String(value).length > MAX_TITLE_LENGTH) {
+      return;
+    }
+
     setInput({
       ...input,
       [key]: value,

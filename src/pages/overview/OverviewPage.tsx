@@ -9,8 +9,9 @@ import { useEffect, useMemo } from "react";
 import dayjs from "dayjs";
 import { FourtyEightHourSummary } from "./components/fourty-eight-hour-Summary/FourtyEightHoursSummary";
 import { ThirtyDaySummary } from "./components/thirty-day-summary/ThirtyDaySummary";
-import { CurrentMonthChart } from "@src/components/charts/CurrentMonthChart";
+import { CurrentMonthChart } from "@src/pages/overview/components/current-month-chart/CurrentMonthChart";
 import { Typography } from "@mui/material";
+import { TwentyFourHourSummary } from "./components/twenty-four-hour-summary/TwentyFourHourSummary";
 
 function getThirtyDaysAgoDate(now: Date): Date {
   return dayjs(now).subtract(30, "day").toDate();
@@ -85,6 +86,8 @@ export function OverviewPage() {
       <Typography variant="h1" sx={{ alignSelf: "flex-start" }}>
         Overview
       </Typography>
+
+      <TwentyFourHourSummary spendingItems={spendingItems} />
 
       <CurrentMonthChart spendingItems={spendingItems} />
 

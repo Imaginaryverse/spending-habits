@@ -1,7 +1,9 @@
 import { SpendingItem } from "@src/types";
 import dayjs from "dayjs";
-import { BarChart } from "./BarChart";
-import { Collapse, Typography } from "@mui/material";
+import { BarChart } from "../../../../components/charts/BarChart";
+import { Collapse, Stack, Typography } from "@mui/material";
+import { useMemo } from "react";
+import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 
 type BarChartDataItem = {
   date: string;
@@ -40,6 +42,11 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
   const timespan = dayjs().format("MMMM, YYYY");
   const chartData = generateChartData(spendingItems);
 
+  const totalAmount = useMemo(
+    () => sumValueOfObjects(chartData, "amount"),
+    [chartData]
+  );
+
   return (
     <Collapse
       in={!!spendingItems.length}
@@ -50,17 +57,20 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
         overflow: "hidden",
       }}
     >
-      <Typography sx={{ mb: 2 }}>Spent in {timespan}:</Typography>
+      <Stack spacing={2}>
+        <Typography variant="h2">{timespan}:</Typography>
+        <Typography>Total spent: {formatNumber(totalAmount)} kr</Typography>
 
-      <BarChart
-        data={chartData}
-        xAxisKey={"date"}
-        xAxisFormatter={(value) => dayjs(value).format("DD")}
-        yAxisKey={"amount"}
-        yAxisLabelPosition="inside"
-        cartesianGrid={{ horizontal: true }}
-        showLegend={false}
-      />
+        <BarChart
+          data={chartData}
+          xAxisKey={"date"}
+          xAxisFormatter={(value) => dayjs(value).format("DD")}
+          yAxisKey={"amount"}
+          yAxisLabelPosition="inside"
+          cartesianGrid={{ horizontal: true }}
+          showLegend={false}
+        />
+      </Stack>
     </Collapse>
   );
 }

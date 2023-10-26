@@ -1,5 +1,8 @@
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import EditIcon from "@mui/icons-material/Edit";
+
 import {
-  Button,
+  IconButton,
   List,
   ListItem,
   Paper,
@@ -11,18 +14,20 @@ import { SpendingItem } from "@src/types";
 
 type SpendingsListProps = {
   spendingItems: SpendingItem[];
+  dense?: boolean;
 };
 
-export function SpendingsList({ spendingItems }: SpendingsListProps) {
-  const { openEditDialog } = useSpendingEditor();
+export function SpendingsList({ spendingItems, dense }: SpendingsListProps) {
+  const { openEditDialog, openDeleteDialog } = useSpendingEditor();
 
   return (
-    <List dense sx={{ mt: 1 }}>
+    <List dense={dense}>
       {spendingItems.map((item) => (
         <SpendingsListItem
           key={item.id}
           item={item}
           onEditClick={openEditDialog}
+          onDeleteClick={openDeleteDialog}
         />
       ))}
     </List>
@@ -32,30 +37,48 @@ export function SpendingsList({ spendingItems }: SpendingsListProps) {
 type SpendingsListItemProps = {
   item: SpendingItem;
   onEditClick: (item: SpendingItem) => void;
+  onDeleteClick: (item: SpendingItem) => void;
 };
 
-function SpendingsListItem({ item, onEditClick }: SpendingsListItemProps) {
+function SpendingsListItem({
+  item,
+  onEditClick,
+  onDeleteClick,
+}: SpendingsListItemProps) {
   return (
     <ListItem sx={{ width: "100%" }} disableGutters>
       <Paper
-        elevation={5}
+        elevation={2}
         sx={{
-          p: 2,
+          py: 2,
+          pl: 2,
+          pr: 1,
           width: "100%",
           display: "flex",
           justifyContent: "space-between",
         }}
       >
-        <Stack>
-          <Typography variant="body1">
-            {item.title} - {item.amount} kr
+        <Stack flex={1} justifyContent="space-between">
+          <Typography variant="h5">{item.title}</Typography>
+
+          <Typography variant="h3" color="primary">
+            {item.amount} kr
           </Typography>
-          <Typography variant="body2">{formatDate(item.created_at)}</Typography>
+
+          <Typography variant="caption">
+            {formatDate(item.created_at)}
+          </Typography>
         </Stack>
 
-        <Button variant="contained" onClick={() => onEditClick(item)}>
-          Edit
-        </Button>
+        <Stack spacing={0.5}>
+          <IconButton onClick={() => onDeleteClick(item)}>
+            <DeleteForeverOutlinedIcon fontSize="small" />
+          </IconButton>
+
+          <IconButton onClick={() => onEditClick(item)}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Stack>
       </Paper>
     </ListItem>
   );

@@ -119,6 +119,20 @@ async function updateSpendingItem(
   return spendingItem as SpendingItem;
 }
 
+async function deleteSpendingItem(id: string): Promise<SpendingItem> {
+  const { data: spendingItem, error } = await supabase
+    .from("spending_items")
+    .delete()
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return spendingItem as SpendingItem;
+}
+
 export function useFetchSpendingItems(
   params?: Partial<FetchSpendingItemsParams>,
   options?: QueryObserverOptions<SpendingItem[]>
@@ -182,5 +196,19 @@ export function useUpdateSpendingItem() {
     updateSpendingItem: mutateAsync,
     isUpdatingSpendingItem,
     isSpendingItemUpdated,
+  };
+}
+
+export function useDeleteSpendingItem() {
+  const {
+    mutateAsync,
+    isLoading: isDeletingSpendingItem,
+    isSuccess: isSpendingItemDeleted,
+  } = useMutation(deleteSpendingItem);
+
+  return {
+    deleteSpendingItem: mutateAsync,
+    isDeletingSpendingItem,
+    isSpendingItemDeleted,
   };
 }

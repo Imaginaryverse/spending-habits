@@ -50,7 +50,7 @@ export function Layout({ children }: PropsWithChildren) {
         flex={1}
         py={4}
         px={1}
-        spacing={2}
+        spacing={4}
         justifyContent="flex-start"
         alignItems="center"
       >

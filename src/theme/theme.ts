@@ -33,6 +33,9 @@ const theme = createTheme({
       primary: "rgba(255, 255, 255, 0.85)",
       secondary: "rgba(255, 255, 255, 0.7)",
     },
+    error: {
+      main: "hsl(0, 60%, 55%)",
+    },
   },
   typography: {
     body1: {

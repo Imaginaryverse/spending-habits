@@ -21,25 +21,34 @@ type PieChartProps<T extends ValidPieChartDataItem> = {
   showLegend?: boolean;
 };
 
+// const colors = [
+//   "hsl(45, 85%, 50%)",
+//   "hsl(90, 85%, 50%)",
+//   "hsl(180, 85%, 50%)",
+//   "hsl(210, 85%, 50%)",
+//   "hsl(315, 85%, 50%)",
+//   "hsl(360, 85%, 50%)",
+// ];
+
 const colors = [
-  "hsl(45, 85%, 50%)",
-  "hsl(90, 85%, 50%)",
-  "hsl(180, 85%, 50%)",
-  "hsl(210, 85%, 50%)",
-  "hsl(315, 85%, 50%)",
-  "hsl(360, 85%, 50%)",
+  "hsl(200, 85%, 50%)",
+  "hsl(200, 75%, 60%)",
+  "hsl(200, 65%, 70%)",
+  "hsl(200, 55%, 80%)",
+  "hsl(200, 45%, 90%)",
+  "hsl(200, 35%, 95%)",
 ];
 
 export function PieChart<T extends ValidPieChartDataItem>({
   data,
   valueKey,
   labelKey,
-  height,
+  height = 300,
   showTooltip = true,
   showLegend = true,
 }: PieChartProps<T>) {
   return (
-    <ResponsiveContainer width="100%" height={height || 400}>
+    <ResponsiveContainer width="100%" height={height}>
       <RechartsPieChart>
         <Pie
           data={data}
@@ -47,15 +56,16 @@ export function PieChart<T extends ValidPieChartDataItem>({
           nameKey={labelKey as string}
           fill={theme.palette.primary.main}
           label
-          cx="50%"
-          cy="50%"
-          innerRadius={80}
+          innerRadius={"50%"}
+          startAngle={90}
+          endAngle={-270}
         >
           {data.map((_, index) => (
             <Cell
               key={`cell-${index}`}
               fill={colors[index % colors.length]}
               stroke={theme.palette.background.default}
+              strokeWidth={2}
             />
           ))}
         </Pie>

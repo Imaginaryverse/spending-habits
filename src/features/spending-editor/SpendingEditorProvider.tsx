@@ -4,17 +4,20 @@ import {
   useMemo,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 import { CreateSpendingItem, SpendingItem } from "@src/types";
 import {
   useCreateSpendingItem,
+  useDeleteSpendingItem,
   useFetchSpendingItems,
   useUpdateSpendingItem,
 } from "@src/api/spending-items";
 import { useAuth } from "../auth/useAuth";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { CreateSpendingForm } from "@src/components/spending-editor-dialog/CreateSpendingForm";
 import { UpdateSpendingForm } from "@src/components/spending-editor-dialog/UpdateSpendingForm";
+import { DeleteSpendingConfirmation } from "@src/components/spending-editor-dialog/DeleteSpendingConfirmation";
 
 type DialogMode = "add" | "edit" | "delete" | null;
 
@@ -37,7 +40,6 @@ export const SpendingEditorContext = createContext<SpendingEditorContextType>({
 });
 
 export function SpendingEditorProvider({ children }: PropsWithChildren) {
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
 
   const { user } = useAuth();
@@ -63,6 +65,9 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
   const { updateSpendingItem, isUpdatingSpendingItem, isSpendingItemUpdated } =
     useUpdateSpendingItem();
 
+  const { deleteSpendingItem, isDeletingSpendingItem, isSpendingItemDeleted } =
+    useDeleteSpendingItem();
+
   function openAddDialog() {
     // navigate to add the dialogMode query param
     setParams({ dialogMode: "add" });
@@ -78,11 +83,10 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
     setSpendingDeleteItem(item);
   }
 
-  function closeDialog() {
-    // navigate back to remove the dialogMode query param
-    navigate(-1);
+  const closeDialog = useCallback(() => {
+    setParams({}, { replace: true });
     setSpendingDeleteItem(null);
-  }
+  }, [setParams]);
 
   function handleAddSpendingItem(item: CreateSpendingItem) {
     createSpendingItem(item);
@@ -92,14 +96,28 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
     updateSpendingItem(item);
   }
 
+  function handleDeleteSpendingItem(item: SpendingItem) {
+    deleteSpendingItem(item.id);
+  }
+
   // Refetch spending items after a spending item is created or updated
   // This will update the spending items list and the spending items chart
   useEffect(() => {
-    if (isSpendingItemCreated || isSpendingItemUpdated) {
+    if (
+      isSpendingItemCreated ||
+      isSpendingItemUpdated ||
+      isSpendingItemDeleted
+    ) {
       refetchSpendingItems();
       closeDialog();
     }
-  }, [isSpendingItemCreated, isSpendingItemUpdated, refetchSpendingItems]);
+  }, [
+    isSpendingItemCreated,
+    isSpendingItemUpdated,
+    isSpendingItemDeleted,
+    refetchSpendingItems,
+    closeDialog,
+  ]);
 
   return (
     <SpendingEditorContext.Provider
@@ -125,6 +143,14 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
         onSubmit={handleEditSpendingItem}
         onClose={closeDialog}
         isUpdatingSpendingItem={isUpdatingSpendingItem}
+      />
+
+      <DeleteSpendingConfirmation
+        isOpen={!!spendingDeleteItem}
+        spendingItem={spendingDeleteItem}
+        onConfirm={handleDeleteSpendingItem}
+        onClose={closeDialog}
+        isDeletingSpendingItem={isDeletingSpendingItem}
       />
 
       {children}
