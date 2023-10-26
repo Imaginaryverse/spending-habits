@@ -1,0 +1,210 @@
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { SpendingItem, SpendingItemInput } from "@src/types";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import { SpendingEditorDialog } from "./SpendingEditorDialog";
+import {
+  Button,
+  CircularProgress,
+  FormGroup,
+  FormLabel,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { DateTimePicker } from "@mui/x-date-pickers";
+import {
+  getFromLocalStorage,
+  removeFromLocalStorage,
+  saveToLocalStorage,
+} from "@src/utils/local-storage-utils";
+import { useFetchSpendingItemById } from "@src/api/spending-items";
+
+type UpdateSpendingFormProps = {
+  isOpen: boolean;
+  spendingItemId: string | null;
+  onSubmit: (item: SpendingItem) => void;
+  onClose: () => void;
+  isUpdatingSpendingItem: boolean;
+};
+
+export const UpdateSpendingForm = ({
+  isOpen,
+  spendingItemId,
+  onSubmit,
+  onClose,
+  isUpdatingSpendingItem,
+}: UpdateSpendingFormProps) => {
+  const { spendingItem, isFetchingSpendingItem } = useFetchSpendingItemById(
+    spendingItemId,
+    {
+      enabled: !!spendingItemId,
+    }
+  );
+
+  const { spendingCategories, isFetchingSpendingCategories } =
+    useFetchSpendingCategories();
+
+  const initialInput: SpendingItemInput = {
+    title: spendingItem?.title ?? "",
+    comment: spendingItem?.comment ?? "",
+    category_id: spendingItem?.category_id ?? "1",
+    amount: spendingItem?.amount ?? 0,
+    created_at: dayjs(spendingItem?.created_at ?? null),
+  };
+
+  const [input, setInput] = useState<SpendingItemInput>(initialInput);
+
+  const disableSubmit =
+    !spendingItem || isFetchingSpendingCategories || isUpdatingSpendingItem;
+
+  function updateInput(key: keyof SpendingItemInput, value: unknown) {
+    setInput({
+      ...input,
+      [key]: value,
+    });
+    saveToLocalStorage("update-spending-item-input", {
+      ...input,
+      [key]: value,
+    });
+  }
+
+  function handleSave(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (!spendingItem) {
+      return;
+    }
+
+    onSubmit({
+      ...spendingItem,
+      ...input,
+      created_at: input.created_at?.toDate() ?? new Date(),
+    });
+  }
+
+  function handleClose(reason?: string) {
+    if (reason === "backdropClick") {
+      return;
+    }
+
+    removeFromLocalStorage("update-spending-item-input");
+    onClose();
+  }
+
+  useEffect(() => {
+    const currentInput = getFromLocalStorage<SpendingItemInput>(
+      "update-spending-item-input"
+    );
+
+    if (currentInput) {
+      setInput(currentInput);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (spendingItem) {
+      const item = {
+        ...spendingItem,
+        created_at: dayjs(spendingItem.created_at),
+      };
+
+      setInput(item);
+      saveToLocalStorage("update-spending-item-input", item);
+    }
+  }, [spendingItem]);
+
+  return (
+    <SpendingEditorDialog
+      open={isOpen}
+      onClose={handleClose}
+      title="Update spending"
+    >
+      <Stack
+        direction="column"
+        component="form"
+        onSubmit={handleSave}
+        autoComplete="off"
+        spacing={1}
+        px={2}
+        pb={2}
+      >
+        <FormGroup>
+          <FormLabel htmlFor="title">Title</FormLabel>
+          <TextField
+            id="title"
+            value={input.title}
+            onChange={(e) => updateInput("title", e.target.value)}
+            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <FormLabel htmlFor="comment">Comment</FormLabel>
+          <TextField
+            id="comment"
+            value={input.comment}
+            onChange={(e) => updateInput("comment", e.target.value)}
+            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+          />
+        </FormGroup>
+
+        {!isFetchingSpendingCategories && !!spendingCategories.length && (
+          <FormGroup>
+            <FormLabel htmlFor="category">Category</FormLabel>
+            <TextField
+              id="category"
+              select
+              value={input.category_id}
+              onChange={(e) =>
+                setInput({ ...input, category_id: e.target.value })
+              }
+              disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+            >
+              {spendingCategories.map((category) => (
+                <MenuItem key={category.id} value={category.id}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </FormGroup>
+        )}
+
+        <FormGroup>
+          <FormLabel htmlFor="amount">Amount</FormLabel>
+          <TextField
+            id="amount"
+            value={input.amount}
+            onChange={(e) => updateInput("amount", Number(e.target.value))}
+            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <FormLabel htmlFor="created_at">Date</FormLabel>
+          <DateTimePicker
+            value={input.created_at}
+            onChange={(date) => updateInput("created_at", date)}
+            referenceDate={dayjs(new Date())}
+            slotProps={{ textField: { id: "created_at" } }}
+            disabled={isUpdatingSpendingItem || isFetchingSpendingItem}
+          />
+
+          <Typography variant="caption" mt={0.5} ml={2}>
+            Defaults to current date and time
+          </Typography>
+        </FormGroup>
+
+        <Button
+          type="submit"
+          variant={isUpdatingSpendingItem ? "text" : "contained"}
+          disabled={disableSubmit}
+          fullWidth
+        >
+          {isUpdatingSpendingItem ? <CircularProgress size="1.5rem" /> : "Save"}
+        </Button>
+      </Stack>
+    </SpendingEditorDialog>
+  );
+};

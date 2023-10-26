@@ -1,64 +1,95 @@
-import { Stack, Typography } from "@mui/material";
 import {
   useCreateSpendingItem,
   useFetchSpendingItems,
+  useUpdateSpendingItem,
 } from "@src/api/spending-items";
-import { CreateSpendingForm } from "@src/components/create-spending-form/CreateSpendingForm";
+import { CreateSpendingCTA } from "@src/components/create-spending-cta/CreateSpendingCTA";
 import { useAuth } from "@src/features/auth/useAuth";
-import { CreateSpendingItem } from "@src/types";
-import { calcSevenDaysAmount } from "@src/utils/number-utils";
+import { SpendingItem } from "@src/types";
 import { useEffect, useMemo } from "react";
+import dayjs from "dayjs";
+import { FourtyEightHourSummary } from "./components/fourty-eight-hour-Summary/FourtyEightHoursSummary";
+import { ThirtyDaySummary } from "./components/thirty-day-summary/ThirtyDaySummary";
+
+function getThirtyDaysAgoDate(now: Date): Date {
+  return dayjs(now).subtract(30, "day").toDate();
+}
+
+function getFourtyEightHoursAgoDate(now: Date): Date {
+  return dayjs(now).subtract(48, "hour").toDate();
+}
+
+function getSpendingItemsInLastFortyEightHours(
+  spendingItems: SpendingItem[],
+  endOfToday: Date
+): SpendingItem[] {
+  const fourtyEightHoursAgo = getFourtyEightHoursAgoDate(endOfToday);
+
+  return spendingItems.filter((item) => {
+    const createdAt = new Date(item.created_at);
+
+    return createdAt >= fourtyEightHoursAgo && createdAt <= endOfToday;
+  });
+}
+
+function getSpendingItemsInLastThirtyDays(
+  spendingItems: SpendingItem[],
+  endOfToday: Date
+): SpendingItem[] {
+  const thirtyDaysAgo = getThirtyDaysAgoDate(endOfToday);
+
+  return spendingItems.filter((item) => {
+    const createdAt = new Date(item.created_at);
+
+    return createdAt >= thirtyDaysAgo && createdAt <= endOfToday;
+  });
+}
 
 export function OverviewPage() {
+  const endOfToday = dayjs().endOf("day").toDate();
+
   const { user } = useAuth();
 
-  const { createSpendingItem, isCreatingSpendingItem, isSpendingItemCreated } =
-    useCreateSpendingItem();
   const { spendingItems, isFetchingSpendingItems, refetchSpendingItems } =
-    useFetchSpendingItems(user?.id, undefined, {
-      enabled: !!user?.id,
-    });
+    useFetchSpendingItems(
+      {
+        user_id: user?.id,
+      },
+      {
+        enabled: !!user?.id,
+      }
+    );
 
-  function handleCreateSpendingItem(item: CreateSpendingItem) {
-    createSpendingItem(item);
-  }
+  const { isSpendingItemCreated } = useCreateSpendingItem();
+  const { isSpendingItemUpdated } = useUpdateSpendingItem();
 
   useEffect(() => {
-    if (isSpendingItemCreated) {
+    if (isSpendingItemCreated || isSpendingItemUpdated) {
       refetchSpendingItems();
     }
-  }, [isSpendingItemCreated, refetchSpendingItems]);
+  }, [isSpendingItemCreated, isSpendingItemUpdated, refetchSpendingItems]);
 
-  const sevenDaysAmount = useMemo(
-    () => calcSevenDaysAmount(spendingItems),
-    [spendingItems]
+  const spendingItemsInLastThirtyDays = useMemo(
+    () => getSpendingItemsInLastThirtyDays(spendingItems, endOfToday),
+    [spendingItems, endOfToday]
+  );
+
+  const spendingItemsInLastFortyEightHours = useMemo(
+    () => getSpendingItemsInLastFortyEightHours(spendingItems, endOfToday),
+    [spendingItems, endOfToday]
   );
 
   return (
-    <Stack flex={1} spacing={2}>
-      <Typography variant="h1">Overview</Typography>
-
-      <CreateSpendingForm
-        onSubmit={handleCreateSpendingItem}
-        isCreatingSpendingItem={isCreatingSpendingItem}
-        isSpendingItemCreated={isSpendingItemCreated}
+    <>
+      <CreateSpendingCTA />
+      <FourtyEightHourSummary
+        spendingItems={spendingItemsInLastFortyEightHours}
+        isLoading={isFetchingSpendingItems}
       />
-
-      <Typography variant="h2">Spending Items</Typography>
-      {isFetchingSpendingItems ? (
-        <Typography variant="body1">Loading...</Typography>
-      ) : (
-        <Stack spacing={2}>
-          {spendingItems.map((item) => (
-            <Typography key={item.id} variant="body1">
-              {item.title} - {item.amount} kr
-            </Typography>
-          ))}
-        </Stack>
-      )}
-
-      <Typography variant="h2">Last 7 Days</Typography>
-      <Typography variant="body1">{sevenDaysAmount} kr</Typography>
-    </Stack>
+      <ThirtyDaySummary
+        spendingItems={spendingItemsInLastThirtyDays}
+        isLoading={isFetchingSpendingItems}
+      />
+    </>
   );
 }

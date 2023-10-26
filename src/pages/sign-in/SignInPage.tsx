@@ -34,8 +34,8 @@ export function SignInPage() {
   }, [isAuthenticated, navigate, previousLocation]);
 
   return (
-    <Stack flex={1} spacing={2}>
-      <Typography variant="h1">Sign in</Typography>
+    <Stack flex={1} spacing={4} height="100%" width="100%" maxWidth="sm">
+      <Typography variant="h1">TRACKMACASH</Typography>
 
       {isAuthenticated ? (
         <Typography variant="body1">You are already signed in. </Typography>
@@ -48,7 +48,7 @@ export function SignInPage() {
       )}
 
       {!isAuthenticated && (
-        <Typography variant="body1">
+        <Typography variant="body2">
           Don't have an account?{" "}
           <RouterLink to="/register">Register</RouterLink> a new account.
         </Typography>
@@ -93,6 +93,8 @@ function SignInForm({ onSignIn, isSigningIn, signInError }: SignInFormProps) {
   return (
     <form noValidate autoComplete="off" onSubmit={handleSignIn}>
       <Stack spacing={2}>
+        <Typography variant="h2">Sign in</Typography>
+
         <FormControl fullWidth>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField

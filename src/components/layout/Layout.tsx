@@ -1,7 +1,6 @@
 import { PropsWithChildren, useState } from "react";
 import {
   AppBar,
-  Box,
   Container,
   IconButton,
   Menu,
@@ -34,10 +33,25 @@ export function Layout({ children }: PropsWithChildren) {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Container maxWidth="md" sx={{ py: 4, height: "100%" }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        height: "100vh",
+        py: "4 !important",
+        pl: "0.4rem !important",
+        pr: "0.1rem !important",
+      }}
+    >
       {!!isAuthenticated && <Navigation />}
-
-      <Stack py={2} px={1}>
+      <Stack
+        width="100%"
+        flex={1}
+        py={4}
+        px={1}
+        spacing={4}
+        justifyContent="flex-start"
+        alignItems="center"
+      >
         {children}
       </Stack>
     </Container>
@@ -57,60 +71,58 @@ function Navigation() {
   }
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={handleOpenMenu}
-          >
-            <MenuIcon />
-          </IconButton>
+    <AppBar position="sticky">
+      <Toolbar>
+        <IconButton
+          size="large"
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          sx={{ mr: 2 }}
+          onClick={handleOpenMenu}
+        >
+          <MenuIcon />
+        </IconButton>
 
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            onClose={handleCloseMenu}
-            sx={{ display: "flex" }}
-          >
-            {navigationLinks.map((link) => (
-              <MenuItem key={link.label} onClick={handleCloseMenu}>
-                <Link
-                  to={link.href}
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                  }}
-                >
-                  <Typography variant="body1">{link.label}</Typography>
-                </Link>
-              </MenuItem>
-            ))}
-
-            <MenuItem
-              onClick={() => {
-                signOut();
-                handleCloseMenu();
-              }}
-            >
-              <Typography variant="body1">Sign out</Typography>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          onClose={handleCloseMenu}
+          sx={{ display: "flex" }}
+        >
+          {navigationLinks.map((link) => (
+            <MenuItem key={link.label} onClick={handleCloseMenu}>
+              <Link
+                to={link.href}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <Typography variant="body1">{link.label}</Typography>
+              </Link>
             </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-    </Box>
+          ))}
+
+          <MenuItem
+            onClick={() => {
+              signOut();
+              handleCloseMenu();
+            }}
+          >
+            <Typography variant="body1">Sign out</Typography>
+          </MenuItem>
+        </Menu>
+      </Toolbar>
+    </AppBar>
   );
 }

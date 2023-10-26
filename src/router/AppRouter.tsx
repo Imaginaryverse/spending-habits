@@ -1,24 +1,18 @@
-import { Route, BrowserRouter, Routes, Outlet } from "react-router-dom";
+import { Route, BrowserRouter, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
-import { Layout } from "@src/components/layout/Layout";
 import { HistoryPage } from "@src/pages/history/HistoryPage";
 import { NotFoundPage } from "@src/pages/not-found/NotFoundPage";
 import { OverviewPage } from "@src/pages/overview/OverviewPage";
 import { ProfilePage } from "@src/pages/profile/ProfilePage";
 import { RegisterPage } from "@src/pages/register/RegisterPage";
 import { SignInPage } from "@src/pages/sign-in/SignInPage";
+import { PropsWithChildren } from "react";
 
-export function AppRouter() {
+export function AppRouter({ children }: PropsWithChildren) {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          element={
-            <Layout>
-              <Outlet />
-            </Layout>
-          }
-        >
+        <Route element={children}>
           <Route
             path="/"
             element={

@@ -1,3 +1,12 @@
+import { Dayjs } from "dayjs";
+
+export type UserProfile = {
+  id: string;
+  user_id: string;
+  name: string | null;
+  monthly_spending_limit: number;
+};
+
 export type SpendingCategory = {
   id: string;
   name: string;
@@ -15,3 +24,11 @@ export type SpendingItem = {
 };
 
 export type CreateSpendingItem = Omit<SpendingItem, "id">;
+
+export type SpendingItemInput = {
+  title: string;
+  comment: string;
+  category_id: string;
+  amount: number;
+  created_at: Dayjs | null;
+};

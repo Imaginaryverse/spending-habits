@@ -8,6 +8,7 @@ import { AuthProvider } from "./features/auth/AuthProvider.tsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "./index.css";
+import { AppRouter } from "./router/AppRouter.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +25,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <CssBaseline />
         <AuthProvider>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <App />
+            <AppRouter>
+              <App />
+            </AppRouter>
           </LocalizationProvider>
         </AuthProvider>
       </ThemeProvider>

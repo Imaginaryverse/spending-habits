@@ -1,5 +1,21 @@
 import { createTheme } from "@mui/material";
 
+const scrollbarStyles = {
+  "*::-webkit-scrollbar": {
+    width: "0.4rem",
+  },
+  "*::-webkit-scrollbar-thumb": {
+    backgroundColor: "hsl(200, 85%, 50%, 0.25)",
+    borderRadius: "0.4rem",
+  },
+  "*::-webkit-scrollbar-thumb:hover": {
+    backgroundColor: "rgb(60, 60, 60)",
+  },
+
+  scrollbarWidth: "thin",
+  scrollbarColor: "hsl(200, 85%, 50%, 0.25) #f0f0f0",
+};
+
 const theme = createTheme({
   palette: {
     mode: "dark",
@@ -10,11 +26,11 @@ const theme = createTheme({
       main: "hsl(40, 85%, 50%)",
     },
     background: {
+      default: "hsl(200, 85%, 5%)",
       paper: "hsl(200, 85%, 6%)",
-      default: "hsl(200, 85%, 2%)",
     },
     text: {
-      primary: "rgba(255, 255, 255, 0.875)",
+      primary: "rgba(255, 255, 255, 0.85)",
       secondary: "rgba(255, 255, 255, 0.7)",
     },
   },
@@ -30,34 +46,40 @@ const theme = createTheme({
     },
     h1: {
       fontSize: "2rem",
-      fontWeight: 500,
+      fontWeight: 600,
     },
     h2: {
       fontSize: "1.5rem",
-      fontWeight: 500,
+      fontWeight: 600,
     },
     h3: {
       fontSize: "1.17rem",
-      fontWeight: 500,
+      fontWeight: 600,
     },
     h4: {
       fontSize: "1rem",
-      fontWeight: 500,
+      fontWeight: 600,
     },
     h5: {
       fontSize: "0.83rem",
-      fontWeight: 500,
+      fontWeight: 600,
     },
     h6: {
       fontSize: "0.67rem",
-      fontWeight: 500,
+      fontWeight: 600,
     },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: scrollbarStyles,
+        html: scrollbarStyles,
+      },
+    },
     MuiInputBase: {
       styleOverrides: {
         root: {
-          height: "3rem",
+          height: "2.5rem",
         },
       },
     },

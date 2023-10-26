@@ -2,7 +2,7 @@ import { useQuery, QueryObserverOptions } from "react-query";
 import { supabase } from "./client";
 import { SpendingCategory } from "@src/types";
 
-async function fetchCategories(): Promise<SpendingCategory[]> {
+async function fetchSpendingCategories(): Promise<SpendingCategory[]> {
   const { data: categories, error } = await supabase
     .from("spending_categories")
     .select("*");
@@ -14,17 +14,20 @@ async function fetchCategories(): Promise<SpendingCategory[]> {
   return categories as SpendingCategory[];
 }
 
-export function useFetchCategories(
+export function useFetchSpendingCategories(
   options?: QueryObserverOptions<SpendingCategory[]>
 ) {
-  const { data: categories = [], isFetching: isFetchingCategories } = useQuery({
+  const {
+    data: spendingCategories = [],
+    isFetching: isFetchingSpendingCategories,
+  } = useQuery({
     queryKey: "spending_categories",
-    queryFn: fetchCategories,
+    queryFn: fetchSpendingCategories,
     ...options,
   });
 
   return {
-    categories,
-    isFetchingCategories,
+    spendingCategories,
+    isFetchingSpendingCategories,
   };
 }
