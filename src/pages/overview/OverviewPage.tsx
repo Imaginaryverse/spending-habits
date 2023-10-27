@@ -9,6 +9,7 @@ import { Button, Paper, Stack, Typography } from "@mui/material";
 import { TwentyFourHourSummary } from "./components/twenty-four-hour-summary/TwentyFourHourSummary";
 import { useNavigate } from "react-router-dom";
 import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
+import { Page } from "@src/components/page/Page";
 
 export function OverviewPage() {
   const { spendingItems, refetchSpendingItems } = useSpendings();
@@ -23,7 +24,7 @@ export function OverviewPage() {
   }, [isSpendingItemCreated, isSpendingItemUpdated, refetchSpendingItems]);
 
   return (
-    <>
+    <Page>
       <Typography variant="h1" sx={{ alignSelf: "flex-start" }}>
         Overview
       </Typography>
@@ -33,7 +34,7 @@ export function OverviewPage() {
       <TwentyFourHourSummary spendingItems={spendingItems} />
 
       <CurrentMonthChart spendingItems={spendingItems} />
-    </>
+    </Page>
   );
 }
 

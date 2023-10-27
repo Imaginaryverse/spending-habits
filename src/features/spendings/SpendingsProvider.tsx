@@ -2,6 +2,7 @@ import { PropsWithChildren, createContext } from "react";
 import { SpendingCategory, SpendingItem } from "@src/types";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { useAuth } from "../auth/useAuth";
 
 type SpendingsContextType = {
   spendingItems: SpendingItem[];
@@ -9,6 +10,7 @@ type SpendingsContextType = {
   refetchSpendingItems: () => void;
   spendingCategories: SpendingCategory[];
   isLoadingSpendingCategories: boolean;
+  isLoadingInitialData: boolean;
 };
 
 export const SpendingsContext = createContext<SpendingsContextType>({
@@ -17,13 +19,19 @@ export const SpendingsContext = createContext<SpendingsContextType>({
   refetchSpendingItems: () => {},
   spendingCategories: [],
   isLoadingSpendingCategories: false,
+  isLoadingInitialData: false,
 });
 
 export function SpendingsProvider({ children }: PropsWithChildren) {
+  const { user } = useAuth();
+
   const { spendingItems, isFetchingSpendingItems, refetchSpendingItems } =
-    useFetchSpendingItems();
+    useFetchSpendingItems({ user_id: user?.id }, { enabled: !!user?.id });
   const { spendingCategories, isFetchingSpendingCategories } =
     useFetchSpendingCategories();
+
+  const isLoadingInitialData =
+    isFetchingSpendingItems && isFetchingSpendingCategories;
 
   return (
     <SpendingsContext.Provider
@@ -33,6 +41,7 @@ export function SpendingsProvider({ children }: PropsWithChildren) {
         refetchSpendingItems,
         spendingCategories,
         isLoadingSpendingCategories: isFetchingSpendingCategories,
+        isLoadingInitialData,
       }}
     >
       {children}

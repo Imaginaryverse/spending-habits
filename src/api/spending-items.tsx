@@ -9,6 +9,7 @@ import { CreateSpendingItem, SpendingItem } from "@src/types";
 import { getCurrentUser } from "./auth";
 
 type FetchSpendingItemsParams = {
+  user_id?: string;
   category_id?: number;
   fromDate?: Date;
   toDate?: Date;
@@ -17,16 +18,14 @@ type FetchSpendingItemsParams = {
 async function fetchSpendingItems(
   params?: Partial<FetchSpendingItemsParams>
 ): Promise<SpendingItem[]> {
-  const user = await getCurrentUser();
-
-  if (!user) {
+  if (!params?.user_id) {
     throw new Error("User not found");
   }
 
   const query = supabase
     .from("spending_items")
     .select("*")
-    .eq("user_id", user.id);
+    .eq("user_id", params?.user_id);
 
   if (params?.category_id) {
     query.eq("category_id", params.category_id);
@@ -51,10 +50,11 @@ async function fetchSpendingItems(
   return spendingItems as SpendingItem[];
 }
 
-async function fetchSpendingItemById(id: string | null): Promise<SpendingItem> {
-  const user = await getCurrentUser();
-
-  if (!user) {
+async function fetchSpendingItemById(
+  user_id: string | undefined,
+  id: string | null
+): Promise<SpendingItem> {
+  if (!user_id) {
     throw new Error("User not found");
   }
 
@@ -65,7 +65,7 @@ async function fetchSpendingItemById(id: string | null): Promise<SpendingItem> {
   const { data: spendingItem, error } = await supabase
     .from("spending_items")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", user_id)
     .eq("id", id)
     .single();
 
@@ -183,12 +183,13 @@ export function useFetchSpendingItems(
 }
 
 export function useFetchSpendingItemById(
+  user_id: string | undefined,
   spendingItemId: string | null,
   options?: QueryObserverOptions<SpendingItem>
 ) {
   const { data: spendingItem, isFetching: isFetchingSpendingItem } = useQuery({
-    queryKey: ["spendingItem", spendingItemId],
-    queryFn: () => fetchSpendingItemById(spendingItemId),
+    queryKey: ["spendingItem", user_id, spendingItemId],
+    queryFn: () => fetchSpendingItemById(user_id, spendingItemId),
     enabled: !!spendingItemId,
     ...options,
   });

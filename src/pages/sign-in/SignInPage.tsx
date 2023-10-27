@@ -13,6 +13,7 @@ import { useSignIn } from "@src/api/auth";
 import { RouterLink } from "@src/components/router-link/RouterLink";
 import { AuthError } from "@supabase/supabase-js";
 import { isValidEmail } from "@src/utils/string-utils";
+import { Page } from "@src/components/page/Page";
 
 export function SignInPage() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export function SignInPage() {
   }, [isAuthenticated, navigate, previousLocation]);
 
   return (
-    <Stack flex={1} spacing={4} height="100%" width="100%" maxWidth="sm">
+    <Page justifyContent="center" spacing={8}>
       <Typography variant="h1">TRACKMACASH</Typography>
 
       {isAuthenticated ? (
@@ -53,7 +54,7 @@ export function SignInPage() {
           <RouterLink to="/register">Register</RouterLink> a new account.
         </Typography>
       )}
-    </Stack>
+    </Page>
   );
 }
 
@@ -91,50 +92,52 @@ function SignInForm({ onSignIn, isSigningIn, signInError }: SignInFormProps) {
   );
 
   return (
-    <form noValidate autoComplete="off" onSubmit={handleSignIn}>
-      <Stack spacing={2}>
-        <Typography variant="h2">Sign in</Typography>
+    <Stack
+      component="form"
+      noValidate
+      autoComplete="off"
+      onSubmit={handleSignIn}
+      spacing={2}
+      width="100%"
+      maxWidth="sm"
+    >
+      <Typography variant="h2">Sign in</Typography>
 
-        <FormControl fullWidth>
-          <FormLabel htmlFor="email">Email</FormLabel>
-          <TextField
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={!!email.trim() && !isValidEmail(email)}
-            helperText={
-              !!email.trim() && !isValidEmail(email) ? (
-                <Typography variant="caption">Invalid email format</Typography>
-              ) : undefined
-            }
-          />
-        </FormControl>
+      <FormControl fullWidth>
+        <FormLabel htmlFor="email">Email</FormLabel>
+        <TextField
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={!!email.trim() && !isValidEmail(email)}
+          helperText={
+            !!email.trim() && !isValidEmail(email) ? (
+              <Typography variant="caption">Invalid email format</Typography>
+            ) : undefined
+          }
+        />
+      </FormControl>
 
-        <FormControl fullWidth>
-          <FormLabel htmlFor="password">Password</FormLabel>
-          <TextField
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </FormControl>
+      <FormControl fullWidth>
+        <FormLabel htmlFor="password">Password</FormLabel>
+        <TextField
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </FormControl>
 
-        {!!signInError && (
-          <Typography variant="body2" color="error">
-            {signInError.message}
-          </Typography>
-        )}
+      {!!signInError && (
+        <Typography variant="body2" color="error">
+          {signInError.message}
+        </Typography>
+      )}
 
-        <Button
-          variant="contained"
-          type="submit"
-          disabled={disableSignInButton}
-        >
-          Sign In
-        </Button>
-      </Stack>
-    </form>
+      <Button variant="contained" type="submit" disabled={disableSignInButton}>
+        Sign In
+      </Button>
+    </Stack>
   );
 }

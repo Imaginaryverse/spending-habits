@@ -36,11 +36,7 @@ const navigationLinks = [
 
 export function Layout({ children }: PropsWithChildren) {
   const { isAuthenticated } = useAuth();
-  const { isLoadingSpendingCategories, isLoadingSpendingItems } =
-    useSpendings();
-
-  const isLoadingInitialData =
-    isLoadingSpendingCategories && isLoadingSpendingItems;
+  const { isLoadingInitialData } = useSpendings();
 
   return (
     <Stack height="100%" width="100%" alignItems="center">
@@ -67,9 +63,7 @@ export function Layout({ children }: PropsWithChildren) {
           transition: "opacity 0.5s ease-in-out",
         }}
       >
-        <Stack flex={1} p={2} pb={4} spacing={2}>
-          {!isLoadingInitialData && children}
-        </Stack>
+        <Stack flex={1}>{!isLoadingInitialData && children}</Stack>
       </Collapse>
     </Stack>
   );
