@@ -49,13 +49,8 @@ export const CreateSpendingForm = ({
   }
 
   const disableSubmit = useMemo(() => {
-    return (
-      isCreatingSpendingItem ||
-      !input.title ||
-      !input.comment ||
-      input.amount < 1
-    );
-  }, [isCreatingSpendingItem, input.title, input.comment, input.amount]);
+    return isCreatingSpendingItem || !input.title || input.amount < 1;
+  }, [isCreatingSpendingItem, input.title, input.amount]);
 
   function updateInput(key: keyof SpendingItemInput, value: unknown) {
     const MAX_TITLE_LENGTH = 20;
