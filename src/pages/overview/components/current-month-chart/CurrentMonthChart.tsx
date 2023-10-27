@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import { MonthlyLimitChart } from "@src/pages/overview/components/current-month-chart/MonthlyLimitChart";
 import { useAuth } from "@src/features/auth/useAuth";
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
 
 type BarChartDataItem = {
   date: string;
@@ -36,14 +37,34 @@ function generateChartData(items: SpendingItem[]) {
   return chartData;
 }
 
+function getMostFrequentCategoryId(spendingItems: SpendingItem[]) {
+  const categoryIds = spendingItems.map((item) => item.category_id);
+  const categoryCount = categoryIds.reduce((acc, category) => {
+    if (!acc[category]) {
+      acc[category] = 0;
+    }
+    acc[category] += 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const sortedCategories = Object.entries(categoryCount).sort(
+    (a, b) => b[1] - a[1]
+  );
+
+  const mostFrequentCategoryId = sortedCategories[0]?.[0];
+  return mostFrequentCategoryId;
+}
+
 type CurrentMonthChartProps = {
   spendingItems: SpendingItem[];
 };
 
 export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
   const { userProfile } = useAuth();
+  const { spendingCategories } = useFetchSpendingCategories();
 
-  const timespan = dayjs().format("MMMM YYYY");
+  const timespan = dayjs().format("MMMM");
+  const monthlySpendingLimit = userProfile?.monthly_spending_limit ?? 0;
   const chartData = generateChartData(spendingItems);
 
   const totalAmount = useMemo(
@@ -51,7 +72,26 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
     [chartData]
   );
 
-  const monthlySpendingLimit = userProfile?.monthly_spending_limit ?? 0;
+  const mostFrequentCategoryId = useMemo(() => {
+    return getMostFrequentCategoryId(spendingItems);
+  }, [spendingItems]);
+
+  const mostFrequentCategoryName = useMemo(() => {
+    const category = spendingCategories.find(
+      (category) => String(category.id) === mostFrequentCategoryId
+    );
+
+    return category?.name ?? "";
+  }, [mostFrequentCategoryId, spendingCategories]);
+
+  const mostFrequentCategoryAmount = useMemo(() => {
+    return spendingItems.reduce((acc, item) => {
+      if (String(item.category_id) === mostFrequentCategoryId) {
+        return acc + item.amount;
+      }
+      return acc;
+    }, 0);
+  }, [mostFrequentCategoryId, spendingItems]);
 
   const percentageSpentText = useMemo(() => {
     const percentage = monthlySpendingLimit
@@ -78,7 +118,7 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
       }}
     >
       <Stack spacing={2}>
-        <Typography variant="h2">{timespan}:</Typography>
+        <Typography variant="h2">Month of {timespan}</Typography>
 
         <Stack>
           <Typography>Total spent: {formatNumber(totalAmount)} kr</Typography>
@@ -89,6 +129,14 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
           spendingLimit={monthlySpendingLimit}
           totalSpent={totalAmount}
         />
+
+        <Typography>
+          The majority of your spending occurs in the{" "}
+          <b>{mostFrequentCategoryName}</b> category with a current total of{" "}
+          <b>{formatNumber(mostFrequentCategoryAmount)}</b> kr.
+        </Typography>
+
+        <Typography variant="h2">Per day in {timespan}</Typography>
 
         <BarChart
           data={chartData}
