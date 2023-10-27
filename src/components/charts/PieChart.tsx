@@ -21,15 +21,6 @@ type PieChartProps<T extends ValidPieChartDataItem> = {
   showLegend?: boolean;
 };
 
-// const colors = [
-//   "hsl(45, 85%, 50%)",
-//   "hsl(90, 85%, 50%)",
-//   "hsl(180, 85%, 50%)",
-//   "hsl(210, 85%, 50%)",
-//   "hsl(315, 85%, 50%)",
-//   "hsl(360, 85%, 50%)",
-// ];
-
 const colors = [
   "hsl(200, 85%, 50%)",
   "hsl(200, 75%, 60%)",
@@ -56,7 +47,8 @@ export function PieChart<T extends ValidPieChartDataItem>({
           nameKey={labelKey as string}
           fill={theme.palette.primary.main}
           label
-          innerRadius={"50%"}
+          innerRadius={"45%"}
+          outerRadius={"65%"}
           startAngle={90}
           endAngle={-270}
         >
