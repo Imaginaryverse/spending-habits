@@ -78,26 +78,27 @@ export function TwentyFourHourSummary({
 
   return (
     <Paper sx={{ width: "100%", p: 2 }}>
-      <Stack spacing={2} width="100%">
-        <Typography variant="h2">Last 24 hours</Typography>
-        <Typography>
-          Total spent: <b>{formatNumber(totalSpentInLast24Hours)} kr</b>
-        </Typography>
+      <Grid container>
+        <Grid item xs={12} md={6}>
+          <Stack spacing={2} width="100%">
+            <Typography variant="h2">Last 24 hours</Typography>
 
-        <Grid container>
-          <Grid item xs={12} md={6}>
+            <Typography>
+              Total spent: <b>{formatNumber(totalSpentInLast24Hours)} kr</b>
+            </Typography>
+
             <PieChart
               data={pieChartData}
               valueKey="amount"
               labelKey="category"
               height={300}
             />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <SpendingsList spendingItems={spendingItemsFor24Hours} />
-          </Grid>
+          </Stack>
         </Grid>
-      </Stack>
+        <Grid item xs={12} md={6}>
+          <SpendingsList spendingItems={spendingItemsFor24Hours} dense />
+        </Grid>
+      </Grid>
     </Paper>
   );
 }
