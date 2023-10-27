@@ -6,6 +6,10 @@ export function getSpendingItemsInMonth(
   spendingItems: SpendingItem[],
   month: number
 ): SpendingItem[] {
+  if (!spendingItems?.length) {
+    return [];
+  }
+
   const spendingItemsInMonth = spendingItems.filter((item) => {
     const itemMonth = dayjs(item.created_at).month();
 
@@ -39,7 +43,11 @@ type MostFrequentCategoryData = {
 
 export function getMostFrequentCategoryData(
   spendingItems: SpendingItem[]
-): MostFrequentCategoryData {
+): MostFrequentCategoryData | undefined {
+  if (!spendingItems?.length) {
+    return undefined;
+  }
+
   const categoryData: Record<string, MostFrequentCategoryData> =
     spendingItems.reduce((acc, item) => {
       const { category_name } = item;
@@ -78,7 +86,14 @@ type BarChartDataItem = {
   amount: number;
 };
 
-export function generateMonthChartData(items: SpendingItem[], date: Date) {
+export function generateMonthChartData(
+  items: SpendingItem[],
+  date: Date
+): BarChartDataItem[] {
+  if (!items?.length) {
+    return [];
+  }
+
   const daysInMonth = getNumDaysInMonth(date);
   const chartData: BarChartDataItem[] = [];
 

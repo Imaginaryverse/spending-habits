@@ -118,13 +118,15 @@ export function CurrentMonthSummary({ spendingItems }: CurrentMonthChartProps) {
 
           <Typography variant="h3">Most frequent category</Typography>
 
-          <Typography>
-            Most of your spending ({mostFrequentCategoryData.number_of_items}{" "}
-            items) has occurred in the{" "}
-            <b>{mostFrequentCategoryData.category_name}</b> category with a
-            current total of{" "}
-            <b>{formatNumber(mostFrequentCategoryData.totalAmount)} kr</b>.
-          </Typography>
+          {!!mostFrequentCategoryData && (
+            <Typography>
+              Most of your spending ({mostFrequentCategoryData.number_of_items}{" "}
+              items) has occurred in the{" "}
+              <b>{mostFrequentCategoryData.category_name}</b> category with a
+              current total of{" "}
+              <b>{formatNumber(mostFrequentCategoryData.totalAmount)} kr</b>.
+            </Typography>
+          )}
         </Stack>
       </Paper>
     </Collapse>

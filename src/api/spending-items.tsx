@@ -25,6 +25,7 @@ async function fetchSpendingItems(
   const query = supabase
     .from("spending_items")
     .select("*")
+    .order("created_at", { ascending: false })
     .eq("user_id", params?.user_id);
 
   if (params?.category_id) {
@@ -39,9 +40,7 @@ async function fetchSpendingItems(
     query.lte("created_at", params.toDate.toISOString());
   }
 
-  const { data: spendingItems, error } = await query.order("created_at", {
-    ascending: false,
-  });
+  const { data: spendingItems, error } = await query;
 
   if (error) {
     throw error;
@@ -168,6 +167,7 @@ export function useFetchSpendingItems(
   const {
     data: spendingItems = [],
     isFetching: isFetchingSpendingItems,
+    isLoading: isLoadingSpendingItems,
     refetch: refetchSpendingItems,
   } = useQuery({
     queryKey: ["spendingItems", params],
@@ -178,6 +178,7 @@ export function useFetchSpendingItems(
   return {
     spendingItems,
     isFetchingSpendingItems,
+    isLoadingSpendingItems,
     refetchSpendingItems,
   };
 }
@@ -187,7 +188,11 @@ export function useFetchSpendingItemById(
   spendingItemId: string | null,
   options?: QueryObserverOptions<SpendingItem>
 ) {
-  const { data: spendingItem, isFetching: isFetchingSpendingItem } = useQuery({
+  const {
+    data: spendingItem,
+    isFetching: isFetchingSpendingItem,
+    isLoading: isLoadingSpendingItem,
+  } = useQuery({
     queryKey: ["spendingItem", user_id, spendingItemId],
     queryFn: () => fetchSpendingItemById(user_id, spendingItemId),
     enabled: !!spendingItemId,
@@ -197,6 +202,7 @@ export function useFetchSpendingItemById(
   return {
     spendingItem,
     isFetchingSpendingItem,
+    isLoadingSpendingItem,
   };
 }
 

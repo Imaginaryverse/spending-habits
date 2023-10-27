@@ -25,19 +25,19 @@ export const SpendingsContext = createContext<SpendingsContextType>({
 export function SpendingsProvider({ children }: PropsWithChildren) {
   const { user } = useAuth();
 
-  const { spendingItems, isFetchingSpendingItems, refetchSpendingItems } =
+  const { spendingItems, isLoadingSpendingItems, refetchSpendingItems } =
     useFetchSpendingItems({ user_id: user?.id }, { enabled: !!user?.id });
   const { spendingCategories, isFetchingSpendingCategories } =
     useFetchSpendingCategories();
 
   const isLoadingInitialData =
-    isFetchingSpendingItems && isFetchingSpendingCategories;
+    isLoadingSpendingItems && isFetchingSpendingCategories;
 
   return (
     <SpendingsContext.Provider
       value={{
         spendingItems,
-        isLoadingSpendingItems: isFetchingSpendingItems,
+        isLoadingSpendingItems: isLoadingSpendingItems,
         refetchSpendingItems,
         spendingCategories,
         isLoadingSpendingCategories: isFetchingSpendingCategories,

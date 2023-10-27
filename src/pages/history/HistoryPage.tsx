@@ -3,14 +3,14 @@ import { useFetchSpendingItems } from "@src/api/spending-items";
 import { SpendingItem } from "@src/types";
 
 export function HistoryPage() {
-  const { spendingItems, isFetchingSpendingItems } =
+  const { spendingItems, isLoadingSpendingItems } =
     useFetchSpendingItems(undefined);
 
   return (
     <Stack flex={1} spacing={2}>
       <Typography variant="h1">History</Typography>
 
-      {isFetchingSpendingItems && (
+      {isLoadingSpendingItems && (
         <Typography variant="body1">Loading...</Typography>
       )}
 
