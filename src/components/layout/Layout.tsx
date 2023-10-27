@@ -1,20 +1,23 @@
-import { PropsWithChildren, useState } from "react";
+import React, { PropsWithChildren, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   AppBar,
   Button,
-  Container,
   IconButton,
   Menu,
   MenuItem,
   Stack,
   Toolbar,
   Typography,
+  CircularProgress,
+  Collapse,
+  Backdrop,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link } from "react-router-dom";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useSignOut } from "@src/api/auth";
 import { useSpendingEditor } from "@src/features/spending-editor/useSpendingEditor";
+import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 
 const navigationLinks = [
   {
@@ -33,30 +36,42 @@ const navigationLinks = [
 
 export function Layout({ children }: PropsWithChildren) {
   const { isAuthenticated } = useAuth();
+  const { isLoadingSpendingCategories, isLoadingSpendingItems } =
+    useSpendings();
+
+  const isLoadingInitialData =
+    isLoadingSpendingCategories && isLoadingSpendingItems;
 
   return (
-    <Container
-      maxWidth="md"
-      sx={{
-        height: "100vh",
-        py: "4 !important",
-        pl: "0.4rem !important",
-        pr: "0.1rem !important",
-      }}
-    >
+    <Stack height="100%" width="100%" alignItems="center">
       {!!isAuthenticated && <Navigation />}
-      <Stack
-        width="100%"
-        flex={1}
-        py={4}
-        px={1}
-        spacing={4}
-        justifyContent="flex-start"
-        alignItems="center"
+
+      <Backdrop open={isLoadingInitialData} sx={{ background: "transparent" }}>
+        <Stack spacing={2} justifyContent="center" alignItems="center" flex={1}>
+          <CircularProgress />
+          <Typography>Loading</Typography>
+        </Stack>
+      </Backdrop>
+
+      <Collapse
+        in={!isLoadingInitialData}
+        timeout={500}
+        sx={{
+          flex: 1,
+          width: "100%",
+          maxWidth: "md",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "auto",
+          opacity: isLoadingInitialData ? 0 : 1,
+          transition: "opacity 0.5s ease-in-out",
+        }}
       >
-        {children}
-      </Stack>
-    </Container>
+        <Stack flex={1} p={2} pb={4} spacing={2}>
+          {!isLoadingInitialData && children}
+        </Stack>
+      </Collapse>
+    </Stack>
   );
 }
 
@@ -82,6 +97,7 @@ function Navigation() {
         justifyContent: "space-between",
         alignItems: "center",
         paddingRight: "1rem",
+        maxWidth: "md",
       }}
     >
       <Toolbar>

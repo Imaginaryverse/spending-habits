@@ -1,12 +1,12 @@
+import { useMemo } from "react";
 import { SpendingItem } from "@src/types";
 import dayjs from "dayjs";
 import { BarChart } from "../../../../components/charts/BarChart";
-import { Collapse, Stack, Typography } from "@mui/material";
-import { useMemo } from "react";
+import { Collapse, Paper, Stack, Typography } from "@mui/material";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import { MonthlyLimitChart } from "@src/pages/overview/components/current-month-chart/MonthlyLimitChart";
 import { useAuth } from "@src/features/auth/useAuth";
-import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 
 type BarChartDataItem = {
   date: string;
@@ -61,7 +61,7 @@ type CurrentMonthChartProps = {
 
 export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
   const { userProfile } = useAuth();
-  const { spendingCategories } = useFetchSpendingCategories();
+  const { spendingCategories } = useSpendings();
 
   const timespan = dayjs().format("MMMM");
   const monthlySpendingLimit = userProfile?.monthly_spending_limit ?? 0;
@@ -71,6 +71,19 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
     () => sumValueOfObjects(chartData, "amount"),
     [chartData]
   );
+
+  const mostExpensiveItem = useMemo(() => {
+    const sortedItems = spendingItems.sort((a, b) => b.amount - a.amount);
+    const mostExpensiveItem = sortedItems[0];
+    const category = spendingCategories.find(
+      (category) => category.id === mostExpensiveItem?.category_id
+    );
+
+    return {
+      ...mostExpensiveItem,
+      category_name: category?.name ?? "",
+    };
+  }, [spendingItems, spendingCategories]);
 
   const mostFrequentCategoryId = useMemo(() => {
     return getMostFrequentCategoryId(spendingItems);
@@ -117,37 +130,53 @@ export function CurrentMonthChart({ spendingItems }: CurrentMonthChartProps) {
         overflow: "hidden",
       }}
     >
-      <Stack spacing={2}>
-        <Typography variant="h2">Month of {timespan}</Typography>
+      <Paper sx={{ width: "100%", p: 2 }}>
+        <Stack spacing={2}>
+          <Typography variant="h2">Month of {timespan}</Typography>
 
-        <Stack>
-          <Typography>Total spent: {formatNumber(totalAmount)} kr</Typography>
-          <Typography variant="caption">{percentageSpentText}</Typography>
+          <Stack>
+            <Typography>
+              Total spent: <b>{formatNumber(totalAmount)} kr</b>
+            </Typography>
+            <Typography variant="body2">{percentageSpentText}</Typography>
+          </Stack>
+
+          <MonthlyLimitChart
+            spendingLimit={monthlySpendingLimit}
+            totalSpent={totalAmount}
+          />
+
+          <Typography variant="h3">Amount per day</Typography>
+
+          <BarChart
+            data={chartData}
+            xAxisKey={"date"}
+            xAxisFormatter={(value) => dayjs(value).format("DD")}
+            yAxisKey={"amount"}
+            yAxisLabelPosition="inside"
+            cartesianGrid={{ horizontal: true }}
+            showLegend={false}
+          />
+
+          <Typography variant="h3">Most expensive purchase</Typography>
+
+          <Typography>
+            Your most expensive purchase overall (
+            <b>{mostExpensiveItem.title}</b>,{" "}
+            <b>{formatNumber(mostExpensiveItem.amount)} kr</b>) occurred on{" "}
+            <b>{dayjs(mostExpensiveItem.created_at).format("MMMM DD")}</b> in
+            the <b>{mostExpensiveItem.category_name}</b> category.
+          </Typography>
+
+          <Typography variant="h3">Most frequent category</Typography>
+
+          <Typography>
+            The majority of your spending has occurred in the{" "}
+            <b>{mostFrequentCategoryName}</b> category with a current total of{" "}
+            <b>{formatNumber(mostFrequentCategoryAmount)} kr</b>.
+          </Typography>
         </Stack>
-
-        <MonthlyLimitChart
-          spendingLimit={monthlySpendingLimit}
-          totalSpent={totalAmount}
-        />
-
-        <Typography>
-          The majority of your spending occurs in the{" "}
-          <b>{mostFrequentCategoryName}</b> category with a current total of{" "}
-          <b>{formatNumber(mostFrequentCategoryAmount)}</b> kr.
-        </Typography>
-
-        <Typography variant="h2">Per day in {timespan}</Typography>
-
-        <BarChart
-          data={chartData}
-          xAxisKey={"date"}
-          xAxisFormatter={(value) => dayjs(value).format("DD")}
-          yAxisKey={"amount"}
-          yAxisLabelPosition="inside"
-          cartesianGrid={{ horizontal: true }}
-          showLegend={false}
-        />
-      </Stack>
+      </Paper>
     </Collapse>
   );
 }

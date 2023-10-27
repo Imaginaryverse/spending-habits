@@ -1,11 +1,11 @@
-import { Grid, Stack, Typography } from "@mui/material";
-import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { useMemo } from "react";
+import dayjs from "dayjs";
+import { Grid, Paper, Stack, Typography } from "@mui/material";
 import { PieChart } from "@src/components/charts/PieChart";
 import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
+import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 import { SpendingCategory, SpendingItem } from "@src/types";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
-import dayjs from "dayjs";
-import { useMemo } from "react";
 
 function get24HoursBackDate(now: Date): Date {
   return dayjs(now).subtract(24, "hour").toDate();
@@ -59,7 +59,7 @@ type TwentyFourHourSummaryProps = {
 export function TwentyFourHourSummary({
   spendingItems,
 }: TwentyFourHourSummaryProps) {
-  const { spendingCategories } = useFetchSpendingCategories();
+  const { spendingCategories } = useSpendings();
 
   const spendingItemsFor24Hours = useMemo(() => {
     const now = new Date();
@@ -77,25 +77,27 @@ export function TwentyFourHourSummary({
   );
 
   return (
-    <Stack spacing={2} width="100%">
-      <Typography variant="h2">Last 24 hours</Typography>
-      <Typography>
-        Total spent: {formatNumber(totalSpentInLast24Hours)} kr
-      </Typography>
+    <Paper sx={{ width: "100%", p: 2 }}>
+      <Stack spacing={2} width="100%">
+        <Typography variant="h2">Last 24 hours</Typography>
+        <Typography>
+          Total spent: <b>{formatNumber(totalSpentInLast24Hours)} kr</b>
+        </Typography>
 
-      <Grid container>
-        <Grid item xs={12} md={6}>
-          <PieChart
-            data={pieChartData}
-            valueKey="amount"
-            labelKey="category"
-            height={300}
-          />
+        <Grid container>
+          <Grid item xs={12} md={6}>
+            <PieChart
+              data={pieChartData}
+              valueKey="amount"
+              labelKey="category"
+              height={300}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <SpendingsList spendingItems={spendingItemsFor24Hours} />
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <SpendingsList spendingItems={spendingItemsFor24Hours} />
-        </Grid>
-      </Grid>
-    </Stack>
+      </Stack>
+    </Paper>
   );
 }

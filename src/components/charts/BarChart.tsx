@@ -23,6 +23,17 @@ type CartesianGridProps = {
   stroke?: string;
 };
 
+type LegendIconType =
+  | "line"
+  | "square"
+  | "rect"
+  | "circle"
+  | "cross"
+  | "diamond"
+  | "star"
+  | "triangle"
+  | "wye";
+
 const defaultCartesianGridProps: CartesianGridProps = {
   horizontal: false,
   vertical: false,
@@ -33,14 +44,19 @@ const defaultCartesianGridProps: CartesianGridProps = {
 type BarChartProps<T extends ValidBarChartDataItem> = {
   data: T[];
   xAxisKey: keyof T;
+  hideXAxis?: boolean;
   xAxisAnchor?: "top" | "bottom";
   xAxisFormatter?: (value: string) => string;
   yAxisKey: keyof T;
+  hideYAxis?: boolean;
   yAxisAnchor?: "left" | "right";
   yAxisLabelPosition?: "outside" | "inside";
   yAxisFormatter?: (value: string) => string;
   height?: number;
   showLegend?: boolean;
+  legendKey?: keyof T;
+  legendIconType?: LegendIconType;
+  legendIconSize?: number;
   cartesianGrid?: CartesianGridProps;
   orientation?: "horizontal" | "vertical";
   colors?: string[];
@@ -49,14 +65,19 @@ type BarChartProps<T extends ValidBarChartDataItem> = {
 export function BarChart<T extends ValidBarChartDataItem>({
   data,
   xAxisKey,
+  hideXAxis,
   xAxisAnchor = "bottom",
   xAxisFormatter,
   yAxisKey,
+  hideYAxis,
   yAxisAnchor = "left",
   yAxisLabelPosition = "outside",
   yAxisFormatter,
   height = 300,
   showLegend = true,
+  legendKey,
+  legendIconSize = 12,
+  legendIconType,
   cartesianGrid,
   orientation = "horizontal",
   colors,
@@ -89,6 +110,7 @@ export function BarChart<T extends ValidBarChartDataItem>({
           dataKey={String(orientation === "horizontal" ? xAxisKey : yAxisKey)}
           orientation={xAxisAnchor}
           tickFormatter={xAxisFormatter}
+          hide={hideXAxis}
         />
 
         <YAxis
@@ -97,6 +119,7 @@ export function BarChart<T extends ValidBarChartDataItem>({
           orientation={yAxisAnchor}
           mirror={yAxisLabelPosition === "inside"}
           tickFormatter={yAxisFormatter}
+          hide={hideYAxis}
         />
 
         <Tooltip
@@ -111,7 +134,21 @@ export function BarChart<T extends ValidBarChartDataItem>({
           cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
         />
 
-        {!!showLegend && <Legend />}
+        {!!showLegend && (
+          <Legend
+            iconType={legendIconType}
+            iconSize={legendIconSize}
+            payload={
+              legendKey
+                ? data.map((item, idx) => ({
+                    value: item[legendKey],
+                    type: legendIconType,
+                    color: colorsArray[idx % colorsArray.length],
+                  }))
+                : undefined
+            }
+          />
+        )}
 
         <Bar dataKey={yAxisKey as string}>
           {data.map((_, index) => (

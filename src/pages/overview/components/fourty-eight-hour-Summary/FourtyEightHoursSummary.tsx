@@ -11,8 +11,8 @@ import {
 import { SpendingCategory, SpendingItem } from "@src/types";
 import { sumValueOfObjects } from "@src/utils/number-utils";
 import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
-import { useFetchSpendingCategories } from "@src/api/spending-categories";
 import { PieChart } from "@src/components/charts/PieChart";
+import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 
 type FourtyEightHourSummaryProps = {
   spendingItems: SpendingItem[];
@@ -86,7 +86,7 @@ type FourtyEightHourPieChartDataItem = {
 function FourtyEightHourPieChart({
   spendingItems,
 }: FourtyEightHourPieChartProps) {
-  const { spendingCategories } = useFetchSpendingCategories();
+  const { spendingCategories } = useSpendings();
 
   if (!spendingCategories.length) {
     return null;

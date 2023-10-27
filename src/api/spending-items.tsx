@@ -24,7 +24,8 @@ async function fetchSpendingItems(
   const query = supabase
     .from("spending_items")
     .select("*")
-    .eq("user_id", params.user_id);
+    .eq("user_id", params.user_id)
+    .order("created_at", { ascending: false });
 
   if (params.category_id) {
     query.eq("category_id", params.category_id);
@@ -44,9 +45,7 @@ async function fetchSpendingItems(
     throw error;
   }
 
-  const sortedByCreatedAt = sortByDate(spendingItems, "created_at", "desc");
-
-  return sortedByCreatedAt as SpendingItem[];
+  return spendingItems as SpendingItem[];
 }
 
 async function fetchSpendingItemById(id: string | null): Promise<SpendingItem> {
@@ -67,38 +66,31 @@ async function fetchSpendingItemById(id: string | null): Promise<SpendingItem> {
   return spendingItem as SpendingItem;
 }
 
-function sortByDate<T extends Record<string, unknown>>(
-  items: T[],
-  key: keyof T,
-  sortOrder: "asc" | "desc"
-): T[] {
-  const sorted = items.sort((a, b) => {
-    if (isDateString(a[key]) && isDateString(b[key])) {
-      if (a[key] < b[key]) {
-        return sortOrder === "asc" ? -1 : 1;
-      } else if (a[key] > b[key]) {
-        return sortOrder === "asc" ? 1 : -1;
-      } else {
-        return 0;
-      }
-    }
-
-    return 0;
-  });
-
-  return sorted;
-}
-
-function isDateString(date: unknown): date is string {
-  return typeof date === "string";
-}
-
 async function createSpendingItem(
   spending: CreateSpendingItem
 ): Promise<SpendingItem> {
+  const { data: categories, error: categoriesError } = await supabase
+    .from("spending_categories")
+    .select("*");
+
+  if (categoriesError) {
+    throw categoriesError;
+  }
+
+  const category = categories.find((c) => c.id === spending.category_id);
+
+  if (!category) {
+    throw new Error("Category not found");
+  }
+
+  const spendingWithCategoryName = {
+    ...spending,
+    category_name: category.name,
+  };
+
   const { data: spendingItem, error } = await supabase
     .from("spending_items")
-    .insert(spending)
+    .insert(spendingWithCategoryName)
     .single();
 
   if (error) {

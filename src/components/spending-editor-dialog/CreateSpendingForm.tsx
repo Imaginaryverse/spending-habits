@@ -1,3 +1,4 @@
+import { useState, useMemo, useEffect } from "react";
 import {
   Stack,
   Typography,
@@ -9,17 +10,15 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
-import { useFetchSpendingCategories } from "@src/api/spending-categories";
 import { useAuth } from "@src/features/auth/useAuth";
 import { CreateSpendingItem, SpendingItemInput } from "@src/types";
 import dayjs from "dayjs";
-import { useState, useMemo, useEffect } from "react";
 import { SpendingEditorDialog } from "./SpendingEditorDialog";
 import {
   getFromLocalStorage,
-  removeFromLocalStorage,
   saveToLocalStorage,
 } from "@src/utils/local-storage-utils";
+import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 
 type CreateSpendingFormProps = {
   isOpen: boolean;
@@ -35,8 +34,7 @@ export const CreateSpendingForm = ({
   isCreatingSpendingItem,
 }: CreateSpendingFormProps) => {
   const { user } = useAuth();
-  const { spendingCategories, isFetchingSpendingCategories } =
-    useFetchSpendingCategories();
+  const { spendingCategories } = useSpendings();
 
   const initialInput: SpendingItemInput = {
     title: "",
@@ -48,21 +46,18 @@ export const CreateSpendingForm = ({
 
   const [input, setInput] = useState<SpendingItemInput>(initialInput);
 
+  function resetForm() {
+    setInput(initialInput);
+  }
+
   const disableSubmit = useMemo(() => {
     return (
-      isFetchingSpendingCategories ||
       isCreatingSpendingItem ||
       !input.title ||
       !input.comment ||
       input.amount < 1
     );
-  }, [
-    isFetchingSpendingCategories,
-    isCreatingSpendingItem,
-    input.title,
-    input.comment,
-    input.amount,
-  ]);
+  }, [isCreatingSpendingItem, input.title, input.comment, input.amount]);
 
   function updateInput(key: keyof SpendingItemInput, value: unknown) {
     const MAX_TITLE_LENGTH = 20;
@@ -82,16 +77,6 @@ export const CreateSpendingForm = ({
     saveToLocalStorage("create-spending-item-input", {
       ...input,
       [key]: value,
-    });
-  }
-
-  function resetForm() {
-    setInput({
-      title: "",
-      comment: "",
-      category_id: "1",
-      amount: 0,
-      created_at: null,
     });
   }
 
@@ -120,7 +105,6 @@ export const CreateSpendingForm = ({
     }
 
     resetForm();
-    removeFromLocalStorage("create-spending-item-input");
     onClose();
   }
 
@@ -169,7 +153,7 @@ export const CreateSpendingForm = ({
           />
         </FormGroup>
 
-        {!isFetchingSpendingCategories && !!spendingCategories.length && (
+        {!!spendingCategories.length && (
           <FormGroup>
             <FormLabel htmlFor="category">Category</FormLabel>
             <TextField

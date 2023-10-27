@@ -1,14 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { CssBaseline, ThemeProvider } from "@mui/material";
-import theme from "./theme/theme.ts";
-import { AuthProvider } from "./features/auth/AuthProvider.tsx";
+import { AppRouter } from "./router/AppRouter.tsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import App from "./App.tsx";
 import "./index.css";
-import { AppRouter } from "./router/AppRouter.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,16 +18,11 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AuthProvider>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <AppRouter>
-              <App />
-            </AppRouter>
-          </LocalizationProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <AppRouter>
+          <App />
+        </AppRouter>
+      </LocalizationProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

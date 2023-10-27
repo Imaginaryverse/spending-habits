@@ -9,14 +9,14 @@ import { CreateSpendingItem, SpendingItem } from "@src/types";
 import {
   useCreateSpendingItem,
   useDeleteSpendingItem,
-  useFetchSpendingItems,
   useUpdateSpendingItem,
 } from "@src/api/spending-items";
-import { useAuth } from "../auth/useAuth";
 import { useSearchParams } from "react-router-dom";
 import { CreateSpendingForm } from "@src/components/spending-editor-dialog/CreateSpendingForm";
 import { UpdateSpendingForm } from "@src/components/spending-editor-dialog/UpdateSpendingForm";
 import { DeleteSpendingConfirmation } from "@src/components/spending-editor-dialog/DeleteSpendingConfirmation";
+import { useSpendings } from "../spendings/useSpendingsProvider";
+import { removeFromLocalStorage } from "@src/utils/local-storage-utils";
 
 type DialogMode = "add" | "edit" | "delete" | null;
 
@@ -39,7 +39,7 @@ export const SpendingEditorContext = createContext<SpendingEditorContextType>({
 export function SpendingEditorProvider({ children }: PropsWithChildren) {
   const [params, setParams] = useSearchParams();
 
-  const { user } = useAuth();
+  const { refetchSpendingItems } = useSpendings();
 
   const [spendingEditItem, setSpendingEditItem] = useState<SpendingItem | null>(
     null
@@ -52,14 +52,11 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
     [params]
   );
 
-  const { refetchSpendingItems } = useFetchSpendingItems(
-    { user_id: user?.id },
-    { enabled: !!user?.id }
-  );
-
   function onMutationSuccess() {
     refetchSpendingItems();
     closeDialog();
+    removeFromLocalStorage("update-spending-item-input");
+    removeFromLocalStorage("create-spending-item-input");
   }
 
   function openAddDialog() {

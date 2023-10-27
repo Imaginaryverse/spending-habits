@@ -1,7 +1,6 @@
-import { useFetchSpendingCategories } from "@src/api/spending-categories";
-import { SpendingItem, SpendingItemInput } from "@src/types";
-import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import { SpendingItem, SpendingItemInput } from "@src/types";
 import { SpendingEditorDialog } from "./SpendingEditorDialog";
 import {
   Button,
@@ -16,9 +15,9 @@ import {
 import { DateTimePicker } from "@mui/x-date-pickers";
 import {
   getFromLocalStorage,
-  removeFromLocalStorage,
   saveToLocalStorage,
 } from "@src/utils/local-storage-utils";
+import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 
 type UpdateSpendingFormProps = {
   isOpen: boolean;
@@ -35,8 +34,7 @@ export const UpdateSpendingForm = ({
   onClose,
   isUpdatingSpendingItem,
 }: UpdateSpendingFormProps) => {
-  const { spendingCategories, isFetchingSpendingCategories } =
-    useFetchSpendingCategories();
+  const { spendingCategories } = useSpendings();
 
   const initialInput: SpendingItemInput = {
     title: spendingItem?.title ?? "",
@@ -48,8 +46,11 @@ export const UpdateSpendingForm = ({
 
   const [input, setInput] = useState<SpendingItemInput>(initialInput);
 
-  const disableSubmit =
-    !spendingItem || isFetchingSpendingCategories || isUpdatingSpendingItem;
+  function resetForm() {
+    setInput(initialInput);
+  }
+
+  const disableSubmit = !spendingItem || isUpdatingSpendingItem;
 
   function updateInput(key: keyof SpendingItemInput, value: unknown) {
     const MAX_TITLE_LENGTH = 20;
@@ -91,7 +92,7 @@ export const UpdateSpendingForm = ({
       return;
     }
 
-    removeFromLocalStorage("update-spending-item-input");
+    resetForm();
     onClose();
   }
 
@@ -152,7 +153,7 @@ export const UpdateSpendingForm = ({
           />
         </FormGroup>
 
-        {!isFetchingSpendingCategories && !!spendingCategories.length && (
+        {!!spendingCategories.length && (
           <FormGroup>
             <FormLabel htmlFor="category">Category</FormLabel>
             <TextField

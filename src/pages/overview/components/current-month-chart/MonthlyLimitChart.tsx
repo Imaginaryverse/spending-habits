@@ -14,11 +14,11 @@ export function MonthlyLimitChart({
   const chartData = [
     {
       name: "Spent",
-      value: totalSpent,
+      amount: totalSpent,
     },
     {
       name: "Limit",
-      value: spendingLimit,
+      amount: spendingLimit,
     },
   ];
 
@@ -26,10 +26,12 @@ export function MonthlyLimitChart({
     <BarChart
       data={chartData}
       xAxisKey={"name"}
-      yAxisKey={"value"}
+      yAxisKey={"amount"}
+      hideYAxis
       orientation="vertical"
       height={100}
-      showLegend={false}
+      legendKey="name"
+      legendIconType="rect"
       colors={[
         getSpentBarColor(totalSpent, spendingLimit),
         theme.palette.primary.main,

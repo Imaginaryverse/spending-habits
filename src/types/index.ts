@@ -17,18 +17,19 @@ export type SpendingItem = {
   id: string;
   user_id: string;
   category_id: SpendingCategory["id"];
+  category_name: SpendingCategory["name"];
   created_at: Date;
   title: string;
   comment: string;
   amount: number;
 };
 
-export type CreateSpendingItem = Omit<SpendingItem, "id">;
+export type CreateSpendingItem = Omit<SpendingItem, "id" | "category_name">;
 
 export type SpendingItemInput = {
   title: string;
   comment: string;
-  category_id: string;
+  category_id: SpendingCategory["id"];
   amount: number;
   created_at: Dayjs | null;
 };
