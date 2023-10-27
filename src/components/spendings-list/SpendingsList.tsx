@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 import {
   Box,
   Button,
@@ -20,17 +20,28 @@ type SpendingsListProps = {
   spendingItems: SpendingItem[];
   dense?: boolean;
   itemElevation?: number;
+  maxHeight?: CSSProperties["maxHeight"];
 };
 
 export function SpendingsList({
   spendingItems,
   dense,
   itemElevation,
+  maxHeight,
 }: SpendingsListProps) {
   const { openEditDialog, openDeleteDialog } = useSpendingEditor();
 
   return (
-    <List dense={dense}>
+    <List
+      dense={dense}
+      sx={{
+        flex: 1,
+        height: "100%",
+        maxHeight: maxHeight ?? `calc(${dense ? 6 : 5.95}rem * 4)`,
+        overflowY: "auto",
+        paddingRight: 0.5,
+      }}
+    >
       {spendingItems.map((item) => (
         <SpendingsListItem
           key={item.id}
