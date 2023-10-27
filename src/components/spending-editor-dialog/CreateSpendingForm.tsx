@@ -37,7 +37,7 @@ export const CreateSpendingForm = ({
   const initialInput: SpendingItemInput = {
     title: "",
     comment: "",
-    category_id: "1",
+    category_id: spendingCategories[0]?.id ?? 1,
     amount: 0,
     created_at: null,
   };
@@ -154,7 +154,7 @@ export const CreateSpendingForm = ({
               select
               value={input.category_id}
               onChange={(e) =>
-                setInput({ ...input, category_id: e.target.value })
+                setInput({ ...input, category_id: Number(e.target.value) })
               }
               disabled={isCreatingSpendingItem}
             >

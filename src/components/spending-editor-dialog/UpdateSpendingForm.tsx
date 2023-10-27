@@ -39,7 +39,7 @@ export const UpdateSpendingForm = ({
   const initialInput: SpendingItemInput = {
     title: spendingItem?.title ?? "",
     comment: spendingItem?.comment ?? "",
-    category_id: spendingItem?.category_id ?? "1",
+    category_id: spendingItem?.category_id ?? spendingCategories[0]?.id ?? 1,
     amount: spendingItem?.amount ?? 0,
     created_at: dayjs(spendingItem?.created_at ?? null),
   };
@@ -161,7 +161,7 @@ export const UpdateSpendingForm = ({
               select
               value={input.category_id}
               onChange={(e) =>
-                setInput({ ...input, category_id: e.target.value })
+                setInput({ ...input, category_id: Number(e.target.value) })
               }
               disabled={isUpdatingSpendingItem}
             >
