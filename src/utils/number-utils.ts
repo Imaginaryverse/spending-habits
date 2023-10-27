@@ -52,39 +52,50 @@ export function calcPercentage(
 
   const percentage = (portion / total) * 100;
 
-  const percentageRounded = Math.round(percentage * fractions);
+  const percentageWithFractions = percentage.toFixed(fractions);
+  const parsed = Number.parseFloat(percentageWithFractions);
 
-  return percentageRounded / fractions;
+  return parsed;
 }
 
 /**
  * Formats a number to a string.
  * @param value - The number to format.
- * @param options - The options to use when formatting the number. Defaults to `{ fractions: 2, autoFormatInteger: true }`.
+ * @param options - The options to use when formatting the number. Defaults to `{ fractions: 2, excludeFractionsOnWholeNumbers: true }`.
  * @returns The formatted number as a string.
  */
 export function formatNumber(
   value: number,
   options?: {
+    /**
+     * The number of decimal places to round to.
+     */
     fractions?: number;
-    autoFormatInteger?: boolean;
+    /**
+     * Whether to automatically format integers. Defaults to `true`.
+     * @example
+     * formatNumber(1.0); // "1"
+     * formatNumber(1.0, { excludeFractionsOnWholeNumbers: false }); // "1.0"
+     */
+    excludeFractionsOnWholeNumbers?: boolean;
   }
 ): string {
   const defaultOptions = {
     fractions: 2,
-    autoFormatInteger: true,
+    excludeFractionsOnWholeNumbers: true,
   };
 
-  const { fractions, autoFormatInteger } = {
+  const { fractions, excludeFractionsOnWholeNumbers } = {
     ...defaultOptions,
     ...options,
   };
 
-  if (autoFormatInteger && Number.isInteger(value)) {
-    return value.toString();
+  const valueWithFractions = value.toFixed(fractions);
+  const parsed = Number.parseFloat(valueWithFractions);
+
+  if (excludeFractionsOnWholeNumbers && Number.isInteger(parsed)) {
+    return parsed.toString();
   }
 
-  const valueRounded = Math.round(value * fractions);
-
-  return (valueRounded / fractions).toString();
+  return valueWithFractions;
 }

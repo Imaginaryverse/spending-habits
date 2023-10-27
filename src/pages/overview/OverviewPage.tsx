@@ -4,7 +4,7 @@ import {
   useUpdateSpendingItem,
 } from "@src/api/spending-items";
 import { useAuth } from "@src/features/auth/useAuth";
-import { CurrentMonthChart } from "@src/pages/overview/components/current-month-chart/CurrentMonthChart";
+import { CurrentMonthSummary } from "@src/pages/overview/components/current-month-summary/CurrentMonthSummary";
 import { Button, Paper, Stack, Typography } from "@mui/material";
 import { TwentyFourHourSummary } from "./components/twenty-four-hour-summary/TwentyFourHourSummary";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +33,7 @@ export function OverviewPage() {
 
       <TwentyFourHourSummary spendingItems={spendingItems} />
 
-      <CurrentMonthChart spendingItems={spendingItems} />
+      <CurrentMonthSummary spendingItems={spendingItems} />
     </Page>
   );
 }
