@@ -3,6 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { supabase } from "@src/api/client";
 import { UserProfile } from "@src/types";
 import { useFetchUserProfile } from "@src/api/user-profiles";
+import { getCurrentUser } from "@src/api/auth";
 
 type AuthContextType = {
   user: User | null;
@@ -17,25 +18,25 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const { userProfile } = useFetchUserProfile(user?.id, {
     enabled: isAuthenticated && !!user?.id,
   });
 
-  async function getCurrentUser() {
-    setIsLoading(true);
-    const { data } = await supabase.auth.getUser();
-    setUser(data?.user);
-    setIsAuthenticated(Boolean(data?.user));
+  async function getSignedInUser() {
+    setIsAuthenticating(true);
+    const user = await getCurrentUser();
+    setUser(user);
+    setIsAuthenticated(Boolean(user));
 
-    setIsLoading(false);
+    setIsAuthenticating(false);
   }
 
   useEffect(() => {
-    getCurrentUser();
+    getSignedInUser();
 
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   return (
     <AuthContext.Provider value={{ user, userProfile, isAuthenticated }}>
-      {!isLoading && children}
+      {!isAuthenticating && children}
     </AuthContext.Provider>
   );
 }

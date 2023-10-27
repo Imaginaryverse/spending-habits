@@ -24,7 +24,10 @@ export type SpendingItem = {
   amount: number;
 };
 
-export type CreateSpendingItem = Omit<SpendingItem, "id" | "category_name">;
+export type CreateSpendingItem = Omit<
+  SpendingItem,
+  "id" | "user_id" | "category_name"
+>;
 
 export type SpendingItemInput = {
   title: string;

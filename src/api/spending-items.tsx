@@ -6,9 +6,9 @@ import {
 } from "react-query";
 import { supabase } from "./client";
 import { CreateSpendingItem, SpendingItem } from "@src/types";
+import { getCurrentUser } from "./auth";
 
 type FetchSpendingItemsParams = {
-  user_id?: string;
   category_id?: number;
   fromDate?: Date;
   toDate?: Date;
@@ -17,29 +17,32 @@ type FetchSpendingItemsParams = {
 async function fetchSpendingItems(
   params?: Partial<FetchSpendingItemsParams>
 ): Promise<SpendingItem[]> {
-  if (!params || !params.user_id) {
-    throw new Error("user_id is required");
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("User not found");
   }
 
   const query = supabase
     .from("spending_items")
     .select("*")
-    .eq("user_id", params.user_id)
-    .order("created_at", { ascending: false });
+    .eq("user_id", user.id);
 
-  if (params.category_id) {
+  if (params?.category_id) {
     query.eq("category_id", params.category_id);
   }
 
-  if (params.fromDate) {
+  if (params?.fromDate) {
     query.gte("created_at", params.fromDate.toISOString());
   }
 
-  if (params.toDate) {
+  if (params?.toDate) {
     query.lte("created_at", params.toDate.toISOString());
   }
 
-  const { data: spendingItems, error } = await query;
+  const { data: spendingItems, error } = await query.order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
     throw error;
@@ -49,13 +52,20 @@ async function fetchSpendingItems(
 }
 
 async function fetchSpendingItemById(id: string | null): Promise<SpendingItem> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   if (!id) {
-    throw new Error("id is required");
+    throw new Error("Missing spending item id");
   }
 
   const { data: spendingItem, error } = await supabase
     .from("spending_items")
     .select("*")
+    .eq("user_id", user.id)
     .eq("id", id)
     .single();
 
@@ -69,6 +79,12 @@ async function fetchSpendingItemById(id: string | null): Promise<SpendingItem> {
 async function createSpendingItem(
   spending: CreateSpendingItem
 ): Promise<SpendingItem> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const { data: categories, error: categoriesError } = await supabase
     .from("spending_categories")
     .select("*");
@@ -83,14 +99,15 @@ async function createSpendingItem(
     throw new Error("Category not found");
   }
 
-  const spendingWithCategoryName = {
+  const spendingWithCategoryAndUserId = {
     ...spending,
+    user_id: user.id,
     category_name: category.name,
   };
 
   const { data: spendingItem, error } = await supabase
     .from("spending_items")
-    .insert(spendingWithCategoryName)
+    .insert(spendingWithCategoryAndUserId)
     .single();
 
   if (error) {
@@ -103,9 +120,16 @@ async function createSpendingItem(
 async function updateSpendingItem(
   spending: Partial<SpendingItem>
 ): Promise<SpendingItem> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const { data: spendingItem, error } = await supabase
     .from("spending_items")
     .update(spending)
+    .eq("user_id", user.id)
     .eq("id", spending.id)
     .single();
 
@@ -117,9 +141,16 @@ async function updateSpendingItem(
 }
 
 async function deleteSpendingItem(id: string): Promise<SpendingItem> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   const { data: spendingItem, error } = await supabase
     .from("spending_items")
     .delete()
+    .eq("user_id", user.id)
     .eq("id", id)
     .single();
 

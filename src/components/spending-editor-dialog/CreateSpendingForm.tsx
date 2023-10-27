@@ -10,7 +10,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
-import { useAuth } from "@src/features/auth/useAuth";
 import { CreateSpendingItem, SpendingItemInput } from "@src/types";
 import dayjs from "dayjs";
 import { SpendingEditorDialog } from "./SpendingEditorDialog";
@@ -33,7 +32,6 @@ export const CreateSpendingForm = ({
   onClose,
   isCreatingSpendingItem,
 }: CreateSpendingFormProps) => {
-  const { user } = useAuth();
   const { spendingCategories } = useSpendings();
 
   const initialInput: SpendingItemInput = {
@@ -83,12 +81,7 @@ export const CreateSpendingForm = ({
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!user?.id) {
-      return;
-    }
-
     onSubmit({
-      user_id: user.id,
       title: input.title,
       comment: input.comment,
       category_id: input.category_id,

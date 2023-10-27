@@ -1,16 +1,10 @@
 import { List, ListItem, Stack, Typography } from "@mui/material";
 import { useFetchSpendingItems } from "@src/api/spending-items";
-import { useAuth } from "@src/features/auth/useAuth";
 import { SpendingItem } from "@src/types";
 
 export function HistoryPage() {
-  const { user } = useAuth();
-
-  const { spendingItems, isFetchingSpendingItems } = useFetchSpendingItems(
-    user?.id,
-    undefined,
-    { enabled: !!user?.id }
-  );
+  const { spendingItems, isFetchingSpendingItems } =
+    useFetchSpendingItems(undefined);
 
   return (
     <Stack flex={1} spacing={2}>

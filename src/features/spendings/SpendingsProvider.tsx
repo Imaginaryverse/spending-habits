@@ -1,7 +1,6 @@
 import { PropsWithChildren, createContext } from "react";
 import { SpendingCategory, SpendingItem } from "@src/types";
 import { useFetchSpendingItems } from "@src/api/spending-items";
-import { useAuth } from "../auth/useAuth";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
 
 type SpendingsContextType = {
@@ -21,9 +20,8 @@ export const SpendingsContext = createContext<SpendingsContextType>({
 });
 
 export function SpendingsProvider({ children }: PropsWithChildren) {
-  const { user } = useAuth();
   const { spendingItems, isFetchingSpendingItems, refetchSpendingItems } =
-    useFetchSpendingItems({ user_id: user?.id }, { enabled: !!user?.id });
+    useFetchSpendingItems();
   const { spendingCategories, isFetchingSpendingCategories } =
     useFetchSpendingCategories();
 

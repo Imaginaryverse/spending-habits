@@ -28,6 +28,16 @@ async function signInUser({
   return data;
 }
 
+/**
+ * Get the current signed in user
+ * @returns {Promise<User | null>} The current signed in user, or null if no user is signed in
+ */
+export async function getCurrentUser(): Promise<User | null> {
+  const { data } = await supabase.auth.getUser();
+
+  return data?.user ?? null;
+}
+
 async function signOutUser(): Promise<void> {
   await supabase.auth.signOut();
 }
