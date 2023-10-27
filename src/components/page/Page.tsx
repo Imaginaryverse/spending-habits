@@ -10,7 +10,7 @@ type PageProps = {
 export function Page({
   justifyContent = "flex-start",
   alignItems = "center",
-  spacing = 2,
+  spacing = 3,
   children,
 }: PropsWithChildren<PageProps>) {
   return (
@@ -18,8 +18,8 @@ export function Page({
       flex={1}
       width="100%"
       maxWidth="md"
-      p={2}
-      pb={4}
+      px={2}
+      py={3}
       spacing={spacing}
       overflow="auto"
       justifyContent={justifyContent}

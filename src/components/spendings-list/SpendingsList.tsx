@@ -39,7 +39,7 @@ export function SpendingsList({
         height: "100%",
         maxHeight: maxHeight ?? `calc(${dense ? 6 : 5.95}rem * 4)`,
         overflowY: "auto",
-        paddingRight: 0.5,
+        paddingRight: 0.3,
       }}
     >
       {spendingItems.map((item) => (
@@ -90,8 +90,8 @@ function SpendingsListItem({
             pr: 1,
           }}
         >
-          <Stack>
-            <Typography variant="h5">
+          <Stack spacing={0.5}>
+            <Typography variant="h4">
               {item.title} - {item.amount} kr
             </Typography>
             <Typography variant="caption">

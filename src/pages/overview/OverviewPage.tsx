@@ -10,6 +10,7 @@ import { TwentyFourHourSummary } from "./components/twenty-four-hour-summary/Twe
 import { useNavigate } from "react-router-dom";
 import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 import { Page } from "@src/components/page/Page";
+import { MonthlySpendingLimitChart } from "./components/monthly-spending-limit-chart/MonthlySpendingLimitChart";
 
 export function OverviewPage() {
   const { spendingItems, refetchSpendingItems } = useSpendings();
@@ -30,6 +31,8 @@ export function OverviewPage() {
       </Typography>
 
       <MonthlySpendingLimitReminder />
+
+      <MonthlySpendingLimitChart />
 
       <TwentyFourHourSummary spendingItems={spendingItems} />
 

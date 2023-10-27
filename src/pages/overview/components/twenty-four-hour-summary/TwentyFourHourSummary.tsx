@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import dayjs from "dayjs";
-import { Grid, Paper, Stack, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import { PieChart } from "@src/components/charts/PieChart";
 import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
 import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 import { SpendingCategory, SpendingItem } from "@src/types";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import { PaperStack } from "@src/components/paper-stack/PaperStack";
 
 function get24HoursBackDate(now: Date): Date {
   return dayjs(now).subtract(24, "hour").toDate();
@@ -77,12 +79,17 @@ export function TwentyFourHourSummary({
   );
 
   return (
-    <Paper sx={{ width: "100%", p: 2 }}>
-      <Grid container>
-        <Grid item xs={12} md={6}>
-          <Stack spacing={2} width="100%">
-            <Typography variant="h2">Last 24 hours</Typography>
+    <PaperStack>
+      <Stack direction="row" alignItems="center" spacing={1}>
+        <AccessTimeOutlinedIcon />
+        <Typography variant="h2">24 hours</Typography>
+      </Stack>
 
+      {!spendingItemsFor24Hours.length ? (
+        <Typography>No spendings in the last 24 hours</Typography>
+      ) : (
+        <Grid container>
+          <Grid item xs={12} md={6}>
             <Typography>
               Total spent: <b>{formatNumber(totalSpentInLast24Hours)} kr</b>
             </Typography>
@@ -93,12 +100,16 @@ export function TwentyFourHourSummary({
               labelKey="category"
               height={300}
             />
-          </Stack>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <SpendingsList
+              spendingItems={spendingItemsFor24Hours}
+              dense
+              maxHeight={320}
+            />
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <SpendingsList spendingItems={spendingItemsFor24Hours} dense />
-        </Grid>
-      </Grid>
-    </Paper>
+      )}
+    </PaperStack>
   );
 }

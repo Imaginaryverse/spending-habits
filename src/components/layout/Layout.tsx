@@ -10,7 +10,6 @@ import {
   Toolbar,
   Typography,
   CircularProgress,
-  Collapse,
   Backdrop,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -49,22 +48,19 @@ export function Layout({ children }: PropsWithChildren) {
         </Stack>
       </Backdrop>
 
-      <Collapse
-        in={!isLoadingInitialData}
-        timeout={500}
+      <Stack
+        flex={1}
+        height="100%"
+        overflow="auto"
+        width="100%"
+        maxWidth="md"
         sx={{
-          flex: 1,
-          width: "100%",
-          maxWidth: "md",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "auto",
           opacity: isLoadingInitialData ? 0 : 1,
           transition: "opacity 0.5s ease-in-out",
         }}
       >
-        <Stack flex={1}>{!isLoadingInitialData && children}</Stack>
-      </Collapse>
+        {children}
+      </Stack>
     </Stack>
   );
 }

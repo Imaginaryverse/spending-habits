@@ -14,6 +14,7 @@ import { RouterLink } from "@src/components/router-link/RouterLink";
 import { AuthError } from "@supabase/supabase-js";
 import { isValidEmail } from "@src/utils/string-utils";
 import { Page } from "@src/components/page/Page";
+import { PaperStack } from "@src/components/paper-stack/PaperStack";
 
 export function SignInPage() {
   const navigate = useNavigate();
@@ -35,25 +36,31 @@ export function SignInPage() {
   }, [isAuthenticated, navigate, previousLocation]);
 
   return (
-    <Page justifyContent="center" spacing={8}>
-      <Typography variant="h1">TRACKMACASH</Typography>
+    <Page justifyContent="center">
+      <PaperStack
+        py={4}
+        px={4}
+        spacing={4}
+        sx={{ alignItems: "center", maxWidth: "sm" }}
+      >
+        <Typography variant="h1">TRACKMACASH</Typography>
+        {isAuthenticated ? (
+          <Typography variant="body1">You are already signed in. </Typography>
+        ) : (
+          <SignInForm
+            onSignIn={(email, password) => signIn({ email, password })}
+            isSigningIn={isSigningIn}
+            signInError={signInError}
+          />
+        )}
 
-      {isAuthenticated ? (
-        <Typography variant="body1">You are already signed in. </Typography>
-      ) : (
-        <SignInForm
-          onSignIn={(email, password) => signIn({ email, password })}
-          isSigningIn={isSigningIn}
-          signInError={signInError}
-        />
-      )}
-
-      {!isAuthenticated && (
-        <Typography variant="body2">
-          Don't have an account?{" "}
-          <RouterLink to="/register">Register</RouterLink> a new account.
-        </Typography>
-      )}
+        {!isAuthenticated && (
+          <Typography variant="body2">
+            Don't have an account?{" "}
+            <RouterLink to="/register">Register</RouterLink> a new account.
+          </Typography>
+        )}
+      </PaperStack>
     </Page>
   );
 }
@@ -97,13 +104,10 @@ function SignInForm({ onSignIn, isSigningIn, signInError }: SignInFormProps) {
       noValidate
       autoComplete="off"
       onSubmit={handleSignIn}
-      spacing={2}
       width="100%"
       maxWidth="sm"
     >
-      <Typography variant="h2">Sign in</Typography>
-
-      <FormControl fullWidth>
+      <FormControl fullWidth sx={{ mb: 2 }}>
         <FormLabel htmlFor="email">Email</FormLabel>
         <TextField
           id="email"
@@ -119,7 +123,7 @@ function SignInForm({ onSignIn, isSigningIn, signInError }: SignInFormProps) {
         />
       </FormControl>
 
-      <FormControl fullWidth>
+      <FormControl fullWidth sx={{ mb: 3 }}>
         <FormLabel htmlFor="password">Password</FormLabel>
         <TextField
           id="password"
@@ -130,7 +134,7 @@ function SignInForm({ onSignIn, isSigningIn, signInError }: SignInFormProps) {
       </FormControl>
 
       {!!signInError && (
-        <Typography variant="body2" color="error">
+        <Typography variant="body2" color="error" mb={3}>
           {signInError.message}
         </Typography>
       )}
