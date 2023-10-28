@@ -9,10 +9,11 @@ import {
   sumValueOfObjects,
 } from "@src/utils/number-utils";
 import { Grid, Paper, Stack, Typography } from "@mui/material";
-import StraightenOutlinedIcon from "@mui/icons-material/StraightenOutlined";
 import theme from "@src/theme/theme";
 import { BarChart } from "@src/components/charts/BarChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
+import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
+import { SentimentIcon } from "./SentimentIcon";
 
 export function MonthlySpendingLimitChart() {
   const now = dayjs();
@@ -63,7 +64,7 @@ export function MonthlySpendingLimitChart() {
   return (
     <PaperStack>
       <Stack direction="row" alignItems="center" spacing={1}>
-        <StraightenOutlinedIcon />
+        <SavingsOutlinedIcon />
         <Typography variant="h2">Monthly budget</Typography>
       </Stack>
 
@@ -96,14 +97,18 @@ export function MonthlySpendingLimitChart() {
         </Grid>
       </Grid>
 
-      <Paper elevation={0} component={Stack} py={1} px={2} textAlign="center">
-        <Typography
-          variant="h5"
-          color={spendingPercentage > 100 ? "error.light" : "text.primary"}
-        >
-          Currently at <b>{formattedPercentage}%</b>{" "}
-          {spendingPercentage > 100 ? "over" : "of"} budget
-        </Typography>
+      <Paper elevation={0} component={Stack} py={2} px={2} alignItems="center">
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <SentimentIcon percentage={spendingPercentage} />
+
+          <Typography
+            variant="body1"
+            color={spendingPercentage > 99 ? "error.light" : "text.primary"}
+          >
+            You're at <b>{formattedPercentage}%</b>{" "}
+            {spendingPercentage > 100 ? "over" : "of"} budget
+          </Typography>
+        </Stack>
       </Paper>
     </PaperStack>
   );
