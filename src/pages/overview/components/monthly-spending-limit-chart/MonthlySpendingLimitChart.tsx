@@ -126,5 +126,5 @@ function getSpentBarColor(value: number, limit: number) {
     min
   );
 
-  return `hsl(${hue}, 65%, 55%)`;
+  return `hsl(${hue}, 80%, 55%)`;
 }
