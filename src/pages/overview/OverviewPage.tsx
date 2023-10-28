@@ -11,9 +11,12 @@ import { useNavigate } from "react-router-dom";
 import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 import { Page } from "@src/components/page/Page";
 import { MonthlySpendingLimitChart } from "./components/monthly-spending-limit-chart/MonthlySpendingLimitChart";
+import { useUserProfile } from "@src/api/user-profiles";
+import { UserProfile } from "@src/types";
 
 export function OverviewPage() {
-  const { userProfile } = useAuth();
+  const { user } = useAuth();
+  const { userProfile } = useUserProfile(user?.id);
   const { spendingItems, refetchSpendingItems } = useSpendings();
 
   const { isSpendingItemCreated } = useCreateSpendingItem();
@@ -35,9 +38,14 @@ export function OverviewPage() {
         Welcome back{userProfile?.name ? `, ${userProfile.name}` : ""}!
       </Typography>
 
-      <MonthlySpendingLimitReminder />
+      <MonthlySpendingLimitReminder userProfile={userProfile} />
 
-      <MonthlySpendingLimitChart />
+      {!!userProfile && (
+        <MonthlySpendingLimitChart
+          userProfile={userProfile}
+          spendingItems={spendingItems}
+        />
+      )}
 
       <TwentyFourHourSummary spendingItems={spendingItems} />
 
@@ -46,13 +54,14 @@ export function OverviewPage() {
   );
 }
 
-function MonthlySpendingLimitReminder() {
+function MonthlySpendingLimitReminder({
+  userProfile,
+}: {
+  userProfile: UserProfile | null;
+}) {
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
 
-  const isMonthlySpendingLimitSet = userProfile?.monthly_spending_limit ?? 0;
-
-  if (isMonthlySpendingLimitSet) {
+  if (!userProfile || userProfile.monthly_spending_limit > 0) {
     return null;
   }
 

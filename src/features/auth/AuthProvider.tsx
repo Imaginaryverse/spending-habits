@@ -1,19 +1,15 @@
 import { PropsWithChildren, createContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@src/api/client";
-import { UserProfile } from "@src/types";
-import { useFetchUserProfile } from "@src/api/user-profiles";
 import { getCurrentUser } from "@src/api/auth";
 
 type AuthContextType = {
   user: User | null;
-  userProfile: UserProfile | null;
   isAuthenticated: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  userProfile: null,
   isAuthenticated: false,
 });
 
@@ -21,10 +17,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-  const { userProfile } = useFetchUserProfile(user?.id, {
-    enabled: isAuthenticated && !!user?.id,
-  });
 
   async function getSignedInUser() {
     setIsAuthenticating(true);
@@ -54,7 +46,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, isAuthenticated }}>
       {!isAuthenticating && children}
     </AuthContext.Provider>
   );

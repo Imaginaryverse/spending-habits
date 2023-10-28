@@ -9,19 +9,19 @@ import {
   Typography,
 } from "@mui/material";
 import { useAuth } from "@src/features/auth/useAuth";
-import { useSignIn } from "@src/api/auth";
 import { RouterLink } from "@src/components/router-link/RouterLink";
 import { AuthError } from "@supabase/supabase-js";
 import { isValidEmail } from "@src/utils/string-utils";
 import { Page } from "@src/components/page/Page";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
+import { useSignInOut } from "@src/api/auth";
 
 export function SignInPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  const { signIn, isSigningIn, signInError } = useSignIn();
+  const { signIn, isSigningIn, signInError } = useSignInOut();
 
   const previousLocation = useMemo(() => {
     if (location.state) {

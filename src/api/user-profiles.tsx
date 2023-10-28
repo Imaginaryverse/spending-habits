@@ -1,4 +1,4 @@
-import { useQuery, useMutation, QueryObserverOptions } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { supabase } from "./client";
 import { UserProfile } from "@src/types";
 
@@ -49,23 +49,6 @@ async function updateUserProfile(
   return userProfile as UserProfile;
 }
 
-export function useFetchUserProfile(
-  user_id?: string,
-  options?: QueryObserverOptions<UserProfile>
-) {
-  const { data: userProfile = null, isFetching: isFetchingUserProfile } =
-    useQuery({
-      queryKey: ["user_profiles", user_id],
-      queryFn: () => fetchUserProfile(user_id),
-      ...options,
-    });
-
-  return {
-    userProfile,
-    isFetchingUserProfile,
-  };
-}
-
 export function useCreateInitialUserProfile() {
   const {
     mutateAsync,
@@ -80,16 +63,29 @@ export function useCreateInitialUserProfile() {
   };
 }
 
-export function useUpdateUserProfile() {
+export function useUserProfile(user_id?: string) {
+  const {
+    data: userProfile = null,
+    isLoading: isLoadingUserProfile,
+    refetch: refetchUserProfile,
+  } = useQuery(["user_profiles", user_id], () => fetchUserProfile(user_id), {
+    enabled: !!user_id,
+  });
+
   const {
     mutateAsync,
     isLoading: isUpdatingUserProfile,
     isSuccess: isUserProfileUpdated,
+    isError: isUserProfileUpdateError,
   } = useMutation(updateUserProfile);
 
   return {
+    userProfile,
+    isLoadingUserProfile,
+    refetchUserProfile,
     updateUserProfile: mutateAsync,
     isUpdatingUserProfile,
     isUserProfileUpdated,
+    isUserProfileUpdateError,
   };
 }

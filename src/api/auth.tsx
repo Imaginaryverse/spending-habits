@@ -42,7 +42,7 @@ async function signOutUser(): Promise<void> {
   await supabase.auth.signOut();
 }
 
-export function useSignIn() {
+function useSignIn() {
   const {
     mutateAsync,
     isLoading: isSigningIn,
@@ -62,7 +62,7 @@ export function useSignIn() {
   };
 }
 
-export function useSignOut() {
+function useSignOut() {
   const {
     mutateAsync,
     isLoading: isSigningOut,
@@ -75,5 +75,12 @@ export function useSignOut() {
     isSigningOut,
     signOutError,
     signOutSuccess,
+  };
+}
+
+export function useSignInOut() {
+  return {
+    ...useSignIn(),
+    ...useSignOut(),
   };
 }

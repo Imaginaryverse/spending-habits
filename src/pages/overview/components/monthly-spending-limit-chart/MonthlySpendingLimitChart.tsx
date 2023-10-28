@@ -1,5 +1,3 @@
-import { useAuth } from "@src/features/auth/useAuth";
-import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 import dayjs from "dayjs";
 import { getSpendingItemsInMonth } from "../current-month-summary/utils/current-month-summary-utils";
 import { useMemo } from "react";
@@ -14,15 +12,22 @@ import { BarChart } from "@src/components/charts/BarChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import { SentimentIcon } from "./SentimentIcon";
+import { SpendingItem, UserProfile } from "@src/types";
 
-export function MonthlySpendingLimitChart() {
+type MonthlySpendingLimitReminderProps = {
+  userProfile: UserProfile;
+  spendingItems: SpendingItem[];
+};
+
+export function MonthlySpendingLimitChart({
+  userProfile,
+  spendingItems,
+}: MonthlySpendingLimitReminderProps) {
   const now = dayjs();
   const currentMonth = now.month();
 
-  const { userProfile } = useAuth();
   const spendingLimit = userProfile?.monthly_spending_limit ?? 0;
 
-  const { spendingItems } = useSpendings();
   const spendingItemsInCurrentMonth = useMemo(
     () => getSpendingItemsInMonth(spendingItems, currentMonth),
     [spendingItems, currentMonth]
@@ -46,6 +51,7 @@ export function MonthlySpendingLimitChart() {
     [spendingPercentage]
   );
 
+  // TODO: Inform that the feature is unavailable if spending limit is not set
   if (!spendingLimit) {
     return null;
   }

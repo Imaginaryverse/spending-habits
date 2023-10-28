@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useAuth } from "@src/features/auth/useAuth";
-import { useSignOut } from "@src/api/auth";
+import { useSignInOut } from "@src/api/auth";
 import { useSpendingEditor } from "@src/features/spending-editor/useSpendingEditor";
 import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 
@@ -35,13 +35,16 @@ const navigationLinks = [
 
 export function Layout({ children }: PropsWithChildren) {
   const { isAuthenticated } = useAuth();
+  const { isSigningIn, isSigningOut } = useSignInOut();
   const { isLoadingInitialData } = useSpendings();
+
+  const showBackdrop = isSigningIn || isSigningOut || isLoadingInitialData;
 
   return (
     <Stack height="100%" width="100%" alignItems="center">
       {!!isAuthenticated && <Navigation />}
 
-      <Backdrop open={isLoadingInitialData} sx={{ background: "transparent" }}>
+      <Backdrop open={showBackdrop} sx={{ background: "transparent" }}>
         <Stack spacing={2} justifyContent="center" alignItems="center" flex={1}>
           <CircularProgress />
           <Typography>Loading</Typography>
@@ -55,7 +58,7 @@ export function Layout({ children }: PropsWithChildren) {
         width="100%"
         maxWidth="md"
         sx={{
-          opacity: isLoadingInitialData ? 0 : 1,
+          opacity: showBackdrop ? 0 : 1,
           transition: "opacity 0.5s ease-in-out",
         }}
       >
@@ -66,7 +69,7 @@ export function Layout({ children }: PropsWithChildren) {
 }
 
 function Navigation() {
-  const { signOut } = useSignOut();
+  const { signOut } = useSignInOut();
   const { openAddDialog } = useSpendingEditor();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
