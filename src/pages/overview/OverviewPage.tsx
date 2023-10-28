@@ -13,6 +13,7 @@ import { Page } from "@src/components/page/Page";
 import { MonthlySpendingLimitChart } from "./components/monthly-spending-limit-chart/MonthlySpendingLimitChart";
 
 export function OverviewPage() {
+  const { userProfile } = useAuth();
   const { spendingItems, refetchSpendingItems } = useSpendings();
 
   const { isSpendingItemCreated } = useCreateSpendingItem();
@@ -28,6 +29,10 @@ export function OverviewPage() {
     <Page>
       <Typography variant="h1" sx={{ alignSelf: "flex-start" }}>
         Overview
+      </Typography>
+
+      <Typography variant="h3" sx={{ alignSelf: "flex-start" }}>
+        Welcome back{userProfile?.name ? `, ${userProfile.name}` : ""}!
       </Typography>
 
       <MonthlySpendingLimitReminder />

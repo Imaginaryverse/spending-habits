@@ -40,7 +40,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
-        setUser(session?.user);
+        setUser(session.user);
         setIsAuthenticated(true);
       } else if (event === "SIGNED_OUT") {
         setUser(null);
