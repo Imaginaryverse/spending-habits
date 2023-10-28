@@ -11,7 +11,7 @@ type PaperStackProps = {
 };
 
 export function PaperStack({
-  spacing = 2,
+  spacing = 3,
   py = 2,
   px = 2,
   width = "100%",
