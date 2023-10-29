@@ -68,6 +68,7 @@ export function CurrentMonthSummary({ spendingItems }: CurrentMonthChartProps) {
         yAxisLabelPosition="inside"
         cartesianGrid={{ horizontal: true }}
         showLegend={false}
+        height={250}
       />
 
       <Typography variant="h3">Most expensive purchase</Typography>

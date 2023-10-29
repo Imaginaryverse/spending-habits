@@ -105,23 +105,6 @@ export function BarChart<T extends ValidBarChartDataItem>({
           horizontal={cartesianGridProps.horizontal}
         />
 
-        <XAxis
-          type={orientation === "horizontal" ? "category" : "number"}
-          dataKey={String(orientation === "horizontal" ? xAxisKey : yAxisKey)}
-          orientation={xAxisAnchor}
-          tickFormatter={xAxisFormatter}
-          hide={hideXAxis}
-        />
-
-        <YAxis
-          type={orientation === "horizontal" ? "number" : "category"}
-          dataKey={String(orientation === "horizontal" ? yAxisKey : xAxisKey)}
-          orientation={yAxisAnchor}
-          mirror={yAxisLabelPosition === "inside"}
-          tickFormatter={yAxisFormatter}
-          hide={hideYAxis}
-        />
-
         <Tooltip
           contentStyle={{
             color: theme.palette.primary.contrastText,
@@ -158,6 +141,31 @@ export function BarChart<T extends ValidBarChartDataItem>({
             />
           ))}
         </Bar>
+
+        <XAxis
+          type={orientation === "horizontal" ? "category" : "number"}
+          dataKey={String(orientation === "horizontal" ? xAxisKey : yAxisKey)}
+          orientation={xAxisAnchor}
+          tickFormatter={xAxisFormatter}
+          hide={hideXAxis}
+          style={{
+            fill: theme.palette.text.secondary,
+            textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
+          }}
+        />
+
+        <YAxis
+          type={orientation === "horizontal" ? "number" : "category"}
+          dataKey={String(orientation === "horizontal" ? yAxisKey : xAxisKey)}
+          orientation={yAxisAnchor}
+          mirror={yAxisLabelPosition === "inside"}
+          tickFormatter={yAxisFormatter}
+          hide={hideYAxis}
+          style={{
+            fill: theme.palette.text.secondary,
+            textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
+          }}
+        />
       </RechartsBarChart>
     </ResponsiveContainer>
   );
