@@ -6,7 +6,6 @@ import {
   Button,
   CircularProgress,
   FormGroup,
-  FormLabel,
   MenuItem,
   Stack,
   TextField,
@@ -129,63 +128,58 @@ export const UpdateSpendingForm = ({
         component="form"
         onSubmit={handleSave}
         autoComplete="off"
-        spacing={1}
+        spacing={2}
         px={2}
         pb={2}
       >
-        <FormGroup>
-          <FormLabel htmlFor="title">Title</FormLabel>
-          <TextField
-            id="title"
-            value={input.title}
-            onChange={(e) => updateInput("title", e.target.value)}
-            disabled={isUpdatingSpendingItem}
-          />
-        </FormGroup>
+        <TextField
+          label="Title"
+          id="title"
+          value={input.title}
+          onChange={(e) => updateInput("title", e.target.value)}
+          disabled={isUpdatingSpendingItem}
+          size="small"
+        />
 
-        <FormGroup>
-          <FormLabel htmlFor="comment">Comment</FormLabel>
-          <TextField
-            id="comment"
-            value={input.comment}
-            onChange={(e) => updateInput("comment", e.target.value)}
-            disabled={isUpdatingSpendingItem}
-          />
-        </FormGroup>
+        <TextField
+          label="Comment"
+          id="comment"
+          value={input.comment}
+          onChange={(e) => updateInput("comment", e.target.value)}
+          disabled={isUpdatingSpendingItem}
+          size="small"
+        />
 
         {!!spendingCategories.length && (
-          <FormGroup>
-            <FormLabel htmlFor="category">Category</FormLabel>
-            <TextField
-              id="category"
-              select
-              value={input.category_id}
-              onChange={(e) =>
-                setInput({ ...input, category_id: Number(e.target.value) })
-              }
-              disabled={isUpdatingSpendingItem}
-            >
-              {spendingCategories.map((category) => (
-                <MenuItem key={category.id} value={category.id}>
-                  {category.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </FormGroup>
+          <TextField
+            label="Category"
+            id="category"
+            select
+            value={input.category_id}
+            onChange={(e) =>
+              setInput({ ...input, category_id: Number(e.target.value) })
+            }
+            disabled={isUpdatingSpendingItem}
+            size="small"
+          >
+            {spendingCategories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </TextField>
         )}
 
-        <FormGroup>
-          <FormLabel htmlFor="amount">Amount</FormLabel>
-          <TextField
-            id="amount"
-            value={input.amount}
-            onChange={(e) => updateInput("amount", Number(e.target.value))}
-            disabled={isUpdatingSpendingItem}
-          />
-        </FormGroup>
+        <TextField
+          label="Amount"
+          id="amount"
+          value={input.amount}
+          onChange={(e) => updateInput("amount", Number(e.target.value))}
+          disabled={isUpdatingSpendingItem}
+          size="small"
+        />
 
         <FormGroup>
-          <FormLabel htmlFor="created_at">Date</FormLabel>
           <DateTimePicker
             value={dayjs(input.created_at)}
             onChange={(date) => updateInput("created_at", date)}

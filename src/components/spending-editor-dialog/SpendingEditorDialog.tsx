@@ -20,9 +20,7 @@ export function SpendingEditorDialog({
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        py={1}
-        pl={2}
-        pr={1}
+        p={2}
       >
         <Typography variant="h4">{title}</Typography>
         <IconButton size="small" onClick={() => onClose()}>
