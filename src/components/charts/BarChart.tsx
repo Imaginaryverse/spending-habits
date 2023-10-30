@@ -1,5 +1,5 @@
-import theme from "@src/theme/theme";
 import { useMemo } from "react";
+import { CircularProgress, Stack } from "@mui/material";
 import {
   ResponsiveContainer,
   BarChart as RechartsBarChart,
@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import theme from "@src/theme/theme";
 
 type ValidBarChartDataItem = {
   [key: string]: string | number;
@@ -60,6 +61,8 @@ type BarChartProps<T extends ValidBarChartDataItem> = {
   cartesianGrid?: CartesianGridProps;
   orientation?: "horizontal" | "vertical";
   colors?: string[];
+  emptyDataText?: string;
+  loading?: boolean;
 };
 
 export function BarChart<T extends ValidBarChartDataItem>({
@@ -81,6 +84,8 @@ export function BarChart<T extends ValidBarChartDataItem>({
   cartesianGrid,
   orientation = "horizontal",
   colors,
+  emptyDataText,
+  loading,
 }: BarChartProps<T>) {
   const cartesianGridProps = useMemo(
     () => ({ ...defaultCartesianGridProps, ...cartesianGrid }),
@@ -97,76 +102,96 @@ export function BarChart<T extends ValidBarChartDataItem>({
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RechartsBarChart data={data} layout={orientation}>
-        <CartesianGrid
-          strokeDasharray={cartesianGridProps.strokeDasharray}
-          stroke={cartesianGridProps.stroke}
-          vertical={cartesianGridProps.vertical}
-          horizontal={cartesianGridProps.horizontal}
-        />
-
-        <Tooltip
-          contentStyle={{
-            color: theme.palette.primary.contrastText,
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            border: "2px solid rgba(0, 0, 0, 0.1)",
-            borderRadius: "0.25rem",
-          }}
-          itemStyle={{ color: theme.palette.primary.contrastText }}
-          labelStyle={{ color: theme.palette.primary.contrastText }}
-          cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
-        />
-
-        {!!showLegend && (
-          <Legend
-            iconType={legendIconType}
-            iconSize={legendIconSize}
-            payload={
-              legendKey
-                ? data.map((item, idx) => ({
-                    value: item[legendKey],
-                    type: legendIconType,
-                    color: colorsArray[idx % colorsArray.length],
-                  }))
-                : undefined
-            }
+      {loading ? (
+        <Stack justifyContent="center" alignItems="center" height="100%">
+          <CircularProgress />
+        </Stack>
+      ) : (
+        <RechartsBarChart data={data} layout={orientation}>
+          <CartesianGrid
+            strokeDasharray={cartesianGridProps.strokeDasharray}
+            stroke={cartesianGridProps.stroke}
+            vertical={cartesianGridProps.vertical}
+            horizontal={cartesianGridProps.horizontal}
           />
-        )}
 
-        <Bar dataKey={yAxisKey as string}>
-          {data.map((_, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={colorsArray[index % colorsArray.length]}
+          {!!data.length && (
+            <Tooltip
+              contentStyle={{
+                color: theme.palette.primary.contrastText,
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                border: "2px solid rgba(0, 0, 0, 0.1)",
+                borderRadius: "0.25rem",
+              }}
+              itemStyle={{ color: theme.palette.primary.contrastText }}
+              labelStyle={{ color: theme.palette.primary.contrastText }}
+              cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
             />
-          ))}
-        </Bar>
+          )}
 
-        <XAxis
-          type={orientation === "horizontal" ? "category" : "number"}
-          dataKey={String(orientation === "horizontal" ? xAxisKey : yAxisKey)}
-          orientation={xAxisAnchor}
-          tickFormatter={xAxisFormatter}
-          hide={hideXAxis}
-          style={{
-            fill: theme.palette.text.secondary,
-            textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
-          }}
-        />
+          {!!showLegend && (
+            <Legend
+              iconType={legendIconType}
+              iconSize={legendIconSize}
+              payload={
+                legendKey
+                  ? data.map((item, idx) => ({
+                      value: item[legendKey],
+                      type: legendIconType,
+                      color: colorsArray[idx % colorsArray.length],
+                    }))
+                  : undefined
+              }
+            />
+          )}
 
-        <YAxis
-          type={orientation === "horizontal" ? "number" : "category"}
-          dataKey={String(orientation === "horizontal" ? yAxisKey : xAxisKey)}
-          orientation={yAxisAnchor}
-          mirror={yAxisLabelPosition === "inside"}
-          tickFormatter={yAxisFormatter}
-          hide={hideYAxis}
-          style={{
-            fill: theme.palette.text.secondary,
-            textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
-          }}
-        />
-      </RechartsBarChart>
+          <Bar dataKey={yAxisKey as string}>
+            {data.map((_, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={colorsArray[index % colorsArray.length]}
+              />
+            ))}
+          </Bar>
+
+          <XAxis
+            type={orientation === "horizontal" ? "category" : "number"}
+            dataKey={String(orientation === "horizontal" ? xAxisKey : yAxisKey)}
+            orientation={xAxisAnchor}
+            tickFormatter={xAxisFormatter}
+            hide={hideXAxis}
+            style={{
+              fill: theme.palette.text.secondary,
+              textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
+            }}
+          />
+
+          <YAxis
+            type={orientation === "horizontal" ? "number" : "category"}
+            dataKey={String(orientation === "horizontal" ? yAxisKey : xAxisKey)}
+            orientation={yAxisAnchor}
+            mirror={yAxisLabelPosition === "inside"}
+            tickFormatter={yAxisFormatter}
+            hide={hideYAxis}
+            style={{
+              fill: theme.palette.text.secondary,
+              textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
+            }}
+          />
+
+          {!data.length && emptyDataText && (
+            <text
+              x="50%"
+              y="44.5%"
+              dominantBaseline="middle"
+              textAnchor="middle"
+              fill={theme.palette.text.secondary}
+            >
+              {emptyDataText}
+            </text>
+          )}
+        </RechartsBarChart>
+      )}
     </ResponsiveContainer>
   );
 }
