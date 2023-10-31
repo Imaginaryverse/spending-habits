@@ -20,6 +20,7 @@ import {
   getMonthChartData,
   getYearChartData,
 } from "@src/utils/data-utils";
+import { sumValueOfObjects } from "@src/utils/number-utils";
 
 const yearOptions = [
   { label: "2023", value: 2023 },
@@ -203,6 +204,10 @@ export function HistoryPage() {
       <PaperStack>
         <Typography variant="h2">
           {getFormattedDateKey(dateKey) ?? "No date selected"}
+        </Typography>
+
+        <Typography>
+          Total spent: <b>{sumValueOfObjects(spendingItems, "amount")} kr</b>
         </Typography>
 
         <BarChart
