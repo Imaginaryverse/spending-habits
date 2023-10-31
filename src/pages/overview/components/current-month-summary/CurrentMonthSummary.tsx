@@ -90,6 +90,7 @@ export function CurrentMonthSummary({
             xAxisKey={"name"}
             yAxisKey={"amount"}
             yAxisLabelPosition="inside"
+            cartesianGrid={{ horizontal: true }}
             height={250}
             loading={isLoading}
             showLegend={false}

@@ -79,20 +79,14 @@ export function HistoryPage() {
     monthOptions.find((option) => option.value === monthKey) ?? null
   );
 
-  const days: DayOption[] = useMemo(() => {
+  const dayOptions = useMemo(() => {
     if (!selectedYear || !selectedMonth) return [];
 
-    const numDaysInMonth = getNumDaysInMonth(
-      new Date(selectedYear.value, selectedMonth.value)
-    );
-    return Array.from({ length: numDaysInMonth }, (_, i) => ({
-      label: String(i + 1).padStart(2, "0"),
-      value: i + 1,
-    }));
+    return getDayOptions(new Date(selectedYear.value, selectedMonth.value));
   }, [selectedYear, selectedMonth]);
 
   const [selectedDay, setSelectedDay] = useState<DayOption | null>(
-    days.find((option) => option.value === dayKey) ?? null
+    dayOptions.find((option) => option.value === dayKey) ?? null
   );
 
   function handleYearChange(value: number | null) {
@@ -189,7 +183,7 @@ export function HistoryPage() {
 
           <OptionSelect
             label="Day"
-            options={days}
+            options={dayOptions}
             value={selectedDay ?? null}
             onChange={handleDayChange}
             disabled={!selectedMonth}
@@ -207,12 +201,16 @@ export function HistoryPage() {
       </Stack>
 
       <PaperStack>
+        <Typography variant="h2">
+          {getFormattedDateKey(dateKey) ?? "No date selected"}
+        </Typography>
+
         <BarChart
           data={chartData}
           xAxisKey={"date"}
           yAxisKey={"amount"}
           yAxisLabelPosition="inside"
-          height={250}
+          height={350}
           showLegend={false}
           cartesianGrid={{ horizontal: true }}
           emptyDataText={`No data for ${dateKey}`}
@@ -274,6 +272,14 @@ function OptionSelect<T extends { label: string; value: number }>({
   );
 }
 
+function getDayOptions(date: Date): DayOption[] {
+  const numDaysInMonth = getNumDaysInMonth(date);
+  return Array.from({ length: numDaysInMonth }, (_, i) => ({
+    label: String(i + 1).padStart(2, "0"),
+    value: i + 1,
+  }));
+}
+
 function getDateRangeFromDateKey(dateKey: string | null): {
   from: Date;
   to: Date;
@@ -293,10 +299,24 @@ function getDateRangeFromDateKey(dateKey: string | null): {
   return { from, to };
 }
 
-const getResolutionFromDateKey = (dateKey: string) => {
+function getResolutionFromDateKey(dateKey: string) {
   const dateKeyParts = dateKey.split("-").length;
   return dateKeyParts === 1 ? "year" : dateKeyParts === 2 ? "month" : "day";
-};
+}
+
+function getFormattedDateKey(dateKey: string | null) {
+  if (!dateKey) return null;
+
+  const resolution = getResolutionFromDateKey(dateKey);
+
+  if (resolution === "year") {
+    return dateKey;
+  } else if (resolution === "month") {
+    return dayjs(dateKey).format("MMMM YYYY");
+  } else {
+    return dayjs(dateKey).format("MMMM DD YYYY");
+  }
+}
 
 function parseChartData(spendingItems: SpendingItem[], dateKey: string) {
   const resolution = getResolutionFromDateKey(dateKey);
