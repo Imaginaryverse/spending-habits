@@ -12,6 +12,8 @@ import { useAuth } from "@src/features/auth/useAuth";
 import { Page } from "@src/components/page/Page";
 import { useUserProfile } from "@src/api/user-profiles";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
+import { useQueryClient } from "react-query";
+import { QUERY_KEY } from "@src/types";
 
 type ProfileFormValues = {
   name: string;
@@ -19,17 +21,18 @@ type ProfileFormValues = {
 };
 
 export function ProfilePage() {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { signOut } = useSignInOut();
 
   const {
     userProfile,
     updateUserProfile,
-    refetchUserProfile,
     isUpdatingUserProfile,
-    isUserProfileUpdated,
     isUserProfileUpdateError,
-  } = useUserProfile(user?.id);
+  } = useUserProfile(user?.id, {
+    onSuccess: onUpdateProfileSuccess,
+  });
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [profileFormValues, setProfileFormValues] = useState<ProfileFormValues>(
@@ -38,6 +41,11 @@ export function ProfilePage() {
       monthlySpendingLimit: userProfile?.monthly_spending_limit ?? 0,
     }
   );
+
+  function onUpdateProfileSuccess() {
+    queryClient.invalidateQueries(QUERY_KEY.user_profiles);
+    setIsEditing(false);
+  }
 
   function updateInput(key: keyof ProfileFormValues, value: string) {
     if (key === "name" && value.length > 20) {
@@ -78,13 +86,6 @@ export function ProfilePage() {
       });
     }
   }, [userProfile]);
-
-  useEffect(() => {
-    if (isUserProfileUpdated) {
-      refetchUserProfile();
-      setIsEditing(false);
-    }
-  }, [refetchUserProfile, isUserProfileUpdated]);
 
   const disableSaveButton = useMemo(() => {
     return (

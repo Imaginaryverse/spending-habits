@@ -2,15 +2,16 @@ import { useMemo } from "react";
 import dayjs from "dayjs";
 import { Grid, Stack, Typography } from "@mui/material";
 import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
-import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 import { SpendingCategory, SpendingItem } from "@src/types";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { BarChart } from "@src/components/charts/BarChart";
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
 
 type TwentyFourHourSummaryProps = {
   spendingItems: SpendingItem[];
+  isLoading: boolean;
 };
 
 type TwentyFourHourChartDataItem = {
@@ -20,8 +21,9 @@ type TwentyFourHourChartDataItem = {
 
 export function TwentyFourHourSummary({
   spendingItems,
+  isLoading,
 }: TwentyFourHourSummaryProps) {
-  const { spendingCategories } = useSpendings();
+  const { spendingCategories } = useFetchSpendingCategories();
 
   const spendingItemsFor24Hours = useMemo(() => {
     const now = new Date();
@@ -65,6 +67,7 @@ export function TwentyFourHourSummary({
               yAxisKey="amount"
               cartesianGrid={{ horizontal: true }}
               showLegend={false}
+              loading={isLoading}
             />
           </Grid>
           <Grid item xs={12} md={5.85}>

@@ -1,5 +1,5 @@
 import { PropsWithChildren, createContext, useState } from "react";
-import { SpendingItem } from "@src/types";
+import { QUERY_KEY, SpendingItem } from "@src/types";
 import {
   useCreateSpendingItem,
   useDeleteSpendingItem,
@@ -8,7 +8,7 @@ import {
 import { CreateSpendingForm } from "@src/components/spending-editor-dialog/CreateSpendingForm";
 import { UpdateSpendingForm } from "@src/components/spending-editor-dialog/UpdateSpendingForm";
 import { DeleteSpendingConfirmation } from "@src/components/spending-editor-dialog/DeleteSpendingConfirmation";
-import { useSpendings } from "../spendings/useSpendingsProvider";
+import { useQueryClient } from "react-query";
 
 type DialogMode = "add" | "edit" | "delete" | null;
 
@@ -29,8 +29,7 @@ export const SpendingEditorContext = createContext<SpendingEditorContextType>({
 });
 
 export function SpendingEditorProvider({ children }: PropsWithChildren) {
-  const { refetchSpendingItems } = useSpendings();
-
+  const queryClient = useQueryClient();
   const [dialogMode, setDialogMode] = useState<DialogMode>(null);
   const [spendingEditItem, setSpendingEditItem] = useState<SpendingItem | null>(
     null
@@ -39,7 +38,7 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
     useState<SpendingItem | null>(null);
 
   function onMutationSuccess() {
-    refetchSpendingItems();
+    queryClient.invalidateQueries(QUERY_KEY.spending_items);
     closeDialog();
   }
 

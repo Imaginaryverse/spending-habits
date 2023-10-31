@@ -12,11 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
-import {
-  getFromLocalStorage,
-  saveToLocalStorage,
-} from "@src/utils/local-storage-utils";
-import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
 
 type UpdateSpendingFormProps = {
   isOpen: boolean;
@@ -33,7 +29,7 @@ export const UpdateSpendingForm = ({
   onClose,
   isUpdatingSpendingItem,
 }: UpdateSpendingFormProps) => {
-  const { spendingCategories } = useSpendings();
+  const { spendingCategories } = useFetchSpendingCategories();
 
   const initialInput: SpendingItemInput = {
     title: spendingItem?.title ?? "",
@@ -66,10 +62,6 @@ export const UpdateSpendingForm = ({
       ...input,
       [key]: value,
     });
-    saveToLocalStorage("update-spending-item-input", {
-      ...input,
-      [key]: value,
-    });
   }
 
   function handleSave(e: React.FormEvent<HTMLFormElement>) {
@@ -96,16 +88,6 @@ export const UpdateSpendingForm = ({
   }
 
   useEffect(() => {
-    const currentInput = getFromLocalStorage<SpendingItemInput>(
-      "update-spending-item-input"
-    );
-
-    if (currentInput) {
-      setInput(currentInput);
-    }
-  }, []);
-
-  useEffect(() => {
     if (spendingItem) {
       const item = {
         ...spendingItem,
@@ -113,7 +95,6 @@ export const UpdateSpendingForm = ({
       };
 
       setInput(item);
-      saveToLocalStorage("update-spending-item-input", item);
     }
   }, [spendingItem]);
 

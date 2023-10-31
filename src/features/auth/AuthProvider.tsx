@@ -5,18 +5,20 @@ import { getCurrentUser } from "@src/api/auth";
 
 type AuthContextType = {
   user: User | null;
+  isAuthenticating: boolean;
   isAuthenticated: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
+  isAuthenticating: true,
   isAuthenticated: false,
 });
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true);
 
   async function getSignedInUser() {
     setIsAuthenticating(true);
@@ -46,7 +48,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, isAuthenticating, isAuthenticated }}>
       {!isAuthenticating && children}
     </AuthContext.Provider>
   );

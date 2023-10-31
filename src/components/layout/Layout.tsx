@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useSignInOut } from "@src/api/auth";
 import { useSpendingEditor } from "@src/features/spending-editor/useSpendingEditor";
-import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
 
 const navigationLinks = [
   {
@@ -34,11 +34,15 @@ const navigationLinks = [
 ] as const;
 
 export function Layout({ children }: PropsWithChildren) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAuthenticating } = useAuth();
   const { isSigningIn, isSigningOut } = useSignInOut();
-  const { isLoadingInitialData } = useSpendings();
+  const { isFetchingSpendingCategories } = useFetchSpendingCategories();
 
-  const showBackdrop = isSigningIn || isSigningOut || isLoadingInitialData;
+  const showBackdrop =
+    isSigningIn ||
+    isSigningOut ||
+    isAuthenticating ||
+    isFetchingSpendingCategories;
 
   return (
     <Stack height="100%" width="100%" alignItems="center">

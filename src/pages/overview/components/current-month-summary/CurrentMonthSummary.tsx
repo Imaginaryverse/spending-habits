@@ -15,9 +15,13 @@ import { PaperStack } from "@src/components/paper-stack/PaperStack";
 
 type CurrentMonthChartProps = {
   spendingItems: SpendingItem[];
+  isLoading: boolean;
 };
 
-export function CurrentMonthSummary({ spendingItems }: CurrentMonthChartProps) {
+export function CurrentMonthSummary({
+  spendingItems,
+  isLoading,
+}: CurrentMonthChartProps) {
   const now = dayjs();
   const currentMonth = now.month();
   const monthName = now.format("MMMM");
@@ -69,6 +73,7 @@ export function CurrentMonthSummary({ spendingItems }: CurrentMonthChartProps) {
         cartesianGrid={{ horizontal: true }}
         showLegend={false}
         height={250}
+        loading={isLoading}
       />
 
       <Typography variant="h3">Most expensive purchase</Typography>

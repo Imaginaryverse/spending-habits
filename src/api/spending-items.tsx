@@ -5,7 +5,7 @@ import {
   UseMutationOptions,
 } from "react-query";
 import { supabase } from "./client";
-import { CreateSpendingItem, SpendingItem } from "@src/types";
+import { CreateSpendingItem, QUERY_KEY, SpendingItem } from "@src/types";
 import { getCurrentUser } from "./auth";
 
 type FetchSpendingItemsParams = {
@@ -23,7 +23,7 @@ async function fetchSpendingItems(
   }
 
   const query = supabase
-    .from("spending_items")
+    .from(QUERY_KEY.spending_items)
     .select("*")
     .order("created_at", { ascending: false })
     .eq("user_id", params?.user_id);
@@ -62,7 +62,7 @@ async function fetchSpendingItemById(
   }
 
   const { data: spendingItem, error } = await supabase
-    .from("spending_items")
+    .from(QUERY_KEY.spending_items)
     .select("*")
     .eq("user_id", user_id)
     .eq("id", id)
@@ -84,29 +84,9 @@ async function createSpendingItem(
     throw new Error("User not found");
   }
 
-  const { data: categories, error: categoriesError } = await supabase
-    .from("spending_categories")
-    .select("*");
-
-  if (categoriesError) {
-    throw categoriesError;
-  }
-
-  const category = categories.find((c) => c.id === spending.category_id);
-
-  if (!category) {
-    throw new Error("Category not found");
-  }
-
-  const spendingWithCategoryAndUserId = {
-    ...spending,
-    user_id: user.id,
-    category_name: category.name,
-  };
-
   const { data: spendingItem, error } = await supabase
-    .from("spending_items")
-    .insert(spendingWithCategoryAndUserId)
+    .from(QUERY_KEY.spending_items)
+    .insert(spending)
     .single();
 
   if (error) {
@@ -126,7 +106,7 @@ async function updateSpendingItem(
   }
 
   const { data: spendingItem, error } = await supabase
-    .from("spending_items")
+    .from(QUERY_KEY.spending_items)
     .update(spending)
     .eq("user_id", user.id)
     .eq("id", spending.id)
@@ -147,7 +127,7 @@ async function deleteSpendingItem(id: string): Promise<SpendingItem> {
   }
 
   const { data: spendingItem, error } = await supabase
-    .from("spending_items")
+    .from(QUERY_KEY.spending_items)
     .delete()
     .eq("user_id", user.id)
     .eq("id", id)
@@ -170,7 +150,7 @@ export function useFetchSpendingItems(
     isLoading: isLoadingSpendingItems,
     refetch: refetchSpendingItems,
   } = useQuery({
-    queryKey: ["spendingItems", params],
+    queryKey: [QUERY_KEY.spending_items, params],
     queryFn: () => fetchSpendingItems(params),
     ...options,
   });
@@ -193,7 +173,7 @@ export function useFetchSpendingItemById(
     isFetching: isFetchingSpendingItem,
     isLoading: isLoadingSpendingItem,
   } = useQuery({
-    queryKey: ["spendingItem", user_id, spendingItemId],
+    queryKey: [QUERY_KEY.spending_item, user_id, spendingItemId],
     queryFn: () => fetchSpendingItemById(user_id, spendingItemId),
     enabled: !!spendingItemId,
     ...options,

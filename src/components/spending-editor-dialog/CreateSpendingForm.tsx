@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   Stack,
   Typography,
@@ -9,14 +9,14 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
-import { CreateSpendingItem, SpendingItemInput } from "@src/types";
+import {
+  CreateSpendingItem,
+  SpendingCategory,
+  SpendingItemInput,
+} from "@src/types";
 import dayjs from "dayjs";
 import { SpendingEditorDialog } from "./SpendingEditorDialog";
-import {
-  getFromLocalStorage,
-  saveToLocalStorage,
-} from "@src/utils/local-storage-utils";
-import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
 
 type CreateSpendingFormProps = {
   isOpen: boolean;
@@ -31,7 +31,7 @@ export const CreateSpendingForm = ({
   onClose,
   isCreatingSpendingItem,
 }: CreateSpendingFormProps) => {
-  const { spendingCategories } = useSpendings();
+  const { spendingCategories } = useFetchSpendingCategories();
 
   const initialInput: SpendingItemInput = {
     title: "",
@@ -66,19 +66,23 @@ export const CreateSpendingForm = ({
       ...input,
       [key]: value,
     });
-    saveToLocalStorage("create-spending-item-input", {
-      ...input,
-      [key]: value,
-    });
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    const fallbackCategory: Omit<SpendingCategory, "description"> = {
+      id: 1,
+      name: "Other",
+    };
+
+    const category = spendingCategories.find((c) => c.id === input.category_id);
+
     onSubmit({
       title: input.title,
       comment: input.comment,
-      category_id: input.category_id,
+      category_id: category?.id ?? fallbackCategory.id,
+      category_name: category?.name ?? fallbackCategory.name,
       amount: input.amount,
       created_at: input.created_at?.toDate() ?? new Date(),
     });
@@ -94,16 +98,6 @@ export const CreateSpendingForm = ({
     resetForm();
     onClose();
   }
-
-  useEffect(() => {
-    const currentInput = getFromLocalStorage<SpendingItemInput>(
-      "create-spending-item-input"
-    );
-
-    if (currentInput) {
-      setInput(currentInput);
-    }
-  }, []);
 
   return (
     <SpendingEditorDialog

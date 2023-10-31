@@ -1,10 +1,10 @@
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, UseMutationOptions } from "react-query";
 import { supabase } from "./client";
-import { UserProfile } from "@src/types";
+import { QUERY_KEY, UserProfile } from "@src/types";
 
 async function fetchUserProfile(user_id?: string): Promise<UserProfile> {
   const { data: userProfile, error } = await supabase
-    .from("user_profiles")
+    .from(QUERY_KEY.user_profiles)
     .select("*")
     .eq("user_id", user_id);
 
@@ -17,7 +17,7 @@ async function fetchUserProfile(user_id?: string): Promise<UserProfile> {
 
 async function createInitialUserProfile(user_id: string): Promise<UserProfile> {
   const { data: userProfile, error } = await supabase
-    .from("user_profiles")
+    .from(QUERY_KEY.user_profiles)
     .insert({ user_id })
     .single();
 
@@ -37,7 +37,7 @@ async function updateUserProfile(
   params: UpdateUserProfileParams
 ): Promise<UserProfile> {
   const { data: userProfile, error } = await supabase
-    .from("user_profiles")
+    .from(QUERY_KEY.user_profiles)
     .update(params.updates)
     .eq("user_id", params.user_id)
     .single();
@@ -63,21 +63,32 @@ export function useCreateInitialUserProfile() {
   };
 }
 
-export function useUserProfile(user_id?: string) {
+export function useUserProfile(
+  user_id?: string,
+  mutationOptions?: UseMutationOptions<
+    UserProfile,
+    unknown,
+    UpdateUserProfileParams
+  >
+) {
   const {
     data: userProfile = null,
     isLoading: isLoadingUserProfile,
     refetch: refetchUserProfile,
-  } = useQuery(["user_profiles", user_id], () => fetchUserProfile(user_id), {
-    enabled: !!user_id,
-  });
+  } = useQuery(
+    [QUERY_KEY.user_profiles, user_id],
+    () => fetchUserProfile(user_id),
+    {
+      enabled: !!user_id,
+    }
+  );
 
   const {
     mutateAsync,
     isLoading: isUpdatingUserProfile,
     isSuccess: isUserProfileUpdated,
     isError: isUserProfileUpdateError,
-  } = useMutation(updateUserProfile);
+  } = useMutation(updateUserProfile, mutationOptions);
 
   return {
     userProfile,

@@ -1,32 +1,30 @@
-import { useEffect } from "react";
-import {
-  useCreateSpendingItem,
-  useUpdateSpendingItem,
-} from "@src/api/spending-items";
+import { useFetchSpendingItems } from "@src/api/spending-items";
 import { useAuth } from "@src/features/auth/useAuth";
 import { CurrentMonthSummary } from "@src/pages/overview/components/current-month-summary/CurrentMonthSummary";
 import { Button, Paper, Stack, Typography } from "@mui/material";
 import { TwentyFourHourSummary } from "./components/twenty-four-hour-summary/TwentyFourHourSummary";
 import { useNavigate } from "react-router-dom";
-import { useSpendings } from "@src/features/spendings/useSpendingsProvider";
 import { Page } from "@src/components/page/Page";
 import { MonthlySpendingLimitChart } from "./components/monthly-spending-limit-chart/MonthlySpendingLimitChart";
 import { useUserProfile } from "@src/api/user-profiles";
 import { UserProfile } from "@src/types";
+import dayjs from "dayjs";
 
 export function OverviewPage() {
+  const now = dayjs();
   const { user } = useAuth();
   const { userProfile } = useUserProfile(user?.id);
-  const { spendingItems, refetchSpendingItems } = useSpendings();
 
-  const { isSpendingItemCreated } = useCreateSpendingItem();
-  const { isSpendingItemUpdated } = useUpdateSpendingItem();
-
-  useEffect(() => {
-    if (isSpendingItemCreated || isSpendingItemUpdated) {
-      refetchSpendingItems();
+  const { spendingItems, isLoadingSpendingItems } = useFetchSpendingItems(
+    {
+      user_id: user?.id,
+      fromDate: now.startOf("month").toDate(),
+      toDate: now.endOf("month").toDate(),
+    },
+    {
+      enabled: !!user?.id,
     }
-  }, [isSpendingItemCreated, isSpendingItemUpdated, refetchSpendingItems]);
+  );
 
   return (
     <Page>
@@ -47,9 +45,15 @@ export function OverviewPage() {
         />
       )}
 
-      <TwentyFourHourSummary spendingItems={spendingItems} />
+      <TwentyFourHourSummary
+        spendingItems={spendingItems}
+        isLoading={isLoadingSpendingItems}
+      />
 
-      <CurrentMonthSummary spendingItems={spendingItems} />
+      <CurrentMonthSummary
+        spendingItems={spendingItems}
+        isLoading={isLoadingSpendingItems}
+      />
     </Page>
   );
 }
