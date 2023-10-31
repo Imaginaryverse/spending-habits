@@ -40,6 +40,7 @@ export function OverviewPage() {
         <MonthlySpendingLimitChart
           userProfile={userProfile}
           spendingItems={spendingItems}
+          isLoading={isLoadingSpendingItems}
         />
       )}
 

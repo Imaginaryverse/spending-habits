@@ -15,11 +15,13 @@ import { SpendingItem, UserProfile } from "@src/types";
 type MonthlySpendingLimitReminderProps = {
   userProfile: UserProfile;
   spendingItems: SpendingItem[];
+  isLoading: boolean;
 };
 
 export function MonthlySpendingLimitChart({
   userProfile,
   spendingItems,
+  isLoading,
 }: MonthlySpendingLimitReminderProps) {
   const spendingLimit = userProfile?.monthly_spending_limit ?? 0;
 
@@ -89,6 +91,7 @@ export function MonthlySpendingLimitChart({
               getSpentBarColor(totalSpent, spendingLimit),
               theme.palette.primary.main,
             ]}
+            loading={isLoading}
           />
         </Grid>
       </Grid>
