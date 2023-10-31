@@ -36,13 +36,13 @@ const navigationLinks = [
 export function Layout({ children }: PropsWithChildren) {
   const { isAuthenticated, isAuthenticating } = useAuth();
   const { isSigningIn, isSigningOut } = useSignInOut();
-  const { isFetchingSpendingCategories } = useFetchSpendingCategories();
+  const { isLoadingSpendingCategories } = useFetchSpendingCategories();
 
   const showBackdrop =
     isSigningIn ||
     isSigningOut ||
     isAuthenticating ||
-    isFetchingSpendingCategories;
+    isLoadingSpendingCategories;
 
   return (
     <Stack height="100%" width="100%" alignItems="center">

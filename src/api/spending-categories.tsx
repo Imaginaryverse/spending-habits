@@ -20,6 +20,7 @@ export function useFetchSpendingCategories(
   const {
     data: spendingCategories = [],
     isFetching: isFetchingSpendingCategories,
+    isLoading: isLoadingSpendingCategories,
   } = useQuery({
     queryKey: QUERY_KEY.spending_categories,
     queryFn: fetchSpendingCategories,
@@ -29,5 +30,6 @@ export function useFetchSpendingCategories(
   return {
     spendingCategories,
     isFetchingSpendingCategories,
+    isLoadingSpendingCategories,
   };
 }
