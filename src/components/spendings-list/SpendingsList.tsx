@@ -40,6 +40,8 @@ export function SpendingsList({
         maxHeight: maxHeight ?? `calc(${dense ? 6 : 5.95}rem * 4)`,
         overflowY: "auto",
         paddingRight: 0.3,
+        pt: 0,
+        pb: 0.5,
       }}
     >
       {spendingItems.map((item) => (
@@ -66,7 +68,7 @@ function SpendingsListItem({
   item,
   onEditClick,
   onDeleteClick,
-  elevation = 5,
+  elevation = 4,
 }: SpendingsListItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -121,17 +123,21 @@ function SpendingsListItem({
               borderTop: "1px solid rgba(255, 255, 255, 0.1)",
             }}
           >
-            <Typography variant="caption">
+            <Typography variant="body2">
               {item.comment || "No comment"}
             </Typography>
 
-            <Stack spacing={1} direction="row">
+            <Stack
+              width="100%"
+              direction="row"
+              justifyContent="center"
+              spacing={2}
+            >
               <Button
-                variant="contained"
+                variant="outlined"
                 size="small"
                 color="error"
                 onClick={() => onDeleteClick(item)}
-                fullWidth
               >
                 Delete
               </Button>
@@ -140,7 +146,6 @@ function SpendingsListItem({
                 variant="contained"
                 size="small"
                 onClick={() => onEditClick(item)}
-                fullWidth
               >
                 Edit
               </Button>

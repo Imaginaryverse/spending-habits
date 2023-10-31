@@ -1,23 +1,4 @@
 import { SpendingItem } from "@src/types";
-import { getNumDaysInMonth } from "@src/utils/date-utils";
-import dayjs from "dayjs";
-
-export function getSpendingItemsInMonth(
-  spendingItems: SpendingItem[],
-  month: number
-): SpendingItem[] {
-  if (!spendingItems?.length) {
-    return [];
-  }
-
-  const spendingItemsInMonth = spendingItems.filter((item) => {
-    const itemMonth = dayjs(item.created_at).month();
-
-    return itemMonth === month;
-  });
-
-  return spendingItemsInMonth;
-}
 
 export function getMostExpensiveSpendingItem(
   spendingItems: SpendingItem[]
@@ -79,36 +60,4 @@ export function getMostFrequentCategoryData(
   );
 
   return mostFrequentCategoryData;
-}
-
-type BarChartDataItem = {
-  date: string;
-  amount: number;
-};
-
-export function generateMonthChartData(
-  items: SpendingItem[],
-  date: Date
-): BarChartDataItem[] {
-  if (!items?.length) {
-    return [];
-  }
-
-  const daysInMonth = getNumDaysInMonth(date);
-  const chartData: BarChartDataItem[] = [];
-
-  for (let i = 1; i <= daysInMonth; i++) {
-    const date = dayjs().date(i).format("YYYY-MM-DD");
-    const amount = items.reduce((acc, item) => {
-      const itemDate = dayjs(item.created_at).format("YYYY-MM-DD");
-
-      if (itemDate === date) {
-        return acc + item.amount;
-      }
-      return acc;
-    }, 0);
-    chartData.push({ date, amount });
-  }
-
-  return chartData;
 }

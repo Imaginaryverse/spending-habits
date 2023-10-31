@@ -2,16 +2,16 @@ import { useMemo } from "react";
 import { SpendingItem } from "@src/types";
 import dayjs from "dayjs";
 import { BarChart } from "../../../../components/charts/BarChart";
-import { Stack, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import {
-  generateMonthChartData,
   getMostExpensiveSpendingItem,
   getMostFrequentCategoryData,
-  getSpendingItemsInMonth,
 } from "./utils/current-month-summary-utils";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { getMonthChartData, getTotalPerCategory } from "@src/utils/data-utils";
 
 type CurrentMonthChartProps = {
   spendingItems: SpendingItem[];
@@ -23,32 +23,33 @@ export function CurrentMonthSummary({
   isLoading,
 }: CurrentMonthChartProps) {
   const now = dayjs();
-  const currentMonth = now.month();
   const monthName = now.format("MMMM");
 
-  const spendingItemsInCurrentMonth = useMemo(
-    () => getSpendingItemsInMonth(spendingItems, currentMonth),
-    [spendingItems, currentMonth]
-  );
+  const { spendingCategories } = useFetchSpendingCategories();
 
   const totalAmount = useMemo(
-    () => sumValueOfObjects(spendingItemsInCurrentMonth, "amount"),
-    [spendingItemsInCurrentMonth]
+    () => sumValueOfObjects(spendingItems, "amount"),
+    [spendingItems]
   );
 
-  const chartData = useMemo(
-    () => generateMonthChartData(spendingItemsInCurrentMonth, now.toDate()),
-    [spendingItemsInCurrentMonth, now]
+  const dayChartData = useMemo(
+    () => getMonthChartData(spendingItems, now.format("YYYY-MM")),
+    [spendingItems, now]
+  );
+
+  const categoryChartData = useMemo(
+    () => getTotalPerCategory(spendingItems, spendingCategories),
+    [spendingItems, spendingCategories]
   );
 
   const mostExpensiveItem = useMemo(
-    () => getMostExpensiveSpendingItem(spendingItemsInCurrentMonth),
-    [spendingItemsInCurrentMonth]
+    () => getMostExpensiveSpendingItem(spendingItems),
+    [spendingItems]
   );
 
   const mostFrequentCategoryData = useMemo(
-    () => getMostFrequentCategoryData(spendingItemsInCurrentMonth),
-    [spendingItemsInCurrentMonth]
+    () => getMostFrequentCategoryData(spendingItems),
+    [spendingItems]
   );
 
   return (
@@ -62,19 +63,39 @@ export function CurrentMonthSummary({
         Total spent: <b>{formatNumber(totalAmount)} kr</b>
       </Typography>
 
-      <Typography variant="h3">Amount per day</Typography>
+      <Grid container columnGap={2} rowGap={2}>
+        <Grid item xs={12} md={5.85}>
+          <Typography variant="h4" mb={3}>
+            Per day
+          </Typography>
 
-      <BarChart
-        data={chartData}
-        xAxisKey={"date"}
-        xAxisFormatter={(value) => dayjs(value).format("DD")}
-        yAxisKey={"amount"}
-        yAxisLabelPosition="inside"
-        cartesianGrid={{ horizontal: true }}
-        showLegend={false}
-        height={250}
-        loading={isLoading}
-      />
+          <BarChart
+            data={dayChartData}
+            xAxisKey={"date"}
+            yAxisKey={"amount"}
+            yAxisLabelPosition="inside"
+            cartesianGrid={{ horizontal: true }}
+            showLegend={false}
+            height={250}
+            loading={isLoading}
+          />
+        </Grid>
+        <Grid item xs={12} md={5.9}>
+          <Typography variant="h4" mb={3}>
+            Per category
+          </Typography>
+
+          <BarChart
+            data={categoryChartData}
+            xAxisKey={"name"}
+            yAxisKey={"amount"}
+            yAxisLabelPosition="inside"
+            height={250}
+            loading={isLoading}
+            showLegend={false}
+          />
+        </Grid>
+      </Grid>
 
       <Typography variant="h3">Most expensive purchase</Typography>
 

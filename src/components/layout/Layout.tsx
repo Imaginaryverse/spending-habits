@@ -58,12 +58,15 @@ export function Layout({ children }: PropsWithChildren) {
       <Stack
         flex={1}
         height="100%"
-        overflow="auto"
         width="100%"
-        maxWidth="md"
+        maxWidth="xl"
+        justifyContent="flex-start"
+        alignItems="center"
         sx={{
           opacity: showBackdrop ? 0 : 1,
           transition: "opacity 0.5s ease-in-out",
+          overflowX: "hidden",
+          overflowY: "auto",
         }}
       >
         {children}
@@ -94,7 +97,7 @@ function Navigation() {
         justifyContent: "space-between",
         alignItems: "center",
         paddingRight: "1rem",
-        maxWidth: "md",
+        maxWidth: "xl",
       }}
     >
       <Toolbar>

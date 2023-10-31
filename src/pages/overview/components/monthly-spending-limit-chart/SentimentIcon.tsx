@@ -9,7 +9,7 @@ type SentimentIconProps = {
 };
 
 export function SentimentIcon({ percentage }: SentimentIconProps) {
-  if (percentage >= 100) {
+  if (percentage > 100) {
     return <SentimentVeryDissatisfiedOutlinedIcon fontSize="small" />;
   }
 

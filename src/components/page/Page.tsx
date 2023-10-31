@@ -9,7 +9,7 @@ type PageProps = {
 
 export function Page({
   justifyContent = "flex-start",
-  alignItems = "center",
+  alignItems = "flex-start",
   spacing = 3,
   children,
 }: PropsWithChildren<PageProps>) {
@@ -17,17 +17,12 @@ export function Page({
     <Stack
       flex={1}
       width="100%"
-      maxWidth="md"
+      maxWidth="lg"
       px={2}
       py={3}
       spacing={spacing}
-      overflow="auto"
       justifyContent={justifyContent}
       alignItems={alignItems}
-      sx={{
-        overflowX: "hidden",
-        overflowY: "auto",
-      }}
     >
       {children}
     </Stack>

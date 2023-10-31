@@ -28,11 +28,9 @@ export function OverviewPage() {
 
   return (
     <Page>
-      <Typography variant="h1" sx={{ alignSelf: "flex-start" }}>
-        Overview
-      </Typography>
+      <Typography variant="h1">Overview</Typography>
 
-      <Typography variant="h3" sx={{ alignSelf: "flex-start" }}>
+      <Typography variant="h3">
         Welcome back{userProfile?.name ? `, ${userProfile.name}` : ""}!
       </Typography>
 

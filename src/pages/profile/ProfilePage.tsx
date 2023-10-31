@@ -107,9 +107,7 @@ export function ProfilePage() {
         justifyContent="space-between"
         spacing={2}
       >
-        <Typography variant="h1" sx={{ alignSelf: "flex-start" }}>
-          Profile
-        </Typography>
+        <Typography variant="h1">Profile</Typography>
 
         <Button
           variant="contained"

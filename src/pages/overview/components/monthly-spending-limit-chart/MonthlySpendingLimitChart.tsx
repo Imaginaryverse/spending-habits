@@ -1,5 +1,3 @@
-import dayjs from "dayjs";
-import { getSpendingItemsInMonth } from "../current-month-summary/utils/current-month-summary-utils";
 import { useMemo } from "react";
 import {
   calcPercentage,
@@ -23,19 +21,11 @@ export function MonthlySpendingLimitChart({
   userProfile,
   spendingItems,
 }: MonthlySpendingLimitReminderProps) {
-  const now = dayjs();
-  const currentMonth = now.month();
-
   const spendingLimit = userProfile?.monthly_spending_limit ?? 0;
 
-  const spendingItemsInCurrentMonth = useMemo(
-    () => getSpendingItemsInMonth(spendingItems, currentMonth),
-    [spendingItems, currentMonth]
-  );
-
   const totalSpent = useMemo(
-    () => sumValueOfObjects(spendingItemsInCurrentMonth, "amount"),
-    [spendingItemsInCurrentMonth]
+    () => sumValueOfObjects(spendingItems, "amount"),
+    [spendingItems]
   );
 
   const spendingPercentage = useMemo(

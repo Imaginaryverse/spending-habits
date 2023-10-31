@@ -14,6 +14,12 @@ import { useAuth } from "@src/features/auth/useAuth";
 import { getNumDaysInMonth } from "@src/utils/date-utils";
 import { SpendingItem } from "@src/types";
 import { BarChart } from "@src/components/charts/BarChart";
+import { PaperStack } from "@src/components/paper-stack/PaperStack";
+import {
+  getDayChartData,
+  getMonthChartData,
+  getYearChartData,
+} from "@src/utils/data-utils";
 
 const yearOptions = [
   { label: "2023", value: 2023 },
@@ -150,16 +156,14 @@ export function HistoryPage() {
     }
   );
 
-  const chartData: ChartData[] = useMemo(
+  const chartData = useMemo(
     () => parseChartData(spendingItems ?? [], dateKey ?? ""),
     [spendingItems, dateKey]
   );
 
   return (
     <Page>
-      <Typography variant="h1" sx={{ alignSelf: "flex-start" }}>
-        History
-      </Typography>
+      <Typography variant="h1">History</Typography>
 
       <Stack component="form" spacing={2} sx={{ width: "100%" }}>
         <Stack
@@ -202,37 +206,37 @@ export function HistoryPage() {
         </Button>
       </Stack>
 
-      <BarChart
-        data={chartData}
-        xAxisKey={"date"}
-        yAxisKey={"amount"}
-        yAxisLabelPosition="inside"
-        height={250}
-        showLegend={false}
-        cartesianGrid={{ horizontal: true }}
-        emptyDataText={`No data for ${dateKey}`}
-        loading={isLoadingSpendingItems}
-      />
+      <PaperStack>
+        <BarChart
+          data={chartData}
+          xAxisKey={"date"}
+          yAxisKey={"amount"}
+          yAxisLabelPosition="inside"
+          height={250}
+          showLegend={false}
+          cartesianGrid={{ horizontal: true }}
+          emptyDataText={`No data for ${dateKey}`}
+          loading={isLoadingSpendingItems}
+        />
+      </PaperStack>
 
-      <Typography variant="h2" sx={{ alignSelf: "flex-start" }}>
-        Spending items
-      </Typography>
+      <PaperStack>
+        <Typography variant="h2">Spending items</Typography>
 
-      <Typography>
-        * List of items for selected date range. On year, items should be
-        grouped by month. On month, items should be grouped by day. On day,
-        items should simply be sorted by time.
-      </Typography>
+        <Typography>
+          * List of items for selected date range. On year, items should be
+          grouped by month. On month, items should be grouped by day. On day,
+          items should simply be sorted by time.
+        </Typography>
 
-      <Typography variant="h2" sx={{ alignSelf: "flex-start" }}>
-        Summary
-      </Typography>
+        <Typography variant="h2">Summary</Typography>
 
-      <Typography>
-        * Summary of spending behaviour for selected date range. This can
-        include total amount spent, most frequent category, most expensive item,
-        trend (e.g. spending more or less than previous month), etc.
-      </Typography>
+        <Typography>
+          * Summary of spending behaviour for selected date range. This can
+          include total amount spent, most frequent category, most expensive
+          item, trend (e.g. spending more or less than previous month), etc.
+        </Typography>
+      </PaperStack>
     </Page>
   );
 }
@@ -293,71 +297,6 @@ const getResolutionFromDateKey = (dateKey: string) => {
   const dateKeyParts = dateKey.split("-").length;
   return dateKeyParts === 1 ? "year" : dateKeyParts === 2 ? "month" : "day";
 };
-
-type ChartData = {
-  date: string; // if year then "jan, feb, mar, etc", if month then "01, 02, 03, etc", if day then "01, 02, 03, etc"
-  amount: number;
-};
-
-function getYearChartData(spendingItems: SpendingItem[]): ChartData[] {
-  const months = Array.from({ length: 12 }, (_, i) =>
-    dayjs().month(i).format("MMM")
-  );
-  const chartData: ChartData[] = [];
-
-  months.forEach((month) => {
-    const amount = spendingItems
-      .filter(
-        (spendingItem) => dayjs(spendingItem.created_at).format("MMM") === month
-      )
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    chartData.push({ date: month, amount });
-  });
-
-  return chartData;
-}
-
-function getMonthChartData(
-  spendingItems: SpendingItem[],
-  dateKey: string
-): ChartData[] {
-  const daysInMonth = getNumDaysInMonth(new Date(dateKey));
-  const chartData: ChartData[] = [];
-
-  for (let i = 1; i <= daysInMonth; i++) {
-    const amount = spendingItems
-      .filter(
-        (spendingItem) =>
-          dayjs(spendingItem.created_at).format("DD") ===
-          String(i).padStart(2, "0")
-      )
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    chartData.push({ date: String(i).padStart(2, "0"), amount });
-  }
-
-  return chartData;
-}
-
-function getDayChartData(spendingItems: SpendingItem[]): ChartData[] {
-  const hours = Array.from({ length: 24 }, (_, i) =>
-    String(i).padStart(2, "0")
-  );
-  const chartData: ChartData[] = [];
-
-  hours.forEach((hour) => {
-    const amount = spendingItems
-      .filter(
-        (spendingItem) => dayjs(spendingItem.created_at).format("HH") === hour
-      )
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    chartData.push({ date: hour, amount });
-  });
-
-  return chartData;
-}
 
 function parseChartData(spendingItems: SpendingItem[], dateKey: string) {
   const resolution = getResolutionFromDateKey(dateKey);
