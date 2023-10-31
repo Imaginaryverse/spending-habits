@@ -162,6 +162,7 @@ export function BarChart<T extends ValidBarChartDataItem>({
             hide={hideXAxis}
             style={{
               fill: theme.palette.text.secondary,
+              fontSize: theme.typography.body2.fontSize,
               textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
             }}
           />
@@ -175,6 +176,7 @@ export function BarChart<T extends ValidBarChartDataItem>({
             hide={hideYAxis}
             style={{
               fill: theme.palette.text.secondary,
+              fontSize: theme.typography.body2.fontSize,
               textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
             }}
           />
