@@ -36,9 +36,9 @@ export function SignInPage() {
   }, [isAuthenticated, navigate, previousLocation]);
 
   return (
-    <Page justifyContent="center">
+    <Page justifyContent="center" alignItems="center">
       <PaperStack
-        py={4}
+        py={8}
         px={4}
         spacing={4}
         sx={{ alignItems: "center", maxWidth: "sm" }}
@@ -123,7 +123,7 @@ function SignInForm({ onSignIn, isSigningIn, signInError }: SignInFormProps) {
         />
       </FormControl>
 
-      <FormControl fullWidth sx={{ mb: 3 }}>
+      <FormControl fullWidth sx={{ mb: 4 }}>
         <FormLabel htmlFor="password">Password</FormLabel>
         <TextField
           id="password"
