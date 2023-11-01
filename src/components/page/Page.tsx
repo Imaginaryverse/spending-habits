@@ -18,7 +18,7 @@ export function Page({
       flex={1}
       width="100%"
       maxWidth="lg"
-      px={2}
+      px={{ xs: 2, sm: 3, md: 4 }}
       py={3}
       spacing={spacing}
       justifyContent={justifyContent}
