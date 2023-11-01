@@ -99,15 +99,13 @@ export function get24HourChartData(spendingItems: SpendingItem[]): ChartData[] {
     return [];
   }
 
-  const currentHour = dayjs().format("DD HH:00");
-
-  const hours = Array.from({ length: 24 }, (_, i) =>
-    dayjs(currentHour).subtract(i, "hour").format("DD HH:00")
-  );
+  const currentHour = dayjs().format("YYYY-MM-DD HH:00");
 
   const chartData: ChartData[] = [];
 
-  hours.forEach((hour) => {
+  for (let i = 0; i < 24; i++) {
+    const hour = dayjs(currentHour).subtract(i, "hour").format("DD HH:00");
+
     const amount = spendingItems
       .filter(
         (spendingItem) =>
@@ -118,7 +116,7 @@ export function get24HourChartData(spendingItems: SpendingItem[]): ChartData[] {
     const hourOfDay = hour.split(" ")[1];
 
     chartData.push({ date: `${hourOfDay}`, amount });
-  });
+  }
 
   return chartData.reverse();
 }
