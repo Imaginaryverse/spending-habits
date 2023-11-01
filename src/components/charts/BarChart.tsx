@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { ComponentProps, useMemo } from "react";
 import { CircularProgress, Stack } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -43,26 +43,103 @@ const defaultCartesianGridProps: CartesianGridProps = {
 };
 
 type BarChartProps<T extends ValidBarChartDataItem> = {
+  /**
+   * The data to be displayed in the chart.
+   */
   data: T[];
+  /**
+   * The key of the data to be displayed on the X axis.
+   * If orientation is "vertical", this will be the Y axis.
+   */
   xAxisKey: keyof T;
+  /**
+   * If true, the X axis will be hidden.
+   */
   hideXAxis?: boolean;
+  /**
+   * Anchor position of the X axis. Defaults to "bottom".
+   */
   xAxisAnchor?: "top" | "bottom";
+  /**
+   * X axis interval. Defaults to undefined.
+   */
+  xAxisInterval?: ComponentProps<typeof XAxis>["interval"];
+  /**
+   * Function to format the X axis values.
+   */
   xAxisFormatter?: (value: string) => string;
+  /**
+   * The key of the data to be displayed on the Y axis.
+   * If orientation is "vertical", this will be the X axis.
+   */
   yAxisKey: keyof T;
+  /**
+   * If true, the Y axis will be hidden.
+   */
   hideYAxis?: boolean;
+  /**
+   * Anchor position of the Y axis. Defaults to "left".
+   */
   yAxisAnchor?: "left" | "right";
+  /**
+   * Position of the Y axis label. Defaults to "outside".
+   */
   yAxisLabelPosition?: "outside" | "inside";
+  /**
+   * Y axis interval. Defaults to undefined.
+   */
+  yAxisInterval?: ComponentProps<typeof YAxis>["interval"];
+  /**
+   * Function to format the Y axis values.
+   */
   yAxisFormatter?: (value: string) => string;
+  /**
+   * The height of the chart. Defaults to 300.
+   */
   height?: number;
+  /**
+   * If true, the legend will be shown. Defaults to false.
+   */
   showLegend?: boolean;
+  /**
+   * The key of the data to be displayed in the legend.
+   */
   legendKey?: keyof T;
+  /**
+   * The type of icon to be displayed in the legend.
+   */
   legendIconType?: LegendIconType;
+  /**
+   * The size of the icon to be displayed in the legend.
+   */
   legendIconSize?: number;
+  /**
+   * Props to be passed to the CartesianGrid component.
+   */
   cartesianGrid?: CartesianGridProps;
+  /**
+   * The orientation of the chart. Defaults to "horizontal".
+   * If "vertical", the X axis will be the Y axis and vice versa.
+   */
   orientation?: "horizontal" | "vertical";
+  /**
+   * An array of colors to be used in the chart.
+   * If not provided, the primary color will be used.
+   */
   colors?: string[];
+  /**
+   * Text to be displayed when there is no data.
+   */
   emptyDataText?: string;
+  /**
+   * If true, a loading spinner will be displayed.
+   */
   loading?: boolean;
+  /**
+   * The maximum value of the Y axis.
+   * If not provided, the maximum value will be calculated from the data.
+   */
+  dataMax?: number;
 };
 
 export function BarChart<T extends ValidBarChartDataItem>({
@@ -70,14 +147,16 @@ export function BarChart<T extends ValidBarChartDataItem>({
   xAxisKey,
   hideXAxis,
   xAxisAnchor = "bottom",
+  xAxisInterval,
   xAxisFormatter,
   yAxisKey,
   hideYAxis,
   yAxisAnchor = "left",
   yAxisLabelPosition = "outside",
+  yAxisInterval,
   yAxisFormatter,
   height = 300,
-  showLegend = true,
+  showLegend,
   legendKey,
   legendIconSize = 12,
   legendIconType,
@@ -86,6 +165,7 @@ export function BarChart<T extends ValidBarChartDataItem>({
   colors,
   emptyDataText,
   loading,
+  dataMax,
 }: BarChartProps<T>) {
   const cartesianGridProps = useMemo(
     () => ({ ...defaultCartesianGridProps, ...cartesianGrid }),
@@ -99,6 +179,34 @@ export function BarChart<T extends ValidBarChartDataItem>({
 
     return [theme.palette.primary.main];
   }, [colors]);
+
+  const xAxisDomain = useMemo(() => {
+    if (!dataMax) {
+      return undefined;
+    }
+
+    const base = 0;
+    const min = Math.min(...data.map((item) => item[yAxisKey] as number));
+    const max = dataMax;
+
+    if (min < base) {
+      return [min, max];
+    }
+
+    return [base, max];
+  }, [data, dataMax, yAxisKey]);
+
+  const xAxisTicks = useMemo(() => {
+    if (!dataMax) {
+      return undefined;
+    }
+
+    const base = 0;
+    const min = Math.min(...data.map((item) => item[yAxisKey] as number));
+    const max = dataMax;
+
+    return [min, base, max].sort((a, b) => a - b);
+  }, [data, dataMax, yAxisKey]);
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -162,9 +270,12 @@ export function BarChart<T extends ValidBarChartDataItem>({
             hide={hideXAxis}
             style={{
               fill: theme.palette.text.secondary,
-              fontSize: theme.typography.body2.fontSize,
+              fontSize: theme.typography.caption.fontSize,
               textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
             }}
+            domain={xAxisDomain}
+            ticks={xAxisTicks}
+            interval={xAxisInterval}
           />
 
           <YAxis
@@ -176,9 +287,10 @@ export function BarChart<T extends ValidBarChartDataItem>({
             hide={hideYAxis}
             style={{
               fill: theme.palette.text.secondary,
-              fontSize: theme.typography.body2.fontSize,
+              fontSize: theme.typography.caption.fontSize,
               textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
             }}
+            interval={yAxisInterval}
           />
 
           {!data.length && emptyDataText && (

@@ -102,7 +102,7 @@ export function SevenDaysSummary() {
         Total spent: <b>{formatNumber(totalAmount)} kr</b>
       </Typography>
 
-      <Grid container columnGap={2} rowGap={2}>
+      <Grid container gap={2}>
         <Grid item xs={12} md={5.85}>
           <Typography variant="h4" mb={3}>
             Per day
@@ -115,7 +115,6 @@ export function SevenDaysSummary() {
             yAxisKey={"amount"}
             yAxisLabelPosition="inside"
             cartesianGrid={{ horizontal: true }}
-            showLegend={false}
             height={250}
             loading={isLoadingSpendingItems}
           />
@@ -133,7 +132,6 @@ export function SevenDaysSummary() {
             cartesianGrid={{ horizontal: true }}
             height={250}
             loading={isLoadingSpendingItems}
-            showLegend={false}
           />
         </Grid>
       </Grid>

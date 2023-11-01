@@ -74,7 +74,7 @@ export function TwentyFourHourSummary() {
       {!spendingItems.length ? (
         <Typography>No spendings in the last 24 hours</Typography>
       ) : (
-        <Grid container columnGap={2} rowGap={2}>
+        <Grid container gap={2}>
           <Grid item xs={12} md={5.85}>
             <Typography variant="h4" mb={3}>
               Per hour
@@ -87,7 +87,6 @@ export function TwentyFourHourSummary() {
               yAxisLabelPosition="inside"
               yAxisKey="amount"
               cartesianGrid={{ horizontal: true }}
-              showLegend={false}
               loading={isLoadingSpendingItems}
             />
           </Grid>
@@ -103,7 +102,6 @@ export function TwentyFourHourSummary() {
               yAxisLabelPosition="inside"
               yAxisKey="amount"
               cartesianGrid={{ horizontal: true }}
-              showLegend={false}
               loading={isLoadingSpendingItems}
             />
           </Grid>

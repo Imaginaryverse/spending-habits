@@ -8,12 +8,11 @@ import dayjs from "dayjs";
 import { Grid, Paper, Stack, Typography } from "@mui/material";
 import { BarChart } from "@src/components/charts/BarChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
-import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
+import BalanceIcon from "@mui/icons-material/Balance";
 import { SentimentIcon } from "./SentimentIcon";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useUserProfile } from "@src/api/user-profiles";
 import { useFetchSpendingItems } from "@src/api/spending-items";
-import theme from "@src/theme/theme";
 import { SpendingItem } from "@src/types";
 
 function selectItemsOfCurrentMonth(spendingItems: SpendingItem[]) {
@@ -50,17 +49,28 @@ export function MonthlyBudgetChart() {
     [spendingItems]
   );
 
-  const spendingPercentage = useMemo(
-    () => calcPercentage(totalSpent, spendingLimit),
-    [totalSpent, spendingLimit]
+  const remainingBudget = useMemo(
+    () => calcRemainingBudget(spendingItems, spendingLimit),
+    [spendingItems, spendingLimit]
   );
 
-  const formattedPercentage = useMemo(
+  const percentageRemaining = useMemo(
+    () => calcPercentage(remainingBudget, spendingLimit),
+    [remainingBudget, spendingLimit]
+  );
+
+  const formattedPercentageRemaining = useMemo(
     () =>
       formatNumber(
-        spendingPercentage > 100 ? spendingPercentage - 100 : spendingPercentage
+        percentageRemaining < 0
+          ? percentageRemaining * -1
+          : percentageRemaining,
+        {
+          fractions: 1,
+          excludeFractionsOnWholeNumbers: true,
+        }
       ),
-    [spendingPercentage]
+    [percentageRemaining]
   );
 
   // TODO: Inform that the feature is unavailable if spending limit is not set
@@ -68,76 +78,81 @@ export function MonthlyBudgetChart() {
     return null;
   }
 
-  const chartData = [
-    {
-      name: "Spent",
-      amount: totalSpent,
-    },
-    {
-      name: "Budget",
-      amount: spendingLimit,
-    },
-  ];
-
   return (
     <PaperStack>
       <Stack direction="row" alignItems="center" spacing={1}>
-        <SavingsOutlinedIcon />
+        <BalanceIcon />
         <Typography variant="h2">{currentMonth} budget</Typography>
       </Stack>
 
       <Grid container gap={2}>
-        <Grid item xs={12} md={3.25}>
-          <Stack spacing={2}>
-            <Typography>
-              Total spent: <b>{formatNumber(totalSpent)} kr</b>
-            </Typography>
-
+        <Grid item xs={12} md={5.85}>
+          <Stack spacing={1}>
             <Typography>
               Budget: <b>{formatNumber(spendingLimit)} kr</b>
             </Typography>
+
+            <Typography>
+              Amount spent: <b>{formatNumber(totalSpent)} kr</b>
+            </Typography>
+
+            <Typography>
+              Remaining: <b>{formatNumber(remainingBudget)} kr</b>
+            </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={12} md={8.5}>
+        <Grid
+          item
+          xs={12}
+          md={5.9}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <BarChart
-            data={chartData}
+            data={[{ name: "Remaining", amount: remainingBudget }]}
             xAxisKey="name"
             yAxisKey={"amount"}
             hideYAxis
             orientation="vertical"
-            height={100}
-            showLegend={false}
-            colors={[
-              getSpentBarColor(totalSpent, spendingLimit),
-              theme.palette.primary.main,
-            ]}
+            height={75}
+            colors={[getBarColor(totalSpent, spendingLimit)]}
             loading={isLoadingSpendingItems}
+            dataMax={spendingLimit}
+            xAxisInterval="preserveStartEnd"
           />
         </Grid>
       </Grid>
 
       <Paper elevation={0} component={Stack} py={2} px={2} alignItems="center">
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <SentimentIcon percentage={spendingPercentage} />
-
-          <Typography
-            variant="body1"
-            color={spendingPercentage > 99 ? "error.light" : "text.primary"}
-          >
-            You're at <b>{formattedPercentage}%</b>{" "}
-            {spendingPercentage > 100 ? "over" : "of"} budget
-          </Typography>
-        </Stack>
+        <Typography
+          variant="body1"
+          color={remainingBudget < 0 ? "error.light" : "text.primary"}
+          sx={{ display: "flex", alignItems: "center" }}
+        >
+          <SentimentIcon percentage={percentageRemaining} />
+          {formattedPercentageRemaining}%{" "}
+          {remainingBudget < 0 ? "over budget" : "budget remaining"}
+        </Typography>
       </Paper>
     </PaperStack>
   );
 }
 
-function getSpentBarColor(value: number, limit: number) {
+function calcRemainingBudget(data: SpendingItem[], limit: number) {
+  const totalAmount = sumValueOfObjects(data, "amount");
+  const remainingBudget = limit - totalAmount;
+
+  return remainingBudget;
+}
+
+function getBarColor(value: number, limit: number) {
   const percentage = calcPercentage(value, limit);
 
   const max = 0;
-  const min = 200;
+  const min = 120;
 
   // hue must stay within min and max values
   const hue = Math.min(
