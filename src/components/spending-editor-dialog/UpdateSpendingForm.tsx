@@ -123,10 +123,10 @@ export const UpdateSpendingForm = ({
         />
 
         <TextField
-          label="Comment"
-          id="comment"
-          value={input.comment}
-          onChange={(e) => updateInput("comment", e.target.value)}
+          label="Amount"
+          id="amount"
+          value={input.amount}
+          onChange={(e) => updateInput("amount", Number(e.target.value))}
           disabled={isUpdatingSpendingItem}
           size="small"
         />
@@ -151,15 +151,6 @@ export const UpdateSpendingForm = ({
           </TextField>
         )}
 
-        <TextField
-          label="Amount"
-          id="amount"
-          value={input.amount}
-          onChange={(e) => updateInput("amount", Number(e.target.value))}
-          disabled={isUpdatingSpendingItem}
-          size="small"
-        />
-
         <FormGroup>
           <DateTimePicker
             value={dayjs(input.created_at)}
@@ -174,6 +165,15 @@ export const UpdateSpendingForm = ({
             Defaults to current date and time
           </Typography>
         </FormGroup>
+
+        <TextField
+          label="Comment"
+          id="comment"
+          value={input.comment}
+          onChange={(e) => updateInput("comment", e.target.value)}
+          disabled={isUpdatingSpendingItem}
+          size="small"
+        />
 
         <Button
           type="submit"
