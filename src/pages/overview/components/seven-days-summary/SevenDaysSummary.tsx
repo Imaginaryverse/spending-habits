@@ -33,11 +33,10 @@ function getDayChartData(items: SpendingItem[]) {
     return [];
   }
 
-  const mostRecentItem = items[0];
-  const mostRecentItemDate = dayjs(mostRecentItem.created_at);
+  const today = dayjs().endOf("day");
 
   const sevenDays = Array.from({ length: 7 }, (_, i) =>
-    mostRecentItemDate.subtract(i, "day").format("YYYY-MM-DD")
+    today.subtract(i, "day").format("YYYY-MM-DD")
   ).reverse();
 
   const data = sevenDays.map((day) => {
