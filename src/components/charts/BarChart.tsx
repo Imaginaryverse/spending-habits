@@ -14,7 +14,7 @@ import {
 import theme from "@src/theme/theme";
 
 type ValidBarChartDataItem = {
-  [key: string]: string | number;
+  [key: string]: string | number | Date;
 };
 
 type CartesianGridProps = {

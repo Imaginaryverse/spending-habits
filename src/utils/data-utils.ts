@@ -104,7 +104,7 @@ export function get24HourChartData(spendingItems: SpendingItem[]): ChartData[] {
   )[0];
 
   const hours = Array.from({ length: 24 }, (_, i) =>
-    dayjs(mostRecentItem.created_at).subtract(i, "hour").format("DD HH")
+    dayjs(mostRecentItem.created_at).subtract(i, "hour").format("DD HH:00")
   );
 
   const chartData: ChartData[] = [];
@@ -113,13 +113,13 @@ export function get24HourChartData(spendingItems: SpendingItem[]): ChartData[] {
     const amount = spendingItems
       .filter(
         (spendingItem) =>
-          dayjs(spendingItem.created_at).format("DD HH") === hour
+          dayjs(spendingItem.created_at).format("DD HH:00") === hour
       )
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     const hourOfDay = hour.split(" ")[1];
 
-    chartData.push({ date: hourOfDay, amount });
+    chartData.push({ date: `${hourOfDay}`, amount });
   });
 
   return chartData.reverse();
@@ -131,7 +131,7 @@ export function get24HourChartData(spendingItems: SpendingItem[]): ChartData[] {
  * @param categories - array of spending categories
  * @returns array of objects with name and amount
  */
-export function getTotalPerCategory(
+export function getAmountPerCategory(
   items: SpendingItem[],
   categories: SpendingCategory[]
 ): { name: string; amount: number }[] {

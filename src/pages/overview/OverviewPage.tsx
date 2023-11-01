@@ -1,30 +1,15 @@
-import { useFetchSpendingItems } from "@src/api/spending-items";
 import { useAuth } from "@src/features/auth/useAuth";
-import { CurrentMonthSummary } from "@src/pages/overview/components/current-month-summary/CurrentMonthSummary";
 import { Button, Paper, Stack, Typography } from "@mui/material";
 import { TwentyFourHourSummary } from "./components/twenty-four-hour-summary/TwentyFourHourSummary";
 import { useNavigate } from "react-router-dom";
 import { Page } from "@src/components/page/Page";
-import { MonthlySpendingLimitChart } from "./components/monthly-spending-limit-chart/MonthlySpendingLimitChart";
+import { MonthlyBudgetChart } from "./components/monthly-budget-chart/MonthlyBudgetChart";
 import { useUserProfile } from "@src/api/user-profiles";
-import { UserProfile } from "@src/types";
-import dayjs from "dayjs";
+import { SevenDaysSummary } from "./components/seven-days-summary/SevenDaysSummary";
 
 export function OverviewPage() {
-  const now = dayjs();
   const { user } = useAuth();
   const { userProfile } = useUserProfile(user?.id);
-
-  const { spendingItems, isLoadingSpendingItems } = useFetchSpendingItems(
-    {
-      user_id: user?.id,
-      fromDate: now.startOf("month").toDate(),
-      toDate: now.endOf("month").toDate(),
-    },
-    {
-      enabled: !!user?.id,
-    }
-  );
 
   return (
     <Page>
@@ -34,35 +19,21 @@ export function OverviewPage() {
         Welcome back{userProfile?.name ? `, ${userProfile.name}` : ""}!
       </Typography>
 
-      <MonthlySpendingLimitReminder userProfile={userProfile} />
+      <MissingMonthlyBudgetReminder />
 
-      {!!userProfile && (
-        <MonthlySpendingLimitChart
-          userProfile={userProfile}
-          spendingItems={spendingItems}
-          isLoading={isLoadingSpendingItems}
-        />
-      )}
+      <MonthlyBudgetChart />
 
-      <TwentyFourHourSummary
-        spendingItems={spendingItems}
-        isLoading={isLoadingSpendingItems}
-      />
+      <TwentyFourHourSummary />
 
-      <CurrentMonthSummary
-        spendingItems={spendingItems}
-        isLoading={isLoadingSpendingItems}
-      />
+      <SevenDaysSummary />
     </Page>
   );
 }
 
-function MonthlySpendingLimitReminder({
-  userProfile,
-}: {
-  userProfile: UserProfile | null;
-}) {
+function MissingMonthlyBudgetReminder() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { userProfile } = useUserProfile(user?.id);
 
   if (!userProfile || userProfile.monthly_spending_limit > 0) {
     return null;

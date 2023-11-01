@@ -11,19 +11,59 @@ import {
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
-import { getMonthChartData, getTotalPerCategory } from "@src/utils/data-utils";
+import { getAmountPerCategory } from "@src/utils/data-utils";
+import { useAuth } from "@src/features/auth/useAuth";
+import { useFetchSpendingItems } from "@src/api/spending-items";
+import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
 
-type CurrentMonthChartProps = {
-  spendingItems: SpendingItem[];
-  isLoading: boolean;
-};
+function selectItemsOfLastSevenDays(spendingItems: SpendingItem[]) {
+  const end = dayjs().toDate();
+  const start = dayjs(end).subtract(7, "day").toDate();
 
-export function CurrentMonthSummary({
-  spendingItems,
-  isLoading,
-}: CurrentMonthChartProps) {
-  const now = dayjs();
-  const monthName = now.format("MMMM");
+  const filteredItems = spendingItems.filter((item) => {
+    const itemDate = new Date(item.created_at);
+    return itemDate >= start && itemDate <= end;
+  });
+
+  return filteredItems;
+}
+
+function getDayChartData(items: SpendingItem[]) {
+  if (!items.length) {
+    return [];
+  }
+
+  const mostRecentItem = items[0];
+  const mostRecentItemDate = dayjs(mostRecentItem.created_at);
+
+  const sevenDays = Array.from({ length: 7 }, (_, i) =>
+    mostRecentItemDate.subtract(i, "day").format("YYYY-MM-DD")
+  ).reverse();
+
+  const data = sevenDays.map((day) => {
+    const itemsOnDay = items.filter((item) =>
+      dayjs(item.created_at).isSame(day, "day")
+    );
+
+    const totalAmount = sumValueOfObjects(itemsOnDay, "amount");
+
+    return {
+      date: day,
+      amount: totalAmount,
+    };
+  });
+
+  return data;
+}
+
+export function SevenDaysSummary() {
+  const { user } = useAuth();
+  const { spendingItems = [], isLoadingSpendingItems } = useFetchSpendingItems(
+    {
+      user_id: user?.id,
+    },
+    { enabled: !!user?.id, select: (data) => selectItemsOfLastSevenDays(data) }
+  );
 
   const { spendingCategories } = useFetchSpendingCategories();
 
@@ -33,12 +73,12 @@ export function CurrentMonthSummary({
   );
 
   const dayChartData = useMemo(
-    () => getMonthChartData(spendingItems, now.format("YYYY-MM")),
-    [spendingItems, now]
+    () => getDayChartData(spendingItems),
+    [spendingItems]
   );
 
   const categoryChartData = useMemo(
-    () => getTotalPerCategory(spendingItems, spendingCategories),
+    () => getAmountPerCategory(spendingItems, spendingCategories),
     [spendingItems, spendingCategories]
   );
 
@@ -56,7 +96,7 @@ export function CurrentMonthSummary({
     <PaperStack>
       <Stack direction="row" alignItems="center" spacing={1}>
         <CalendarMonthOutlinedIcon />
-        <Typography variant="h2">{monthName}</Typography>
+        <Typography variant="h2">Last 7 days</Typography>
       </Stack>
 
       <Typography>
@@ -72,12 +112,13 @@ export function CurrentMonthSummary({
           <BarChart
             data={dayChartData}
             xAxisKey={"date"}
+            xAxisFormatter={(date) => dayjs(date).format("ddd")}
             yAxisKey={"amount"}
             yAxisLabelPosition="inside"
             cartesianGrid={{ horizontal: true }}
             showLegend={false}
             height={250}
-            loading={isLoading}
+            loading={isLoadingSpendingItems}
           />
         </Grid>
         <Grid item xs={12} md={5.9}>
@@ -92,13 +133,17 @@ export function CurrentMonthSummary({
             yAxisLabelPosition="inside"
             cartesianGrid={{ horizontal: true }}
             height={250}
-            loading={isLoading}
+            loading={isLoadingSpendingItems}
             showLegend={false}
           />
         </Grid>
       </Grid>
 
-      <Typography variant="h3">Most expensive purchase</Typography>
+      <Typography variant="h4">Purchases</Typography>
+
+      <SpendingsList spendingItems={spendingItems} dense maxHeight={450} />
+
+      <Typography variant="h4">Most expensive purchase</Typography>
 
       {!!mostExpensiveItem && (
         <Typography>
@@ -109,7 +154,7 @@ export function CurrentMonthSummary({
         </Typography>
       )}
 
-      <Typography variant="h3">Most frequent category</Typography>
+      <Typography variant="h4">Most frequent category</Typography>
 
       {!!mostFrequentCategoryData && (
         <Typography>

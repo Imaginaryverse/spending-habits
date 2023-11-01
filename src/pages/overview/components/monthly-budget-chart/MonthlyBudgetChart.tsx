@@ -4,25 +4,45 @@ import {
   formatNumber,
   sumValueOfObjects,
 } from "@src/utils/number-utils";
+import dayjs from "dayjs";
 import { Grid, Paper, Stack, Typography } from "@mui/material";
-import theme from "@src/theme/theme";
 import { BarChart } from "@src/components/charts/BarChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import { SentimentIcon } from "./SentimentIcon";
-import { SpendingItem, UserProfile } from "@src/types";
+import { useAuth } from "@src/features/auth/useAuth";
+import { useUserProfile } from "@src/api/user-profiles";
+import { useFetchSpendingItems } from "@src/api/spending-items";
+import theme from "@src/theme/theme";
+import { SpendingItem } from "@src/types";
 
-type MonthlySpendingLimitReminderProps = {
-  userProfile: UserProfile;
-  spendingItems: SpendingItem[];
-  isLoading: boolean;
-};
+function selectItemsOfCurrentMonth(spendingItems: SpendingItem[]) {
+  const currentMonth = dayjs().format("YYYY-MM");
+  const start = dayjs(currentMonth).startOf("month").toDate();
+  const end = dayjs(currentMonth).endOf("month").toDate();
 
-export function MonthlySpendingLimitChart({
-  userProfile,
-  spendingItems,
-  isLoading,
-}: MonthlySpendingLimitReminderProps) {
+  const filteredItems = spendingItems.filter((item) => {
+    const itemDate = new Date(item.created_at);
+    return itemDate >= start && itemDate <= end;
+  });
+
+  return filteredItems;
+}
+
+export function MonthlyBudgetChart() {
+  const currentMonth = useMemo(() => dayjs().format("MMMM"), []);
+  const { user } = useAuth();
+  const { userProfile } = useUserProfile(user?.id);
+  const { spendingItems = [], isLoadingSpendingItems } = useFetchSpendingItems(
+    {
+      user_id: user?.id,
+    },
+    {
+      enabled: !!user?.id,
+      select: (data) => selectItemsOfCurrentMonth(data),
+    }
+  );
+
   const spendingLimit = userProfile?.monthly_spending_limit ?? 0;
 
   const totalSpent = useMemo(
@@ -44,7 +64,7 @@ export function MonthlySpendingLimitChart({
   );
 
   // TODO: Inform that the feature is unavailable if spending limit is not set
-  if (!spendingLimit) {
+  if (isLoadingSpendingItems || !spendingLimit) {
     return null;
   }
 
@@ -63,7 +83,7 @@ export function MonthlySpendingLimitChart({
     <PaperStack>
       <Stack direction="row" alignItems="center" spacing={1}>
         <SavingsOutlinedIcon />
-        <Typography variant="h2">Monthly budget</Typography>
+        <Typography variant="h2">{currentMonth} budget</Typography>
       </Stack>
 
       <Grid container gap={2}>
@@ -91,7 +111,7 @@ export function MonthlySpendingLimitChart({
               getSpentBarColor(totalSpent, spendingLimit),
               theme.palette.primary.main,
             ]}
-            loading={isLoading}
+            loading={isLoadingSpendingItems}
           />
         </Grid>
       </Grid>

@@ -7,51 +7,62 @@ import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { BarChart } from "@src/components/charts/BarChart";
-import { get24HourChartData, getTotalPerCategory } from "@src/utils/data-utils";
+import {
+  get24HourChartData,
+  getAmountPerCategory,
+} from "@src/utils/data-utils";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { useAuth } from "@src/features/auth/useAuth";
+import { useFetchSpendingItems } from "@src/api/spending-items";
 
-type TwentyFourHourSummaryProps = {
-  spendingItems: SpendingItem[];
-  isLoading: boolean;
-};
+function selectItemsOfLast24Hours(spendingItems: SpendingItem[]) {
+  const end = dayjs().toDate();
+  const start = dayjs(end).subtract(24, "hour").toDate();
 
-export function TwentyFourHourSummary({
-  spendingItems,
-  isLoading,
-}: TwentyFourHourSummaryProps) {
+  const filteredItems = spendingItems.filter((item) => {
+    const itemDate = new Date(item.created_at);
+    return itemDate >= start && itemDate <= end;
+  });
+
+  return filteredItems;
+}
+
+export function TwentyFourHourSummary() {
+  const { user } = useAuth();
+  const { spendingItems = [], isLoadingSpendingItems } = useFetchSpendingItems(
+    {
+      user_id: user?.id,
+    },
+    { enabled: !!user?.id, select: (data) => selectItemsOfLast24Hours(data) }
+  );
   const { spendingCategories } = useFetchSpendingCategories();
 
-  const spendingItemsFor24Hours = useMemo(() => {
-    const now = new Date();
-    return getSpendingItemsFor24Hours(spendingItems, now);
+  const hourChartData = useMemo(() => {
+    if (!spendingItems.length) {
+      return [];
+    }
+
+    return get24HourChartData(spendingItems);
   }, [spendingItems]);
 
-  const hourChartData = useMemo(() => {
-    if (!spendingItemsFor24Hours.length) {
-      return [];
-    }
-
-    return get24HourChartData(spendingItemsFor24Hours);
-  }, [spendingItemsFor24Hours]);
-
   const categoryChartData = useMemo(() => {
-    if (!spendingItemsFor24Hours.length) {
+    if (!spendingItems.length) {
       return [];
     }
 
-    return getTotalPerCategory(spendingItemsFor24Hours, spendingCategories);
-  }, [spendingItemsFor24Hours, spendingCategories]);
+    return getAmountPerCategory(spendingItems, spendingCategories);
+  }, [spendingItems, spendingCategories]);
 
   const totalSpentInLast24Hours = useMemo(
-    () => sumValueOfObjects(spendingItemsFor24Hours, "amount"),
-    [spendingItemsFor24Hours]
+    () => sumValueOfObjects(spendingItems, "amount"),
+    [spendingItems]
   );
 
   return (
     <PaperStack>
       <Stack direction="row" alignItems="center" spacing={1}>
         <AccessTimeOutlinedIcon />
-        <Typography variant="h2">24 hours</Typography>
+        <Typography variant="h2">Last 24 hours</Typography>
       </Stack>
 
       {!!totalSpentInLast24Hours && (
@@ -60,17 +71,7 @@ export function TwentyFourHourSummary({
         </Typography>
       )}
 
-      <Typography variant="h4" mb={3}>
-        Purchases
-      </Typography>
-
-      <SpendingsList
-        spendingItems={spendingItemsFor24Hours}
-        dense
-        maxHeight={450}
-      />
-
-      {!spendingItemsFor24Hours.length ? (
+      {!spendingItems.length ? (
         <Typography>No spendings in the last 24 hours</Typography>
       ) : (
         <Grid container columnGap={2} rowGap={2}>
@@ -87,7 +88,7 @@ export function TwentyFourHourSummary({
               yAxisKey="amount"
               cartesianGrid={{ horizontal: true }}
               showLegend={false}
-              loading={isLoading}
+              loading={isLoadingSpendingItems}
             />
           </Grid>
           <Grid item xs={12} md={5.9}>
@@ -103,29 +104,17 @@ export function TwentyFourHourSummary({
               yAxisKey="amount"
               cartesianGrid={{ horizontal: true }}
               showLegend={false}
-              loading={isLoading}
+              loading={isLoadingSpendingItems}
             />
           </Grid>
         </Grid>
       )}
+
+      <Typography variant="h4" mb={3}>
+        Purchases
+      </Typography>
+
+      <SpendingsList spendingItems={spendingItems} dense maxHeight={450} />
     </PaperStack>
-  );
-}
-
-function get24HoursBackDate(now: Date): Date {
-  return dayjs(now).subtract(24, "hour").toDate();
-}
-
-function isBetweenDates(start: Date, end: Date, date: Date): boolean {
-  return dayjs(date).isAfter(start) && dayjs(date).isBefore(end);
-}
-
-function getSpendingItemsFor24Hours(
-  spendingItems: SpendingItem[],
-  now: Date
-): SpendingItem[] {
-  const twentyFourHoursBackDate = get24HoursBackDate(now);
-  return spendingItems.filter((spendingItem) =>
-    isBetweenDates(twentyFourHoursBackDate, now, spendingItem.created_at)
   );
 }
