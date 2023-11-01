@@ -90,7 +90,7 @@ export function getDayChartData(spendingItems: SpendingItem[]): ChartData[] {
 }
 
 /**
- * Returns the last 24 hours of spending data, ending with the most recent hour
+ * Returns the last 24 hours of spending data, ending at the current hour
  * @param spendingItems - array of spending items
  * @returns array of chart data
  */
@@ -99,12 +99,10 @@ export function get24HourChartData(spendingItems: SpendingItem[]): ChartData[] {
     return [];
   }
 
-  const mostRecentItem = spendingItems.sort(
-    (a, b) => dayjs(b.created_at).unix() - dayjs(a.created_at).unix()
-  )[0];
+  const currentHour = dayjs().format("DD HH:00");
 
   const hours = Array.from({ length: 24 }, (_, i) =>
-    dayjs(mostRecentItem.created_at).subtract(i, "hour").format("DD HH:00")
+    dayjs(currentHour).subtract(i, "hour").format("DD HH:00")
   );
 
   const chartData: ChartData[] = [];
