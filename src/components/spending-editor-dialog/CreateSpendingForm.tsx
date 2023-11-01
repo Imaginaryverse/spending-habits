@@ -120,6 +120,7 @@ export const CreateSpendingForm = ({
           value={input.title}
           onChange={(e) => updateInput("title", e.target.value)}
           disabled={isCreatingSpendingItem}
+          InputLabelProps={{ shrink: true }}
           size="small"
         />
 
@@ -129,6 +130,7 @@ export const CreateSpendingForm = ({
           value={input.amount}
           onChange={(e) => updateInput("amount", Number(e.target.value))}
           disabled={isCreatingSpendingItem}
+          InputLabelProps={{ shrink: true }}
           size="small"
         />
 
@@ -142,6 +144,7 @@ export const CreateSpendingForm = ({
               setInput({ ...input, category_id: Number(e.target.value) })
             }
             disabled={isCreatingSpendingItem}
+            InputLabelProps={{ shrink: true }}
             size="small"
           >
             {spendingCategories.map((category) => (
@@ -154,11 +157,17 @@ export const CreateSpendingForm = ({
 
         <FormGroup>
           <DateTimePicker
+            label="Date and time"
             value={input.created_at}
             onChange={(date) => updateInput("created_at", date)}
             referenceDate={dayjs(new Date())}
-            slotProps={{ textField: { id: "created_at" } }}
             disabled={isCreatingSpendingItem}
+            slotProps={{
+              textField: {
+                id: "created_at",
+                InputLabelProps: { shrink: true },
+              },
+            }}
             ampm={false}
           />
 
@@ -173,6 +182,7 @@ export const CreateSpendingForm = ({
           value={input.comment}
           onChange={(e) => updateInput("comment", e.target.value)}
           disabled={isCreatingSpendingItem}
+          InputLabelProps={{ shrink: true }}
           size="small"
         />
 
