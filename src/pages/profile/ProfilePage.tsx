@@ -7,13 +7,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useSignInOut } from "@src/api/auth";
 import { useAuth } from "@src/features/auth/useAuth";
 import { Page } from "@src/components/page/Page";
 import { useUserProfile } from "@src/api/user-profiles";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { useQueryClient } from "react-query";
 import { QUERY_KEY } from "@src/types";
+import { useSignInOut } from "@src/api/auth";
 
 type ProfileFormValues = {
   name: string;
@@ -102,19 +102,20 @@ export function ProfilePage() {
   return (
     <Page>
       <Stack
-        width="100%"
         direction="row"
         justifyContent="space-between"
-        spacing={2}
+        spacing={1}
+        width="100%"
       >
         <Typography variant="h1">Profile</Typography>
 
         <Button
-          variant="contained"
+          size="small"
+          variant="outlined"
           onClick={() => signOut()}
-          disabled={isEditing}
+          disabled={isUpdatingUserProfile || isEditing}
         >
-          Sign Out
+          Sign out
         </Button>
       </Stack>
 
@@ -196,7 +197,7 @@ export function ProfilePage() {
             p={1}
           >
             <Button
-              variant={isEditing ? "outlined" : "text"}
+              variant="text"
               onClick={() => setIsEditing((prev) => !prev)}
               disabled={isUpdatingUserProfile}
             >
