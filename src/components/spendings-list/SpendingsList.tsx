@@ -15,6 +15,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { useSpendingEditor } from "@src/features/spending-editor/useSpendingEditor";
 import { SpendingItem } from "@src/types";
+import dayjs from "dayjs";
 
 type SpendingsListProps = {
   spendingItems: SpendingItem[];
@@ -160,8 +161,5 @@ function SpendingsListItem({
 function formatDate(date: Date): string {
   const parsedDate = new Date(date);
 
-  return parsedDate.toLocaleString("sv-SE", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  return dayjs(parsedDate).format("ddd, MMM D, YYYY hh:mm");
 }
