@@ -100,31 +100,26 @@ export function ProfilePage() {
   }
 
   return (
-    <Page>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        spacing={1}
-        width="100%"
-      >
-        <Typography variant="h1">Profile</Typography>
-
+    <Page
+      title="Profile"
+      headerButtons={
         <Button
-          size="small"
-          variant="outlined"
+          variant="text"
           onClick={() => signOut()}
           disabled={isUpdatingUserProfile || isEditing}
+          sx={{ alignSelf: "center" }}
         >
           Sign out
         </Button>
-      </Stack>
-
+      }
+    >
       <PaperStack>
         <Stack
           component="form"
           autoComplete="off"
           onSubmit={handleUpdateProfile}
           width="100%"
+          maxWidth="sm"
           spacing={2}
         >
           <FormGroup>
@@ -189,22 +184,21 @@ export function ProfilePage() {
             </Typography>
           )}
 
-          <Stack
-            direction="row"
-            justifyContent="center"
-            flex={1}
-            spacing={2}
-            p={1}
-          >
-            <Button
-              variant="text"
-              onClick={() => setIsEditing((prev) => !prev)}
-              disabled={isUpdatingUserProfile}
+          {isEditing && (
+            <Stack
+              direction="row"
+              justifyContent="flex-end"
+              flex={1}
+              spacing={1}
             >
-              {isEditing ? "Cancel" : "Edit profile"}
-            </Button>
+              <Button
+                variant="text"
+                onClick={() => setIsEditing(false)}
+                disabled={isUpdatingUserProfile}
+              >
+                Cancel
+              </Button>
 
-            {isEditing && (
               <Button
                 type="submit"
                 variant="contained"
@@ -212,10 +206,21 @@ export function ProfilePage() {
               >
                 Save
               </Button>
-            )}
-          </Stack>
+            </Stack>
+          )}
         </Stack>
       </PaperStack>
+
+      {!isEditing && (
+        <Button
+          variant="outlined"
+          onClick={() => setIsEditing(true)}
+          disabled={isUpdatingUserProfile || isEditing}
+          sx={{ alignSelf: "center" }}
+        >
+          Edit profile
+        </Button>
+      )}
     </Page>
   );
 }

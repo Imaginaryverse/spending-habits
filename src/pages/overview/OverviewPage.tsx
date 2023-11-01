@@ -12,9 +12,7 @@ export function OverviewPage() {
   const { userProfile } = useUserProfile(user?.id);
 
   return (
-    <Page>
-      <Typography variant="h1">Overview</Typography>
-
+    <Page title="Overview">
       <Typography variant="h3">
         Welcome back{userProfile?.name ? `, ${userProfile.name}` : ""}!
       </Typography>

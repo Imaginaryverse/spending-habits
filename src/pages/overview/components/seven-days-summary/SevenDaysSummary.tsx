@@ -8,7 +8,7 @@ import {
   getMostExpensiveSpendingItem,
   getMostFrequentCategoryData,
 } from "./utils/current-month-summary-utils";
-import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import DateRangeIcon from "@mui/icons-material/DateRange";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
 import { getAmountPerCategory } from "@src/utils/data-utils";
@@ -94,7 +94,7 @@ export function SevenDaysSummary() {
   return (
     <PaperStack>
       <Stack direction="row" alignItems="center" spacing={1}>
-        <CalendarMonthOutlinedIcon />
+        <DateRangeIcon />
         <Typography variant="h2">Last 7 days</Typography>
       </Stack>
 
