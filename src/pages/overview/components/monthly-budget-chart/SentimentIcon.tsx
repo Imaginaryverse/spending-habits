@@ -10,24 +10,25 @@ type SentimentIconProps = {
 
 export function SentimentIcon({ percentage }: SentimentIconProps) {
   if (percentage >= 75) {
-    return <SentimentVerySatisfiedIcon fontSize="small" sx={{ mr: 0.5 }} />;
+    return <SentimentVerySatisfiedIcon fontSize="inherit" />;
   }
 
   if (percentage >= 50) {
-    return <SentimentSatisfiedAltIcon fontSize="small" sx={{ mr: 0.5 }} />;
+    return <SentimentSatisfiedAltIcon fontSize="inherit" />;
   }
 
   if (percentage >= 25) {
-    return <SentimentNeutralOutlinedIcon fontSize="small" sx={{ mr: 0.5 }} />;
+    return <SentimentNeutralOutlinedIcon fontSize="inherit" />;
   }
 
   if (percentage > 0) {
-    return (
-      <SentimentDissatisfiedOutlinedIcon fontSize="small" sx={{ mr: 0.5 }} />
-    );
+    return <SentimentDissatisfiedOutlinedIcon fontSize="inherit" />;
   }
 
   return (
-    <SentimentVeryDissatisfiedOutlinedIcon fontSize="small" sx={{ mr: 0.5 }} />
+    <SentimentVeryDissatisfiedOutlinedIcon
+      fontSize="inherit"
+      sx={{ mr: 0.5 }}
+    />
   );
 }
