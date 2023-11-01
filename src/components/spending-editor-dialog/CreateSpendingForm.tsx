@@ -168,6 +168,7 @@ export const CreateSpendingForm = ({
             referenceDate={dayjs(new Date())}
             slotProps={{ textField: { id: "created_at" } }}
             disabled={isCreatingSpendingItem}
+            ampm={false}
           />
 
           <Typography variant="caption" mt={0.5} ml={2}>
