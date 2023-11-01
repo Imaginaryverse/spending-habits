@@ -156,7 +156,7 @@ function NavigationBar({ onMenuClick }: NavigationBarProps) {
         >
           <NavigationTabs
             containerStyle={{ minHeight: "unset" }}
-            tabStyle={{ p: 1, minHeight: "unset" }}
+            tabStyle={{ py: 1, px: 2, minHeight: "unset" }}
           />
         </Stack>
 
