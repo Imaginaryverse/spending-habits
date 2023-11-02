@@ -2,8 +2,10 @@ import { ComponentProps, useMemo } from "react";
 import { CircularProgress, Stack } from "@mui/material";
 import {
   ResponsiveContainer,
-  BarChart as RechartsBarChart,
+  ComposedChart,
   Bar,
+  Line,
+  Area,
   Cell,
   XAxis,
   YAxis,
@@ -13,7 +15,7 @@ import {
 } from "recharts";
 import theme from "@src/theme/theme";
 
-type ValidBarChartDataItem = {
+type ValidChartDataItem = {
   [key: string]: string | number | Date;
 };
 
@@ -23,6 +25,8 @@ type CartesianGridProps = {
   strokeDasharray?: string;
   stroke?: string;
 };
+
+type VisualizationType = "bar" | "line" | "area";
 
 type LegendIconType =
   | "line"
@@ -42,7 +46,7 @@ const defaultCartesianGridProps: CartesianGridProps = {
   stroke: "rgba(255, 255, 255, 0.1)",
 };
 
-type BarChartProps<T extends ValidBarChartDataItem> = {
+type ChartProps<T extends ValidChartDataItem> = {
   /**
    * The data to be displayed in the chart.
    */
@@ -140,9 +144,17 @@ type BarChartProps<T extends ValidBarChartDataItem> = {
    * If not provided, the maximum value will be calculated from the data.
    */
   dataMax?: number;
+  /**
+   * The type of visualization. Defaults to "bar".
+   */
+  type?: VisualizationType;
+  /**
+   * If true, dots will be displayed on the line for both line and area charts.
+   */
+  lineDot?: boolean;
 };
 
-export function BarChart<T extends ValidBarChartDataItem>({
+export function CustomChart<T extends ValidChartDataItem>({
   data,
   xAxisKey,
   hideXAxis,
@@ -166,7 +178,9 @@ export function BarChart<T extends ValidBarChartDataItem>({
   emptyDataText,
   loading,
   dataMax,
-}: BarChartProps<T>) {
+  type = "bar",
+  lineDot = false,
+}: ChartProps<T>) {
   const cartesianGridProps = useMemo(
     () => ({ ...defaultCartesianGridProps, ...cartesianGrid }),
     [cartesianGrid]
@@ -215,7 +229,7 @@ export function BarChart<T extends ValidBarChartDataItem>({
           <CircularProgress />
         </Stack>
       ) : (
-        <RechartsBarChart data={data} layout={orientation}>
+        <ComposedChart data={data} layout={orientation}>
           <CartesianGrid
             strokeDasharray={cartesianGridProps.strokeDasharray}
             stroke={cartesianGridProps.stroke}
@@ -253,14 +267,35 @@ export function BarChart<T extends ValidBarChartDataItem>({
             />
           )}
 
-          <Bar dataKey={yAxisKey as string}>
-            {data.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={colorsArray[index % colorsArray.length]}
-              />
-            ))}
-          </Bar>
+          {type === "bar" && (
+            <Bar dataKey={yAxisKey as string}>
+              {data.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colorsArray[index % colorsArray.length]}
+                />
+              ))}
+            </Bar>
+          )}
+
+          {type === "line" && (
+            <Line
+              dataKey={yAxisKey as string}
+              stroke={colorsArray[0]}
+              strokeWidth={2}
+              dot={lineDot}
+            />
+          )}
+
+          {type === "area" && (
+            <Area
+              dataKey={yAxisKey as string}
+              stroke={colorsArray[0]}
+              strokeWidth={2}
+              fill={colorsArray[0]}
+              dot={lineDot}
+            />
+          )}
 
           <XAxis
             type={orientation === "horizontal" ? "category" : "number"}
@@ -304,7 +339,7 @@ export function BarChart<T extends ValidBarChartDataItem>({
               {emptyDataText}
             </text>
           )}
-        </RechartsBarChart>
+        </ComposedChart>
       )}
     </ResponsiveContainer>
   );

@@ -6,7 +6,7 @@ import {
 } from "@src/utils/number-utils";
 import dayjs from "dayjs";
 import { Grid, Paper, Stack, Typography } from "@mui/material";
-import { BarChart } from "@src/components/charts/BarChart";
+import { CustomChart } from "@src/components/charts/CustomChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import BalanceIcon from "@mui/icons-material/Balance";
 import { SentimentIcon } from "./SentimentIcon";
@@ -140,7 +140,7 @@ export function MonthlyBudgetChart() {
               <SentimentIcon percentage={percentageRemaining} />
             </Paper>
 
-            <BarChart
+            <CustomChart
               data={[{ name: "Remaining", amount: remainingBudget }]}
               xAxisKey="name"
               yAxisKey={"amount"}

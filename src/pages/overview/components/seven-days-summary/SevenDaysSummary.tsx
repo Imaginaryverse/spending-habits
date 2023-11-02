@@ -1,8 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { SpendingItem } from "@src/types";
 import dayjs from "dayjs";
-import { BarChart } from "../../../../components/charts/BarChart";
-import { Grid, Stack, Typography } from "@mui/material";
+import { CustomChart } from "../../../../components/charts/CustomChart";
+import { Grid, Stack, Switch, Typography } from "@mui/material";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import {
   getMostExpensiveSpendingItem,
@@ -15,6 +15,8 @@ import { getAmountPerCategory } from "@src/utils/data-utils";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
+
+type VisualizationOption = "amount" | "accumulated";
 
 function selectItemsOfLastSevenDays(spendingItems: SpendingItem[]) {
   const end = dayjs().toDate();
@@ -44,11 +46,17 @@ function getDayChartData(items: SpendingItem[]) {
       dayjs(item.created_at).isSame(day, "day")
     );
 
-    const totalAmount = sumValueOfObjects(itemsOnDay, "amount");
+    const dailyAmount = sumValueOfObjects(itemsOnDay, "amount");
+
+    const accumulatedTotal = sumValueOfObjects(
+      items.filter((item) => dayjs(item.created_at).isBefore(day)),
+      "amount"
+    );
 
     return {
       date: day,
-      amount: totalAmount,
+      amount: dailyAmount,
+      accumulated: accumulatedTotal,
     };
   });
 
@@ -57,6 +65,7 @@ function getDayChartData(items: SpendingItem[]) {
 
 export function SevenDaysSummary() {
   const { user } = useAuth();
+  const { spendingCategories } = useFetchSpendingCategories();
   const { spendingItems = [], isLoadingSpendingItems } = useFetchSpendingItems(
     {
       user_id: user?.id,
@@ -64,7 +73,14 @@ export function SevenDaysSummary() {
     { enabled: !!user?.id, select: (data) => selectItemsOfLastSevenDays(data) }
   );
 
-  const { spendingCategories } = useFetchSpendingCategories();
+  const [selectedVisualization, setSelectedVisualization] =
+    useState<VisualizationOption>("amount");
+
+  function toggleVisualization() {
+    setSelectedVisualization((prev) =>
+      prev === "amount" ? "accumulated" : "amount"
+    );
+  }
 
   const totalAmount = useMemo(
     () => sumValueOfObjects(spendingItems, "amount"),
@@ -104,15 +120,39 @@ export function SevenDaysSummary() {
 
       <Grid container gap={2}>
         <Grid item xs={12} md={5.85}>
-          <Typography variant="h4" mb={3}>
-            Per day
-          </Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={1}
+            mb={3}
+            width="100%"
+          >
+            <Typography variant="h4">Per day</Typography>
 
-          <BarChart
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={0.5}
+              maxHeight="1rem"
+            >
+              <Typography variant="caption">Daily amount</Typography>
+              <Switch
+                size="small"
+                checked={selectedVisualization === "accumulated"}
+                onChange={toggleVisualization}
+              />
+              <Typography variant="caption">Accumulated</Typography>
+            </Stack>
+          </Stack>
+
+          <CustomChart
             data={dayChartData}
             xAxisKey={"date"}
             xAxisFormatter={(date) => dayjs(date).format("ddd")}
-            yAxisKey={"amount"}
+            yAxisKey={selectedVisualization}
+            type={selectedVisualization === "amount" ? "bar" : "area"}
+            lineDot={true}
             yAxisLabelPosition="inside"
             cartesianGrid={{ horizontal: true }}
             height={250}
@@ -124,7 +164,7 @@ export function SevenDaysSummary() {
             Per category
           </Typography>
 
-          <BarChart
+          <CustomChart
             data={categoryChartData}
             xAxisKey={"name"}
             yAxisKey={"amount"}

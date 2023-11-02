@@ -6,7 +6,7 @@ import { SpendingItem } from "@src/types";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
-import { BarChart } from "@src/components/charts/BarChart";
+import { CustomChart } from "@src/components/charts/CustomChart";
 import {
   get24HourChartData,
   getAmountPerCategory,
@@ -80,7 +80,7 @@ export function TwentyFourHourSummary() {
               Per hour
             </Typography>
 
-            <BarChart
+            <CustomChart
               height={250}
               data={hourChartData}
               xAxisKey="date"
@@ -95,7 +95,7 @@ export function TwentyFourHourSummary() {
               Per category
             </Typography>
 
-            <BarChart
+            <CustomChart
               height={250}
               data={categoryChartData}
               xAxisKey="name"
