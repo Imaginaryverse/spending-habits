@@ -14,6 +14,7 @@ import { useAuth } from "@src/features/auth/useAuth";
 import { useUserProfile } from "@src/api/user-profiles";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { SpendingItem } from "@src/types";
+import { AnimatedNumber } from "@src/components/animated-number/AnimatedNumber";
 
 function selectItemsOfCurrentMonth(spendingItems: SpendingItem[]) {
   const currentMonth = dayjs().format("YYYY-MM");
@@ -93,11 +94,23 @@ export function MonthlyBudgetChart() {
             </Typography>
 
             <Typography>
-              Amount spent: <b>{formatNumber(totalSpent)} kr</b>
+              Amount spent:{" "}
+              <AnimatedNumber
+                from={0}
+                to={totalSpent}
+                fontWeight="bold"
+                suffix=" kr"
+              />
             </Typography>
 
             <Typography>
-              Remaining: <b>{formatNumber(remainingBudget)} kr</b>
+              Remaining:{" "}
+              <AnimatedNumber
+                from={spendingLimit}
+                to={remainingBudget}
+                fontWeight="bold"
+                suffix=" kr"
+              />
             </Typography>
           </Stack>
         </Grid>
