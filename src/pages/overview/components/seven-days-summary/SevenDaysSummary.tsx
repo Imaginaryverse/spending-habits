@@ -148,12 +148,13 @@ export function SevenDaysSummary() {
 
           <CustomChart
             data={dayChartData}
+            type={selectedVisualization === "amount" ? "bar" : "area"}
+            lineDot={true}
             xAxisKey={"date"}
             xAxisFormatter={(date) => dayjs(date).format("ddd")}
             yAxisKey={selectedVisualization}
-            type={selectedVisualization === "amount" ? "bar" : "area"}
-            lineDot={true}
             yAxisLabelPosition="inside"
+            yAxisUnit=" kr"
             cartesianGrid={{ horizontal: true }}
             height={250}
             loading={isLoadingSpendingItems}
@@ -169,6 +170,7 @@ export function SevenDaysSummary() {
             xAxisKey={"name"}
             yAxisKey={"amount"}
             yAxisLabelPosition="inside"
+            yAxisUnit=" kr"
             cartesianGrid={{ horizontal: true }}
             height={250}
             loading={isLoadingSpendingItems}

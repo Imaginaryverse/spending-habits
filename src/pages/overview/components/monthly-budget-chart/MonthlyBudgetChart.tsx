@@ -14,8 +14,7 @@ import { useAuth } from "@src/features/auth/useAuth";
 import { useUserProfile } from "@src/api/user-profiles";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { SpendingItem } from "@src/types";
-import { AnimatedNumber } from "@src/components/animated-number/AnimatedNumber";
-import { useRouterHistory } from "@src/features/router-history/useRouterHistory";
+import { AnimatedCounter } from "@src/components/animated-counter/AnimatedCounter";
 
 function selectItemsOfCurrentMonth(spendingItems: SpendingItem[]) {
   const currentMonth = dayjs().format("YYYY-MM");
@@ -32,8 +31,6 @@ function selectItemsOfCurrentMonth(spendingItems: SpendingItem[]) {
 
 export function MonthlyBudgetChart() {
   const currentMonth = useMemo(() => dayjs().format("MMMM"), []);
-
-  const { hasVisitedBefore } = useRouterHistory();
 
   const { user } = useAuth();
   const { userProfile } = useUserProfile(user?.id);
@@ -99,9 +96,8 @@ export function MonthlyBudgetChart() {
 
             <Typography>
               Amount spent:{" "}
-              <AnimatedNumber
-                from={hasVisitedBefore("/") ? totalSpent : 0}
-                to={totalSpent}
+              <AnimatedCounter
+                value={totalSpent}
                 fontWeight="bold"
                 suffix=" kr"
               />
@@ -109,9 +105,8 @@ export function MonthlyBudgetChart() {
 
             <Typography>
               Remaining:{" "}
-              <AnimatedNumber
-                from={hasVisitedBefore("/") ? remainingBudget : spendingLimit}
-                to={remainingBudget}
+              <AnimatedCounter
+                value={remainingBudget}
                 fontWeight="bold"
                 suffix=" kr"
               />
@@ -144,6 +139,7 @@ export function MonthlyBudgetChart() {
               data={[{ name: "Remaining", amount: remainingBudget }]}
               xAxisKey="name"
               yAxisKey={"amount"}
+              yAxisUnit=" kr"
               hideYAxis
               orientation="vertical"
               height={80}
@@ -151,6 +147,7 @@ export function MonthlyBudgetChart() {
               loading={isLoadingSpendingItems}
               dataMax={spendingLimit}
               xAxisInterval="preserveStartEnd"
+              barStrokeWidth={0}
             />
           </Stack>
         </Grid>

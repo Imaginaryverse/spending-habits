@@ -1,5 +1,5 @@
 import { ComponentProps, useMemo } from "react";
-import { CircularProgress, Stack } from "@mui/material";
+import { CircularProgress, Stack, Typography } from "@mui/material";
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -14,6 +14,7 @@ import {
   Legend,
 } from "recharts";
 import theme from "@src/theme/theme";
+import { PaperStack } from "../paper-stack/PaperStack";
 
 type ValidChartDataItem = {
   [key: string]: string | number | Date;
@@ -94,6 +95,10 @@ type ChartProps<T extends ValidChartDataItem> = {
    */
   yAxisInterval?: ComponentProps<typeof YAxis>["interval"];
   /**
+   * Y axis unit. Defaults to undefined.
+   */
+  yAxisUnit?: string;
+  /**
    * Function to format the Y axis values.
    */
   yAxisFormatter?: (value: string) => string;
@@ -117,6 +122,10 @@ type ChartProps<T extends ValidChartDataItem> = {
    * The size of the icon to be displayed in the legend.
    */
   legendIconSize?: number;
+  /**
+   * If true, the tooltip will be shown. Defaults to true.
+   */
+  showTooltip?: boolean;
   /**
    * Props to be passed to the CartesianGrid component.
    */
@@ -152,6 +161,10 @@ type ChartProps<T extends ValidChartDataItem> = {
    * If true, dots will be displayed on the line for both line and area charts.
    */
   lineDot?: boolean;
+  /**
+   * The width of the bar stroke. Defaults to 1.
+   */
+  barStrokeWidth?: number;
 };
 
 export function CustomChart<T extends ValidChartDataItem>({
@@ -166,12 +179,14 @@ export function CustomChart<T extends ValidChartDataItem>({
   yAxisAnchor = "left",
   yAxisLabelPosition = "outside",
   yAxisInterval,
+  yAxisUnit,
   yAxisFormatter,
   height = 300,
   showLegend,
   legendKey,
-  legendIconSize = 12,
   legendIconType,
+  legendIconSize = 12,
+  showTooltip = true,
   cartesianGrid,
   orientation = "horizontal",
   colors,
@@ -180,6 +195,7 @@ export function CustomChart<T extends ValidChartDataItem>({
   dataMax,
   type = "bar",
   lineDot = false,
+  barStrokeWidth = 1,
 }: ChartProps<T>) {
   const cartesianGridProps = useMemo(
     () => ({ ...defaultCartesianGridProps, ...cartesianGrid }),
@@ -237,18 +253,8 @@ export function CustomChart<T extends ValidChartDataItem>({
             horizontal={cartesianGridProps.horizontal}
           />
 
-          {!!data.length && (
-            <Tooltip
-              contentStyle={{
-                color: theme.palette.primary.contrastText,
-                backgroundColor: "rgba(255, 255, 255, 0.95)",
-                border: "2px solid rgba(0, 0, 0, 0.1)",
-                borderRadius: "0.25rem",
-              }}
-              itemStyle={{ color: theme.palette.primary.contrastText }}
-              labelStyle={{ color: theme.palette.primary.contrastText }}
-              cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
-            />
+          {!!data.length && showTooltip && (
+            <Tooltip content={<CustomTooltip unit={yAxisUnit} />} />
           )}
 
           {!!showLegend && (
@@ -268,11 +274,14 @@ export function CustomChart<T extends ValidChartDataItem>({
           )}
 
           {type === "bar" && (
-            <Bar dataKey={yAxisKey as string}>
+            <Bar dataKey={yAxisKey as string} unit={yAxisUnit}>
               {data.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
+                  stroke={colorsArray[index % colorsArray.length]}
+                  strokeWidth={barStrokeWidth}
                   fill={colorsArray[index % colorsArray.length]}
+                  fillOpacity={0.6}
                 />
               ))}
             </Bar>
@@ -281,8 +290,9 @@ export function CustomChart<T extends ValidChartDataItem>({
           {type === "line" && (
             <Line
               dataKey={yAxisKey as string}
+              unit={yAxisUnit}
               stroke={colorsArray[0]}
-              strokeWidth={2}
+              strokeWidth={1}
               dot={lineDot}
             />
           )}
@@ -290,8 +300,9 @@ export function CustomChart<T extends ValidChartDataItem>({
           {type === "area" && (
             <Area
               dataKey={yAxisKey as string}
+              unit={yAxisUnit}
               stroke={colorsArray[0]}
-              strokeWidth={2}
+              strokeWidth={1}
               fill={colorsArray[0]}
               dot={lineDot}
             />
@@ -342,5 +353,55 @@ export function CustomChart<T extends ValidChartDataItem>({
         </ComposedChart>
       )}
     </ResponsiveContainer>
+  );
+}
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: {
+    name: string;
+    value: string | number | Date;
+    formatter?: (value: string | number | Date) => string;
+  }[];
+  label?: string;
+  unit?: string;
+};
+
+export function CustomTooltip({
+  active,
+  payload,
+  label,
+  unit,
+}: CustomTooltipProps) {
+  if (!active || !payload || !payload.length) {
+    return null;
+  }
+
+  const { name, value, formatter } = payload[0];
+
+  return (
+    <PaperStack
+      spacing={0.5}
+      elevation={8}
+      sx={{
+        py: 1,
+        px: 3,
+        alignItems: "center",
+        borderWidth: 1,
+        borderStyle: "solid",
+        borderColor: theme.palette.action.disabledBackground,
+      }}
+    >
+      <Typography variant="body2" fontWeight="bold">
+        {label}
+      </Typography>
+
+      <Typography variant="body2">
+        {name}:{" "}
+        <b>
+          {String(formatter ? formatter(value) : value)} {unit}
+        </b>
+      </Typography>
+    </PaperStack>
   );
 }
