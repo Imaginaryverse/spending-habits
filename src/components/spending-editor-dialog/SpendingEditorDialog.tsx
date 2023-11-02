@@ -1,7 +1,6 @@
 import { Close } from "@mui/icons-material";
 import { Dialog, IconButton, Stack, Typography } from "@mui/material";
 import { PropsWithChildren } from "react";
-import theme from "@src/theme/theme";
 
 type SpendingEditorDialogProps = {
   open: boolean;
