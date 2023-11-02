@@ -2,11 +2,12 @@ import { createTheme } from "@mui/material";
 
 const scrollbarStyles = {
   "*::-webkit-scrollbar": {
-    width: "0.4rem",
+    width: "0.25rem",
+    backgroundColor: "hsla(200, 0%, 50%, 0.1)",
   },
   "*::-webkit-scrollbar-thumb": {
     backgroundColor: "hsl(200, 85%, 50%, 0.25)",
-    borderRadius: "0.4rem",
+    borderRadius: "0.25rem",
   },
   "*::-webkit-scrollbar-thumb:hover": {
     backgroundColor: "rgb(60, 60, 60)",
@@ -14,6 +15,12 @@ const scrollbarStyles = {
 
   scrollbarWidth: "thin",
   scrollbarColor: "hsl(200, 85%, 50%, 0.25) #f0f0f0",
+
+  "@media (min-width: 600px)": {
+    "*::-webkit-scrollbar": {
+      width: "0.5rem",
+    },
+  },
 };
 
 const theme = createTheme({
