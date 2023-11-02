@@ -55,7 +55,6 @@ export function Layout({ children }: PropsWithChildren) {
         flex={1}
         height="100%"
         width="100%"
-        maxWidth="xl"
         justifyContent="flex-start"
         alignItems="center"
         sx={{
