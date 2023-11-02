@@ -15,6 +15,7 @@ import { useUserProfile } from "@src/api/user-profiles";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { SpendingItem } from "@src/types";
 import { AnimatedNumber } from "@src/components/animated-number/AnimatedNumber";
+import { useRouterHistory } from "@src/features/router-history/useRouterHistory";
 
 function selectItemsOfCurrentMonth(spendingItems: SpendingItem[]) {
   const currentMonth = dayjs().format("YYYY-MM");
@@ -31,6 +32,9 @@ function selectItemsOfCurrentMonth(spendingItems: SpendingItem[]) {
 
 export function MonthlyBudgetChart() {
   const currentMonth = useMemo(() => dayjs().format("MMMM"), []);
+
+  const { hasVisitedBefore } = useRouterHistory();
+
   const { user } = useAuth();
   const { userProfile } = useUserProfile(user?.id);
   const { spendingItems = [], isLoadingSpendingItems } = useFetchSpendingItems(
@@ -96,7 +100,7 @@ export function MonthlyBudgetChart() {
             <Typography>
               Amount spent:{" "}
               <AnimatedNumber
-                from={0}
+                from={hasVisitedBefore("/") ? totalSpent : 0}
                 to={totalSpent}
                 fontWeight="bold"
                 suffix=" kr"
@@ -106,7 +110,7 @@ export function MonthlyBudgetChart() {
             <Typography>
               Remaining:{" "}
               <AnimatedNumber
-                from={spendingLimit}
+                from={hasVisitedBefore("/") ? remainingBudget : spendingLimit}
                 to={remainingBudget}
                 fontWeight="bold"
                 suffix=" kr"

@@ -1,14 +1,13 @@
-import { Typography } from "@mui/material";
 import {
   UseAnimatedNumberProps,
   useAnimatedNumber,
 } from "@src/hooks/useAnimatedNumber";
-import { ComponentProps } from "react";
+import { CSSProperties } from "react";
 
 type AnimatedNumberProps = {
-  variant?: ComponentProps<typeof Typography>["variant"];
-  color?: ComponentProps<typeof Typography>["color"];
-  fontWeight?: ComponentProps<typeof Typography>["fontWeight"];
+  color?: string;
+  fontSize?: CSSProperties["fontSize"];
+  fontWeight?: CSSProperties["fontWeight"];
   suffix?: string;
 } & UseAnimatedNumberProps;
 
@@ -19,8 +18,8 @@ export function AnimatedNumber({
   delay,
   easing,
   fractions,
-  variant = "body1",
   color,
+  fontSize,
   fontWeight,
   suffix,
 }: AnimatedNumberProps) {
@@ -34,14 +33,16 @@ export function AnimatedNumber({
   });
 
   return (
-    <Typography
-      variant={variant}
-      color={color}
-      fontWeight={fontWeight}
-      display="inline-block"
+    <span
+      style={{
+        display: "inline-block",
+        color: color ?? "inherit",
+        fontWeight: fontWeight ?? "inherit",
+        fontSize: fontSize ?? "inherit",
+      }}
     >
       {animatedValue}
       {suffix}
-    </Typography>
+    </span>
   );
 }
