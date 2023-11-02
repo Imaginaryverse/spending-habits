@@ -27,7 +27,7 @@ type SpendingsListProps = {
 export function SpendingsList({
   spendingItems,
   dense,
-  itemElevation,
+  itemElevation = 0,
   maxHeight,
 }: SpendingsListProps) {
   const { openEditDialog, openDeleteDialog } = useSpendingEditor();
@@ -69,7 +69,7 @@ function SpendingsListItem({
   item,
   onEditClick,
   onDeleteClick,
-  elevation = 4,
+  elevation,
 }: SpendingsListItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -161,5 +161,5 @@ function SpendingsListItem({
 function formatDate(date: Date): string {
   const parsedDate = new Date(date);
 
-  return dayjs(parsedDate).format("ddd, MMM D, YYYY hh:mm");
+  return dayjs(parsedDate).format("ddd, MMM D YYYY, HH:mm");
 }
