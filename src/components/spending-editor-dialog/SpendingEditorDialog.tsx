@@ -1,6 +1,7 @@
 import { Close } from "@mui/icons-material";
 import { Dialog, IconButton, Stack, Typography } from "@mui/material";
 import { PropsWithChildren } from "react";
+import theme from "@src/theme/theme";
 
 type SpendingEditorDialogProps = {
   open: boolean;
@@ -15,7 +16,12 @@ export function SpendingEditorDialog({
   children,
 }: PropsWithChildren<SpendingEditorDialogProps>) {
   return (
-    <Dialog open={open} onClose={(_, reason) => onClose(reason)} fullWidth>
+    <Dialog
+      open={open}
+      onClose={(_, reason) => onClose(reason)}
+      fullWidth
+      sx={{ "& .MuiDialog-paper": { maxWidth: 400 } }}
+    >
       <Stack
         direction="row"
         justifyContent="space-between"
