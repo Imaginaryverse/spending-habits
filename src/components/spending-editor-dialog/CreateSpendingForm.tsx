@@ -169,6 +169,7 @@ export const CreateSpendingForm = ({
               },
             }}
             ampm={false}
+            disableFuture
           />
 
           <Typography variant="caption" mt={0.5} ml={2}>
