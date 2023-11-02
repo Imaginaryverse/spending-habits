@@ -25,10 +25,5 @@ export function SentimentIcon({ percentage }: SentimentIconProps) {
     return <SentimentDissatisfiedOutlinedIcon fontSize="inherit" />;
   }
 
-  return (
-    <SentimentVeryDissatisfiedOutlinedIcon
-      fontSize="inherit"
-      sx={{ mr: 0.5 }}
-    />
-  );
+  return <SentimentVeryDissatisfiedOutlinedIcon fontSize="inherit" />;
 }

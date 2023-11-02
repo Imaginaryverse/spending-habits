@@ -126,7 +126,7 @@ export function MonthlyBudgetChart() {
               width="98%"
               py={1}
               px={2}
-              spacing={1}
+              spacing={0.5}
               direction="row"
               justifyContent="center"
               alignItems="center"
