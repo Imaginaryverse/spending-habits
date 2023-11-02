@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   FormControl,
@@ -18,22 +18,15 @@ import { useSignInOut } from "@src/api/auth";
 
 export function SignInPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { isAuthenticated } = useAuth();
 
   const { signIn, isSigningIn, signInError } = useSignInOut();
 
-  const previousLocation = useMemo(() => {
-    if (location.state) {
-      return location.state.from;
-    }
-  }, [location.state]);
-
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(previousLocation || "/", { replace: true });
+      navigate("/", { replace: true });
     }
-  }, [isAuthenticated, navigate, previousLocation]);
+  }, [isAuthenticated, navigate]);
 
   return (
     <Page justifyContent="center" alignItems="center">
@@ -114,12 +107,6 @@ function SignInForm({ onSignIn, isSigningIn, signInError }: SignInFormProps) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          error={!!email.trim() && !isValidEmail(email)}
-          helperText={
-            !!email.trim() && !isValidEmail(email) ? (
-              <Typography variant="caption">Invalid email format</Typography>
-            ) : undefined
-          }
         />
       </FormControl>
 
