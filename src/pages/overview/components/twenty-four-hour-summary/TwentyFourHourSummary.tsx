@@ -84,7 +84,6 @@ export function TwentyFourHourSummary() {
               height={250}
               data={hourChartData}
               xAxisKey="date"
-              yAxisLabelPosition="inside"
               yAxisKey="amount"
               yAxisUnit=" kr"
               cartesianGrid={{ horizontal: true }}
@@ -100,7 +99,6 @@ export function TwentyFourHourSummary() {
               height={250}
               data={categoryChartData}
               xAxisKey="name"
-              yAxisLabelPosition="inside"
               yAxisKey="amount"
               yAxisUnit=" kr"
               cartesianGrid={{ horizontal: true }}

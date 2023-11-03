@@ -1,4 +1,4 @@
-import { ComponentProps, useMemo } from "react";
+import { ComponentProps, useMemo, useRef } from "react";
 import { CircularProgress, Stack, Typography, useTheme } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -14,6 +14,7 @@ import {
   Legend,
 } from "recharts";
 import { PaperStack } from "../paper-stack/PaperStack";
+import { useElementDimensions } from "@src/hooks/useElementDimensions";
 
 type ValidChartDataItem = {
   [key: string]: string | number | Date;
@@ -68,6 +69,10 @@ type ChartProps<T extends ValidChartDataItem> = {
    * X axis interval. Defaults to undefined.
    */
   xAxisInterval?: ComponentProps<typeof XAxis>["interval"];
+  /**
+   * The width of the X axis in percent. Defaults to 100.
+   */
+  xAxisWidthPercent?: number;
   /**
    * Function to format the X axis values.
    */
@@ -172,6 +177,7 @@ export function CustomChart<T extends ValidChartDataItem>({
   hideXAxis,
   xAxisAnchor = "bottom",
   xAxisInterval,
+  xAxisWidthPercent = 100,
   xAxisFormatter,
   yAxisKey,
   hideYAxis,
@@ -197,6 +203,21 @@ export function CustomChart<T extends ValidChartDataItem>({
   barStrokeWidth = 1,
 }: ChartProps<T>) {
   const theme = useTheme();
+  const ref = useRef<HTMLDivElement>(null);
+
+  const containerDimensions = useElementDimensions({ ref });
+
+  const xAxisHorizontalPadding = useMemo(
+    () =>
+      calcXAxisHorizonalPadding(xAxisWidthPercent, containerDimensions.width),
+    [xAxisWidthPercent, containerDimensions.width]
+  );
+
+  const yAxisWidth = useMemo(() => {
+    const max = Math.max(...data.map((item) => item[yAxisKey] as number));
+
+    return calcYAxisWidth(max);
+  }, [data, yAxisKey]);
 
   const cartesianGridProps = useMemo(
     () => ({ ...defaultCartesianGridProps, ...cartesianGrid }),
@@ -240,120 +261,131 @@ export function CustomChart<T extends ValidChartDataItem>({
   }, [data, dataMax, yAxisKey]);
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      {loading ? (
-        <Stack justifyContent="center" alignItems="center" height="100%">
-          <CircularProgress />
-        </Stack>
-      ) : (
-        <ComposedChart data={data} layout={orientation}>
-          <CartesianGrid
-            strokeDasharray={cartesianGridProps.strokeDasharray}
-            stroke={cartesianGridProps.stroke}
-            vertical={cartesianGridProps.vertical}
-            horizontal={cartesianGridProps.horizontal}
-          />
-
-          {!!data.length && showTooltip && (
-            <Tooltip content={<CustomTooltip unit={yAxisUnit} />} />
-          )}
-
-          {!!showLegend && (
-            <Legend
-              iconType={legendIconType}
-              iconSize={legendIconSize}
-              payload={
-                legendKey
-                  ? data.map((item, idx) => ({
-                      value: item[legendKey],
-                      type: legendIconType,
-                      color: colorsArray[idx % colorsArray.length],
-                    }))
-                  : undefined
-              }
+    <Stack ref={ref} width="100%" height={height}>
+      <ResponsiveContainer width="100%" height={height}>
+        {loading ? (
+          <Stack justifyContent="center" alignItems="center" height="100%">
+            <CircularProgress />
+          </Stack>
+        ) : (
+          <ComposedChart data={data} layout={orientation}>
+            <CartesianGrid
+              strokeDasharray={cartesianGridProps.strokeDasharray}
+              stroke={cartesianGridProps.stroke}
+              vertical={cartesianGridProps.vertical}
+              horizontal={cartesianGridProps.horizontal}
             />
-          )}
 
-          {type === "bar" && (
-            <Bar dataKey={yAxisKey as string} unit={yAxisUnit}>
-              {data.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  stroke={colorsArray[index % colorsArray.length]}
-                  strokeWidth={barStrokeWidth}
-                  fill={colorsArray[index % colorsArray.length]}
-                  fillOpacity={0.6}
-                />
-              ))}
-            </Bar>
-          )}
+            {!!data.length && showTooltip && (
+              <Tooltip content={<CustomTooltip unit={yAxisUnit} />} />
+            )}
 
-          {type === "line" && (
-            <Line
-              dataKey={yAxisKey as string}
-              unit={yAxisUnit}
-              stroke={colorsArray[0]}
-              strokeWidth={1}
-              dot={lineDot}
+            {!!showLegend && (
+              <Legend
+                iconType={legendIconType}
+                iconSize={legendIconSize}
+                payload={
+                  legendKey
+                    ? data.map((item, idx) => ({
+                        value: item[legendKey],
+                        type: legendIconType,
+                        color: colorsArray[idx % colorsArray.length],
+                      }))
+                    : undefined
+                }
+              />
+            )}
+
+            {type === "bar" && (
+              <Bar dataKey={yAxisKey as string} unit={yAxisUnit}>
+                {data.map((_, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    stroke={colorsArray[index % colorsArray.length]}
+                    strokeWidth={barStrokeWidth}
+                    fill={colorsArray[index % colorsArray.length]}
+                    fillOpacity={0.6}
+                  />
+                ))}
+              </Bar>
+            )}
+
+            {type === "line" && (
+              <Line
+                dataKey={yAxisKey as string}
+                unit={yAxisUnit}
+                stroke={colorsArray[0]}
+                strokeWidth={1}
+                dot={lineDot}
+              />
+            )}
+
+            {type === "area" && (
+              <Area
+                dataKey={yAxisKey as string}
+                unit={yAxisUnit}
+                stroke={colorsArray[0]}
+                strokeWidth={1}
+                fill={colorsArray[0]}
+                dot={lineDot}
+              />
+            )}
+
+            <XAxis
+              type={orientation === "horizontal" ? "category" : "number"}
+              dataKey={String(
+                orientation === "horizontal" ? xAxisKey : yAxisKey
+              )}
+              orientation={xAxisAnchor}
+              tickFormatter={xAxisFormatter}
+              hide={hideXAxis}
+              style={{
+                fill: theme.palette.text.secondary,
+                fontSize: theme.typography.caption.fontSize,
+                textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
+              }}
+              domain={xAxisDomain}
+              ticks={xAxisTicks}
+              interval={xAxisInterval}
+              padding={{
+                left: xAxisHorizontalPadding,
+                right: xAxisHorizontalPadding,
+              }}
             />
-          )}
 
-          {type === "area" && (
-            <Area
-              dataKey={yAxisKey as string}
-              unit={yAxisUnit}
-              stroke={colorsArray[0]}
-              strokeWidth={1}
-              fill={colorsArray[0]}
-              dot={lineDot}
+            <YAxis
+              type={orientation === "horizontal" ? "number" : "category"}
+              dataKey={String(
+                orientation === "horizontal" ? yAxisKey : xAxisKey
+              )}
+              orientation={yAxisAnchor}
+              mirror={yAxisLabelPosition === "inside"}
+              width={yAxisWidth}
+              tickFormatter={yAxisFormatter}
+              hide={hideYAxis}
+              style={{
+                fill: theme.palette.text.secondary,
+                fontSize: theme.typography.caption.fontSize,
+                textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
+              }}
+              interval={yAxisInterval}
             />
-          )}
 
-          <XAxis
-            type={orientation === "horizontal" ? "category" : "number"}
-            dataKey={String(orientation === "horizontal" ? xAxisKey : yAxisKey)}
-            orientation={xAxisAnchor}
-            tickFormatter={xAxisFormatter}
-            hide={hideXAxis}
-            style={{
-              fill: theme.palette.text.secondary,
-              fontSize: theme.typography.caption.fontSize,
-              textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
-            }}
-            domain={xAxisDomain}
-            ticks={xAxisTicks}
-            interval={xAxisInterval}
-          />
-
-          <YAxis
-            type={orientation === "horizontal" ? "number" : "category"}
-            dataKey={String(orientation === "horizontal" ? yAxisKey : xAxisKey)}
-            orientation={yAxisAnchor}
-            mirror={yAxisLabelPosition === "inside"}
-            tickFormatter={yAxisFormatter}
-            hide={hideYAxis}
-            style={{
-              fill: theme.palette.text.secondary,
-              fontSize: theme.typography.caption.fontSize,
-              textShadow: "1px 1px 1px rgba(0, 0, 0, 0.85)",
-            }}
-            interval={yAxisInterval}
-          />
-
-          {!data.length && emptyDataText && (
-            <text
-              x="50%"
-              y="44.5%"
-              dominantBaseline="middle"
-              textAnchor="middle"
-              fill={theme.palette.text.secondary}
-            >
-              {emptyDataText}
-            </text>
-          )}
-        </ComposedChart>
-      )}
-    </ResponsiveContainer>
+            {!data.length && emptyDataText && (
+              <text
+                x="50%"
+                y="44.5%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fill={theme.palette.text.secondary}
+              >
+                {emptyDataText}
+              </text>
+            )}
+          </ComposedChart>
+        )}
+      </ResponsiveContainer>
+    </Stack>
   );
 }
 
@@ -407,4 +439,20 @@ export function CustomTooltip({
       </Typography>
     </PaperStack>
   );
+}
+
+function calcXAxisHorizonalPadding(
+  xAxisWidthPercent: number,
+  containerWidth: number
+) {
+  const widthInPx = (containerWidth * xAxisWidthPercent) / 100;
+  const padding = (containerWidth - widthInPx) / 2;
+
+  return padding;
+}
+
+function calcYAxisWidth(maxValue: number, charWidth: number = 8) {
+  const maxValueLength = String(maxValue).length;
+
+  return maxValueLength * charWidth;
 }

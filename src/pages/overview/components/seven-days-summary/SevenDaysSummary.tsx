@@ -153,7 +153,6 @@ export function SevenDaysSummary() {
             xAxisKey={"date"}
             xAxisFormatter={(date) => dayjs(date).format("ddd")}
             yAxisKey={selectedVisualization}
-            yAxisLabelPosition="inside"
             yAxisUnit=" kr"
             cartesianGrid={{ horizontal: true }}
             height={250}
@@ -169,7 +168,6 @@ export function SevenDaysSummary() {
             data={categoryChartData}
             xAxisKey={"name"}
             yAxisKey={"amount"}
-            yAxisLabelPosition="inside"
             yAxisUnit=" kr"
             cartesianGrid={{ horizontal: true }}
             height={250}
