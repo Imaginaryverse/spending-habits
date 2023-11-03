@@ -1,5 +1,5 @@
 import { ComponentProps, useMemo } from "react";
-import { CircularProgress, Stack, Typography } from "@mui/material";
+import { CircularProgress, Stack, Typography, useTheme } from "@mui/material";
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -13,7 +13,6 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import theme from "@src/theme/theme";
 import { PaperStack } from "../paper-stack/PaperStack";
 
 type ValidChartDataItem = {
@@ -197,6 +196,8 @@ export function CustomChart<T extends ValidChartDataItem>({
   lineDot = false,
   barStrokeWidth = 1,
 }: ChartProps<T>) {
+  const theme = useTheme();
+
   const cartesianGridProps = useMemo(
     () => ({ ...defaultCartesianGridProps, ...cartesianGrid }),
     [cartesianGrid]
@@ -208,7 +209,7 @@ export function CustomChart<T extends ValidChartDataItem>({
     }
 
     return [theme.palette.primary.main];
-  }, [colors]);
+  }, [colors, theme.palette.primary.main]);
 
   const xAxisDomain = useMemo(() => {
     if (!dataMax) {
@@ -373,6 +374,8 @@ export function CustomTooltip({
   label,
   unit,
 }: CustomTooltipProps) {
+  const theme = useTheme();
+
   if (!active || !payload || !payload.length) {
     return null;
   }

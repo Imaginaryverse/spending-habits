@@ -3,12 +3,13 @@ import { AuthProvider } from "./features/auth/AuthProvider";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { SpendingEditorProvider } from "./features/spending-editor/SpendingEditorProvider";
 import { Layout } from "./components/layout/Layout";
-import theme from "./theme/theme";
+// import theme from "./theme/theme";
+import themeAlt from "./theme/themeAlt";
 
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={themeAlt}>
         <CssBaseline />
         <SpendingEditorProvider>
           <Layout>

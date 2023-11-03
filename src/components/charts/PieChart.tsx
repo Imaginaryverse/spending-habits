@@ -1,4 +1,3 @@
-import theme from "@src/theme/theme";
 import {
   ResponsiveContainer,
   PieChart as RechartsPieChart,
@@ -7,6 +6,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { useTheme } from "@mui/material";
 
 type ValidPieChartDataItem = {
   [key: string]: string | number;
@@ -38,6 +38,8 @@ export function PieChart<T extends ValidPieChartDataItem>({
   showTooltip = true,
   showLegend = true,
 }: PieChartProps<T>) {
+  const theme = useTheme();
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <RechartsPieChart>

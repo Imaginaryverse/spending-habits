@@ -1,5 +1,4 @@
-import { CircularProgress, Stack } from "@mui/material";
-import theme from "@src/theme/theme";
+import { CircularProgress, Stack, useTheme } from "@mui/material";
 import {
   ResponsiveContainer,
   RadarChart as RechartsRadarChart,
@@ -29,12 +28,14 @@ type RadarChartProps<T extends ValidRadarChartItem> = {
 export function RadarChart<T extends ValidRadarChartItem>({
   data,
   height = 300,
-  color = theme.palette.primary.main,
+  color,
   loading,
   gridType = "polygon",
   showDots = true,
   showTooltip = true,
 }: RadarChartProps<T>) {
+  const theme = useTheme();
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       {loading ? (
@@ -62,8 +63,8 @@ export function RadarChart<T extends ValidRadarChartItem>({
           <Radar
             name="Amount"
             dataKey="value"
-            stroke={color}
-            fill={color}
+            stroke={color || theme.palette.primary.main}
+            fill={color || theme.palette.primary.main}
             fillOpacity={0.5}
             dot={showDots}
           />

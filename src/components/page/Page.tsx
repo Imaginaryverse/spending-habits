@@ -23,8 +23,8 @@ export function Page({
       position="relative"
       width="100%"
       maxWidth="lg"
-      px={{ xs: 1, sm: 2, md: 4 }}
-      py={{ xs: 1, sm: 2, md: 4 }}
+      px={{ xs: 1.5, sm: 2, md: 4 }}
+      py={{ xs: 1.5, sm: 2, md: 4 }}
       spacing={spacing}
       justifyContent={justifyContent}
       alignItems={alignItems}
