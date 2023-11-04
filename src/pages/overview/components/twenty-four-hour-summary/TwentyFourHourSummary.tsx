@@ -16,7 +16,7 @@ import { useAuth } from "@src/features/auth/useAuth";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 
 function selectItemsOfLast24Hours(spendingItems: SpendingItem[]) {
-  const end = dayjs().toDate();
+  const end = dayjs().endOf("hour").toDate();
   const start = dayjs(end).subtract(24, "hour").toDate();
 
   const filteredItems = spendingItems.filter((item) => {

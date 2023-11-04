@@ -1,11 +1,12 @@
 import { useAuth } from "@src/features/auth/useAuth";
-import { Button, Paper, Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import { TwentyFourHourSummary } from "./components/twenty-four-hour-summary/TwentyFourHourSummary";
 import { useNavigate } from "react-router-dom";
 import { Page } from "@src/components/page/Page";
 import { MonthlyBudgetChart } from "./components/monthly-budget-chart/MonthlyBudgetChart";
 import { useUserProfile } from "@src/api/user-profiles";
 import { SevenDaysSummary } from "./components/seven-days-summary/SevenDaysSummary";
+import { PaperStack } from "@src/components/paper-stack/PaperStack";
 
 export function OverviewPage() {
   const { user } = useAuth();
@@ -38,21 +39,27 @@ function MissingMonthlyBudgetReminder() {
   }
 
   return (
-    <Paper sx={{ p: 2 }} component={Stack} spacing={2}>
+    <PaperStack sx={{ alignItems: "center" }}>
       <Typography variant="h4">Set spending limit</Typography>
 
-      <Typography>
-        You haven't set a monthly spending limit yet. Some features will not be
-        available.
-      </Typography>
+      <Stack>
+        <Typography>
+          Some features are disabled until a monthly spending limit is set.
+        </Typography>
+
+        <Typography>
+          To set your monthly spending limit, click the button below and update
+          your profile.
+        </Typography>
+      </Stack>
 
       <Button
         variant="contained"
         color="secondary"
         onClick={() => navigate("/profile")}
       >
-        Update
+        Profile
       </Button>
-    </Paper>
+    </PaperStack>
   );
 }

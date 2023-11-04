@@ -1,6 +1,7 @@
 import { useQuery, useMutation, UseMutationOptions } from "react-query";
 import { supabase } from "./client";
 import { QUERY_KEY, UserProfile } from "@src/types";
+import { useDemo } from "@src/features/demo/useDemo";
 
 async function fetchUserProfile(user_id?: string): Promise<UserProfile> {
   const { data: userProfile, error } = await supabase
@@ -71,24 +72,54 @@ export function useUserProfile(
     UpdateUserProfileParams
   >
 ) {
+  const { isDemo, demoUserProfile, setDemoUserProfile } = useDemo();
+
+  function fetchDemoUserProfile(user_id?: string): UserProfile {
+    if (!user_id) {
+      throw new Error("User not found");
+    }
+
+    return demoUserProfile;
+  }
+
   const {
     data: userProfile = null,
     isLoading: isLoadingUserProfile,
     refetch: refetchUserProfile,
   } = useQuery(
-    [QUERY_KEY.user_profiles, user_id],
-    () => fetchUserProfile(user_id),
+    [QUERY_KEY.user_profiles, user_id, demoUserProfile],
+    () => (isDemo ? fetchDemoUserProfile(user_id) : fetchUserProfile(user_id)),
     {
       enabled: !!user_id,
     }
   );
+
+  async function updateDemoUserProfile(
+    params: UpdateUserProfileParams
+  ): Promise<UserProfile> {
+    if (!params.user_id) {
+      throw new Error("User not found");
+    }
+
+    const updatedUserProfile = {
+      ...demoUserProfile,
+      ...params.updates,
+    };
+
+    setDemoUserProfile(updatedUserProfile);
+
+    return updatedUserProfile;
+  }
 
   const {
     mutateAsync,
     isLoading: isUpdatingUserProfile,
     isSuccess: isUserProfileUpdated,
     isError: isUserProfileUpdateError,
-  } = useMutation(updateUserProfile, mutationOptions);
+  } = useMutation(
+    isDemo ? updateDemoUserProfile : updateUserProfile,
+    mutationOptions
+  );
 
   return {
     userProfile,

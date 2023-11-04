@@ -7,13 +7,21 @@ import {
 import { supabase } from "./client";
 import { CreateSpendingItem, QUERY_KEY, SpendingItem } from "@src/types";
 import { getCurrentUser } from "./auth";
+import { useDemo } from "@src/features/demo/useDemo";
+import { useAuth } from "@src/features/auth/useAuth";
 
 type FetchSpendingItemsParams = {
   user_id?: string;
+  item_id?: string;
   category_id?: number;
   fromDate?: Date;
   toDate?: Date;
 };
+
+type CustomMutationOptions<T, E, P> = Omit<
+  UseMutationOptions<T, E, P>,
+  "mutationFn"
+>;
 
 async function fetchSpendingItems(
   params?: Partial<FetchSpendingItemsParams>
@@ -47,32 +55,6 @@ async function fetchSpendingItems(
   }
 
   return spendingItems as SpendingItem[];
-}
-
-async function fetchSpendingItemById(
-  user_id: string | undefined,
-  id: string | null
-): Promise<SpendingItem> {
-  if (!user_id) {
-    throw new Error("User not found");
-  }
-
-  if (!id) {
-    throw new Error("Missing spending item id");
-  }
-
-  const { data: spendingItem, error } = await supabase
-    .from(QUERY_KEY.spending_items)
-    .select("*")
-    .eq("user_id", user_id)
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    throw error;
-  }
-
-  return spendingItem as SpendingItem;
 }
 
 async function createSpendingItem(
@@ -144,14 +126,50 @@ export function useFetchSpendingItems(
   params?: Partial<FetchSpendingItemsParams>,
   options?: QueryObserverOptions<SpendingItem[]>
 ) {
+  const { isDemo, demoData } = useDemo();
+
+  async function fetchDemoData(params?: Partial<FetchSpendingItemsParams>) {
+    console.log("fetching demo data");
+    if (!params?.user_id) {
+      throw new Error("User not found");
+    }
+
+    const filteredData = demoData.filter(
+      (item) => item.user_id === params.user_id
+    );
+
+    if (params?.category_id) {
+      return filteredData.filter(
+        (item) => item.category_id === params.category_id
+      );
+    }
+
+    if (params?.fromDate && params?.toDate) {
+      return filteredData.filter(
+        (item) =>
+          new Date(item.created_at) >= params.fromDate! &&
+          new Date(item.created_at) <= params.toDate!
+      );
+    }
+
+    const sortedData = filteredData.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    return sortedData;
+  }
+
   const {
     data: spendingItems = [],
     isFetching: isFetchingSpendingItems,
     isLoading: isLoadingSpendingItems,
     refetch: refetchSpendingItems,
   } = useQuery({
-    queryKey: [QUERY_KEY.spending_items, params],
-    queryFn: () => fetchSpendingItems(params),
+    queryKey: [QUERY_KEY.spending_items, params, demoData],
+    queryFn: isDemo
+      ? () => fetchDemoData(params)
+      : () => fetchSpendingItems(params),
     ...options,
   });
 
@@ -163,42 +181,37 @@ export function useFetchSpendingItems(
   };
 }
 
-export function useFetchSpendingItemById(
-  user_id: string | undefined,
-  spendingItemId: string | null,
-  options?: QueryObserverOptions<SpendingItem>
-) {
-  const {
-    data: spendingItem,
-    isFetching: isFetchingSpendingItem,
-    isLoading: isLoadingSpendingItem,
-  } = useQuery({
-    queryKey: [QUERY_KEY.spending_item, user_id, spendingItemId],
-    queryFn: () => fetchSpendingItemById(user_id, spendingItemId),
-    enabled: !!spendingItemId,
-    ...options,
-  });
-
-  return {
-    spendingItem,
-    isFetchingSpendingItem,
-    isLoadingSpendingItem,
-  };
-}
-
-type CustomMutationOptions<T, E, P> = Omit<
-  UseMutationOptions<T, E, P>,
-  "mutationFn"
->;
-
 export function useCreateSpendingItem(
   options?: CustomMutationOptions<SpendingItem, unknown, CreateSpendingItem>
 ) {
+  const { user } = useAuth();
+  const { isDemo, setDemoData } = useDemo();
+
+  async function createDemoSpendingItem(
+    spending: CreateSpendingItem
+  ): Promise<SpendingItem> {
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const spendingItem: SpendingItem = {
+      ...spending,
+      id: crypto.randomUUID(),
+      user_id: user.id,
+    };
+
+    setDemoData((prev) => [...prev, spendingItem]);
+    return spendingItem;
+  }
+
   const {
     mutateAsync,
     isLoading: isCreatingSpendingItem,
     isSuccess: isSpendingItemCreated,
-  } = useMutation(createSpendingItem, options);
+  } = useMutation(
+    isDemo ? createDemoSpendingItem : createSpendingItem,
+    options
+  );
 
   return {
     createSpendingItem: mutateAsync,
@@ -210,11 +223,33 @@ export function useCreateSpendingItem(
 export function useUpdateSpendingItem(
   options?: CustomMutationOptions<SpendingItem, unknown, Partial<SpendingItem>>
 ) {
+  const { user } = useAuth();
+  const { isDemo, setDemoData } = useDemo();
+
+  async function updateDemoSpendingItem(
+    spending: Partial<SpendingItem>
+  ): Promise<SpendingItem> {
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const spendingItem = spending as SpendingItem;
+    setDemoData((prev) => {
+      const index = prev.findIndex((item) => item.id === spendingItem.id);
+      prev[index] = spendingItem;
+      return prev;
+    });
+    return spendingItem;
+  }
+
   const {
     mutateAsync,
     isLoading: isUpdatingSpendingItem,
     isSuccess: isSpendingItemUpdated,
-  } = useMutation(updateSpendingItem, options);
+  } = useMutation(
+    isDemo ? updateDemoSpendingItem : updateSpendingItem,
+    options
+  );
 
   return {
     updateSpendingItem: mutateAsync,
@@ -226,11 +261,26 @@ export function useUpdateSpendingItem(
 export function useDeleteSpendingItem(
   options?: CustomMutationOptions<SpendingItem, unknown, string>
 ) {
+  const { user } = useAuth();
+  const { isDemo, setDemoData } = useDemo();
+
+  async function deleteDemoSpendingItem(id: string): Promise<SpendingItem> {
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    setDemoData((prev) => prev.filter((item) => item.id !== id));
+    return {} as SpendingItem;
+  }
+
   const {
     mutateAsync,
     isLoading: isDeletingSpendingItem,
     isSuccess: isSpendingItemDeleted,
-  } = useMutation(deleteSpendingItem, options);
+  } = useMutation(
+    isDemo ? deleteDemoSpendingItem : deleteSpendingItem,
+    options
+  );
 
   return {
     deleteSpendingItem: mutateAsync,

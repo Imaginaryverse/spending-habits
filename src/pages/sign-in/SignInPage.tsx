@@ -15,9 +15,11 @@ import { isValidEmail } from "@src/utils/string-utils";
 import { Page } from "@src/components/page/Page";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { useSignInOut } from "@src/api/auth";
+import { useDemo } from "@src/features/demo/useDemo";
 
 export function SignInPage() {
   const navigate = useNavigate();
+  const { setIsDemo } = useDemo();
   const { isAuthenticated } = useAuth();
 
   const { signIn, isSigningIn, signInError } = useSignInOut();
@@ -46,6 +48,10 @@ export function SignInPage() {
             signInError={signInError}
           />
         )}
+
+        <Button variant="text" size="small" onClick={() => setIsDemo(true)}>
+          Try the demo
+        </Button>
 
         {!isAuthenticated && (
           <Typography variant="body2">

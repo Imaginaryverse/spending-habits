@@ -1,6 +1,7 @@
 import { useMutation } from "react-query";
 import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "./client";
+import { useDemo } from "@src/features/demo/useDemo";
 
 type SignInWithPasswordParams = {
   email: string;
@@ -42,9 +43,11 @@ async function signOutUser(): Promise<void> {
   await supabase.auth.signOut();
 }
 
-function useSignIn() {
+export function useSignInOut() {
+  const { isDemo, setIsDemo } = useDemo();
+
   const {
-    mutateAsync,
+    mutateAsync: signInMutation,
     isLoading: isSigningIn,
     error: signInError,
     isError: isSignInError,
@@ -53,34 +56,40 @@ function useSignIn() {
     signInUser
   );
 
-  return {
-    signIn: mutateAsync,
-    isSigningIn,
-    signInError,
-    isSignInError,
-    isSignInSuccess,
-  };
-}
-
-function useSignOut() {
   const {
-    mutateAsync,
+    mutateAsync: signOutMutation,
     isLoading: isSigningOut,
     error: signOutError,
     isSuccess: signOutSuccess,
   } = useMutation(signOutUser);
 
+  async function signIn({ email, password }: SignInWithPasswordParams) {
+    if (isDemo) {
+      // if a user signs in while demo mode is active, disable demo mode
+      setIsDemo(false);
+    }
+
+    return signInMutation({ email, password });
+  }
+
+  async function signOut() {
+    if (isDemo) {
+      // if demo mode is active, disable demo mode
+      setIsDemo(false);
+    }
+
+    return signOutMutation();
+  }
+
   return {
-    signOut: mutateAsync,
+    signIn,
+    isSigningIn,
+    signInError,
+    isSignInError,
+    isSignInSuccess,
+    signOut,
     isSigningOut,
     signOutError,
     signOutSuccess,
-  };
-}
-
-export function useSignInOut() {
-  return {
-    ...useSignIn(),
-    ...useSignOut(),
   };
 }
