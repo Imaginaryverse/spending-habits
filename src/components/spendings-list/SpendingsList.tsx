@@ -32,7 +32,7 @@ type SpendingsListProps = {
 
 export function SpendingsList({
   spendingItems,
-  dense,
+  dense = true,
   itemElevation = 0,
   maxHeight,
 }: SpendingsListProps) {
@@ -44,9 +44,9 @@ export function SpendingsList({
       sx={{
         flex: 1,
         height: "100%",
-        maxHeight: maxHeight ?? `calc(${dense ? 6 : 5.95}rem * 4)`,
+        maxHeight: maxHeight ?? `calc(${62}px * 4)`,
         overflowY: "auto",
-        paddingRight: 0.3,
+        paddingRight: 0.5,
         pt: 0,
         pb: 0.5,
       }}

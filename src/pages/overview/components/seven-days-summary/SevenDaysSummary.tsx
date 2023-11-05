@@ -178,7 +178,7 @@ export function SevenDaysSummary() {
 
       <Typography variant="h4">Purchases</Typography>
 
-      <SpendingsList spendingItems={spendingItems} dense maxHeight={450} />
+      <SpendingsList spendingItems={spendingItems} />
 
       <Typography variant="h4">Most expensive purchase</Typography>
 

@@ -112,7 +112,7 @@ export function TwentyFourHourSummary() {
         Purchases
       </Typography>
 
-      <SpendingsList spendingItems={spendingItems} dense maxHeight={450} />
+      <SpendingsList spendingItems={spendingItems} />
     </PaperStack>
   );
 }
