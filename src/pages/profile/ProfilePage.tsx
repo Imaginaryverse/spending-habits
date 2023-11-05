@@ -15,6 +15,7 @@ import { useQueryClient } from "react-query";
 import { QUERY_KEY } from "@src/types";
 import { useSignInOut } from "@src/api/auth";
 import { useSnackbar } from "@src/features/snackbars/useSnackbar";
+import { ConfirmDialog } from "@src/components/confirm-dialog/ConfirmDialog";
 
 type ProfileFormValues = {
   name: string;
@@ -43,6 +44,7 @@ export function ProfilePage() {
       monthlySpendingLimit: userProfile?.monthly_spending_limit ?? 0,
     }
   );
+  const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
 
   function onUpdateProfileSuccess() {
     queryClient.invalidateQueries(QUERY_KEY.user_profiles);
@@ -108,7 +110,7 @@ export function ProfilePage() {
       headerButtons={
         <Button
           variant="text"
-          onClick={() => signOut()}
+          onClick={() => setShowSignOutDialog(true)}
           disabled={isUpdatingUserProfile || isEditing}
           sx={{ alignSelf: "center" }}
         >
@@ -116,6 +118,16 @@ export function ProfilePage() {
         </Button>
       }
     >
+      <ConfirmDialog
+        title="Sign out"
+        message="Are you sure you want to sign out?"
+        open={showSignOutDialog}
+        onConfirm={() => signOut()}
+        confirmBtnLabel="Sign out"
+        onCancel={() => setShowSignOutDialog(false)}
+        cancelBtnLabel="Cancel"
+      />
+
       <PaperStack>
         <Stack
           component="form"

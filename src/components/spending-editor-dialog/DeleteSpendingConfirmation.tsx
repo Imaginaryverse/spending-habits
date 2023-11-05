@@ -49,7 +49,7 @@ export function DeleteSpendingConfirmation({
         </Typography>
       </Paper>
 
-      <DialogActions>
+      <DialogActions sx={{ pr: 0 }}>
         <Button
           size="small"
           onClick={onClose}

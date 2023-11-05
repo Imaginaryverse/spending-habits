@@ -187,7 +187,7 @@ export const UpdateSpendingForm = ({
           size="small"
         />
 
-        <DialogActions>
+        <DialogActions sx={{ pr: 0 }}>
           <Button
             size="small"
             onClick={() => handleClose()}

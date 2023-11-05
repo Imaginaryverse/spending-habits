@@ -1,4 +1,4 @@
-import { ComponentProps } from "react";
+import { ComponentProps, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import {
@@ -16,6 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import AddIcon from "@mui/icons-material/Add";
 import { useSpendingEditor } from "@src/features/spending-editor/useSpendingEditor";
 import { useSignInOut } from "@src/api/auth";
+import { ConfirmDialog } from "../confirm-dialog/ConfirmDialog";
 
 type NavigationLink = {
   label: string;
@@ -131,6 +132,7 @@ type NavigationDrawerProps = {
 
 export function NavigationDrawer({ open, onClose }: NavigationDrawerProps) {
   const { signOut } = useSignInOut();
+  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   function toggleDrawer(e: React.KeyboardEvent | React.MouseEvent) {
     if (
@@ -165,8 +167,18 @@ export function NavigationDrawer({ open, onClose }: NavigationDrawerProps) {
       <Stack position="absolute" width="100%" bottom={0}>
         <Divider />
 
-        <Tab label="Sign out" onClick={() => signOut()} />
+        <Tab label="Sign out" onClick={() => setShowSignOutDialog(true)} />
       </Stack>
+
+      <ConfirmDialog
+        title="Sign out"
+        message="Are you sure you want to sign out?"
+        open={showSignOutDialog}
+        onConfirm={() => signOut()}
+        confirmBtnLabel="Sign out"
+        onCancel={() => setShowSignOutDialog(false)}
+        cancelBtnLabel="Cancel"
+      />
     </Drawer>
   );
 }
