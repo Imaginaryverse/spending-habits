@@ -1,21 +1,27 @@
 import { CSSProperties, useState } from "react";
 import {
-  Box,
-  Button,
   Collapse,
+  Divider,
+  Grid,
   IconButton,
   List,
   ListItem,
   Paper,
   Stack,
   Typography,
+  Menu,
+  MenuItem,
+  ListItemIcon,
 } from "@mui/material";
 
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { useSpendingEditor } from "@src/features/spending-editor/useSpendingEditor";
 import { SpendingItem } from "@src/types";
-import dayjs from "dayjs";
+import { formatDate } from "@src/utils/date-utils";
 
 type SpendingsListProps = {
   spendingItems: SpendingItem[];
@@ -72,94 +78,103 @@ function SpendingsListItem({
   elevation,
 }: SpendingsListItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const openMoreMenu = Boolean(anchorEl);
+
+  const handleMoreMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMoreMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <ListItem sx={{ width: "100%" }} disableGutters>
-      <Paper
-        elevation={elevation}
-        sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            py: 2,
-            pl: 2,
-            pr: 1,
-          }}
+      <Paper component={Stack} elevation={elevation} sx={{ width: "100%" }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          py={2}
+          pl={2}
+          pr={1}
         >
-          <Stack spacing={0.5}>
-            <Typography variant="h4">
-              {item.title} - {item.amount} kr
-            </Typography>
-            <Typography variant="caption">
-              {formatDate(item.created_at)}
-            </Typography>
-          </Stack>
-          <IconButton
-            color="primary"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            <ExpandMoreIcon
-              fontSize="small"
-              sx={{
-                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.25s ease",
+          <Grid container spacing={0.5} alignItems="center" maxWidth="sm">
+            <Grid item xs={12} sm={4}>
+              <Typography variant="body2">
+                {item.title}, {item.category_name}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Typography variant="body2" fontWeight="bold">
+                {item.amount} kr
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography variant="body2">
+                {formatDate(item.created_at, "MMM D YYYY, HH:mm")}
+              </Typography>
+            </Grid>
+          </Grid>
+
+          <Stack direction="row" spacing={0.5}>
+            <IconButton
+              color="primary"
+              onClick={handleMoreMenuClick}
+              size="small"
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+            <Menu
+              id="more-menu"
+              anchorEl={anchorEl}
+              open={openMoreMenu}
+              onClose={handleMoreMenuClose}
+              MenuListProps={{
+                "aria-labelledby": "more-menu",
               }}
-            />
-          </IconButton>
-        </Box>
+            >
+              <MenuItem onClick={() => onEditClick(item)}>
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                Edit
+              </MenuItem>
+              <MenuItem onClick={() => onDeleteClick(item)}>
+                <ListItemIcon>
+                  <DeleteIcon fontSize="small" />
+                </ListItemIcon>
+                Delete
+              </MenuItem>
+            </Menu>
+
+            <IconButton
+              color="primary"
+              onClick={() => setIsExpanded(!isExpanded)}
+              size="small"
+            >
+              <ExpandMoreIcon
+                fontSize="small"
+                sx={{
+                  transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.25s ease",
+                }}
+              />
+            </IconButton>
+          </Stack>
+        </Stack>
 
         <Collapse in={isExpanded}>
-          <Stack
-            spacing={2}
-            sx={{
-              py: 2,
-              px: 2,
-              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-            }}
-          >
+          <Stack spacing={2} px={2} pb={2}>
+            <Divider />
+
             <Typography variant="body2">
               {item.comment || "No comment"}
             </Typography>
-
-            <Stack
-              width="100%"
-              direction="row"
-              justifyContent="center"
-              spacing={2}
-            >
-              <Button
-                variant="outlined"
-                size="small"
-                color="error"
-                onClick={() => onDeleteClick(item)}
-              >
-                Delete
-              </Button>
-
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => onEditClick(item)}
-              >
-                Edit
-              </Button>
-            </Stack>
           </Stack>
         </Collapse>
       </Paper>
     </ListItem>
   );
-}
-
-function formatDate(date: Date): string {
-  const parsedDate = new Date(date);
-
-  return dayjs(parsedDate).format("ddd, MMM D YYYY, HH:mm");
 }
