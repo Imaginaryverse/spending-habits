@@ -4,26 +4,31 @@ import SentimentNeutralOutlinedIcon from "@mui/icons-material/SentimentNeutralOu
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
 
+type SentimentType = "Very good" | "Good" | "Neutral" | "Bad" | "Very bad";
+
 type SentimentIconProps = {
   percentage: number;
+  sentimentParser: (percentage: number) => SentimentType;
+  fontSize?: "inherit" | "small" | "medium" | "large";
 };
 
-export function SentimentIcon({ percentage }: SentimentIconProps) {
-  if (percentage >= 75) {
-    return <SentimentVerySatisfiedIcon fontSize="inherit" />;
-  }
+export function SentimentIcon({
+  percentage,
+  sentimentParser,
+  fontSize = "inherit",
+}: SentimentIconProps) {
+  const sentiment = sentimentParser(percentage);
 
-  if (percentage >= 50) {
-    return <SentimentSatisfiedAltIcon fontSize="inherit" />;
+  switch (sentiment) {
+    case "Very good":
+      return <SentimentVerySatisfiedIcon fontSize={fontSize} />;
+    case "Good":
+      return <SentimentSatisfiedAltIcon fontSize={fontSize} />;
+    case "Neutral":
+      return <SentimentNeutralOutlinedIcon fontSize={fontSize} />;
+    case "Bad":
+      return <SentimentDissatisfiedOutlinedIcon fontSize={fontSize} />;
+    case "Very bad":
+      return <SentimentVeryDissatisfiedOutlinedIcon fontSize={fontSize} />;
   }
-
-  if (percentage >= 25) {
-    return <SentimentNeutralOutlinedIcon fontSize="inherit" />;
-  }
-
-  if (percentage > 0) {
-    return <SentimentDissatisfiedOutlinedIcon fontSize="inherit" />;
-  }
-
-  return <SentimentVeryDissatisfiedOutlinedIcon fontSize="inherit" />;
 }

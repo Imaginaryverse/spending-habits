@@ -4,7 +4,7 @@ import {
   formatNumber,
   sumValueOfObjects,
 } from "@src/utils/number-utils";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { Grid, Paper, Stack, Typography } from "@mui/material";
 import { CustomChart } from "@src/components/charts/CustomChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
@@ -89,7 +89,7 @@ export function MonthlyBudgetChart() {
 
       <Grid container gap={2}>
         <Grid item xs={12} md={5.85}>
-          <Stack spacing={2}>
+          <Stack spacing={1}>
             <Typography>
               Budget: <b>{formatNumber(spendingLimit)} kr</b>
             </Typography>
@@ -132,7 +132,6 @@ export function MonthlyBudgetChart() {
                 {formattedPercentageRemaining}%{" "}
                 {remainingBudget < 0 ? "over budget" : "remaining"}
               </Typography>
-              <SentimentIcon percentage={percentageRemaining} />
             </Paper>
 
             <CustomChart
@@ -152,6 +151,13 @@ export function MonthlyBudgetChart() {
           </Stack>
         </Grid>
       </Grid>
+
+      <SpendingRateInfo
+        totalSpent={totalSpent}
+        numItems={spendingItems.length}
+        remainingBudget={remainingBudget}
+        limit={spendingLimit}
+      />
     </PaperStack>
   );
 }
@@ -176,4 +182,162 @@ function getBarColor(value: number, limit: number) {
   );
 
   return `hsl(${hue}, 80%, 55%)`;
+}
+
+type SpendingRateInfoProps = {
+  totalSpent: number;
+  numItems: number;
+  remainingBudget: number;
+  limit: number;
+};
+
+type SpendingRate = "Very High" | "High" | "Balanced" | "Low" | "Very Low";
+
+function SpendingRateInfo({
+  totalSpent,
+  numItems,
+  remainingBudget,
+  limit,
+}: SpendingRateInfoProps) {
+  const averageAmountPerDay = calcAverageAmountPerDay(totalSpent, numItems);
+
+  const daysToBudgetLimit = calcDaysToBudgetLimit(
+    remainingBudget,
+    limit,
+    averageAmountPerDay
+  );
+
+  const dateOfBudgetLimit = calcDateOfBudgetLimit(daysToBudgetLimit);
+
+  const isDateOfBudgetLimitWithinMonth = dateOfBudgetLimit.isBefore(
+    dayjs().endOf("month")
+  );
+
+  const spendingRatePercent = useMemo(() => {
+    // use days left in month to calculate spending rate in percent
+    const daysLeftInMonth = dayjs().daysInMonth() - dayjs().date();
+    const spendingRatePercent = calcPercentage(
+      averageAmountPerDay * daysLeftInMonth,
+      remainingBudget
+    );
+
+    return Math.round(spendingRatePercent);
+  }, [averageAmountPerDay, remainingBudget]);
+
+  const spendingRate: SpendingRate = useMemo(() => {
+    if (spendingRatePercent > 125) {
+      return "Very High";
+    }
+
+    if (spendingRatePercent >= 100) {
+      return "High";
+    }
+
+    if (spendingRatePercent >= 75) {
+      return "Balanced";
+    }
+
+    if (spendingRatePercent >= 50) {
+      return "Low";
+    }
+
+    return "Very Low";
+  }, [spendingRatePercent]);
+
+  const message = useMemo(() => {
+    const start = `You spend on average ${formatNumber(averageAmountPerDay, {
+      fractions: 0,
+    })} kr per day.`;
+
+    const mid = isDateOfBudgetLimitWithinMonth
+      ? `At this rate, you will reach your budget limit in approximately ${daysToBudgetLimit} days,
+      on ${dateOfBudgetLimit.format("MMMM D")}.`
+      : `At this rate, you won't reach your budget limit until next month, on ${dateOfBudgetLimit.format(
+          "MMMM D"
+        )}.`;
+
+    const end = isDateOfBudgetLimitWithinMonth
+      ? `
+      If you don't spend less, you will exceed your budget limit before the end of this month.`
+      : `If you manage to stay within your budget limit this month, consider investing or putting what remains into savings.`;
+
+    const message = `${start} ${mid} ${end}`;
+
+    return message;
+  }, [
+    averageAmountPerDay,
+    daysToBudgetLimit,
+    dateOfBudgetLimit,
+    isDateOfBudgetLimitWithinMonth,
+  ]);
+
+  return (
+    <PaperStack elevation={0}>
+      <Grid container gap={1}>
+        <Grid item xs={12} md={5.85}>
+          <Stack spacing={1} justifyContent="center" alignItems="center">
+            <SentimentIcon
+              fontSize="large"
+              percentage={spendingRatePercent}
+              sentimentParser={(percentage) => {
+                if (percentage >= 150) {
+                  return "Very bad";
+                }
+
+                if (percentage > 100) {
+                  return "Bad";
+                }
+
+                if (percentage === 100) {
+                  return "Neutral";
+                }
+
+                if (percentage < 100) {
+                  return "Good";
+                }
+
+                return "Very good";
+              }}
+            />
+
+            <Typography>
+              Spending rate: <b>{spendingRate}</b>
+            </Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={5.9}>
+          <Typography>{message}</Typography>
+        </Grid>
+      </Grid>
+    </PaperStack>
+  );
+}
+
+function calcAverageAmountPerDay(totalSpent: number, numItems: number): number {
+  if (!numItems) {
+    return 0;
+  }
+
+  const average = totalSpent / numItems;
+
+  return average;
+}
+
+function calcDaysToBudgetLimit(
+  remainingBudget: number,
+  limit: number,
+  average: number
+): number {
+  if (remainingBudget < 1 || limit < 1 || !average) {
+    return 0;
+  }
+
+  return Math.ceil(remainingBudget / average);
+}
+
+function calcDateOfBudgetLimit(daysToBudgetLimit: number): Dayjs {
+  const now = dayjs();
+  const dateOfBudgetLimit = now.add(daysToBudgetLimit, "day");
+
+  return dateOfBudgetLimit;
 }
