@@ -53,6 +53,10 @@ type ChartProps<T extends ValidChartDataItem> = {
    */
   data: T[];
   /**
+   * Function to be called when a bar is clicked.
+   */
+  onBarClick?: (data: T) => void;
+  /**
    * The key of the data to be displayed on the X axis.
    * If orientation is "vertical", this will be the Y axis.
    */
@@ -173,6 +177,7 @@ type ChartProps<T extends ValidChartDataItem> = {
 
 export function CustomChart<T extends ValidChartDataItem>({
   data,
+  onBarClick,
   xAxisKey,
   hideXAxis,
   xAxisAnchor = "bottom",
@@ -305,6 +310,8 @@ export function CustomChart<T extends ValidChartDataItem>({
                     strokeWidth={barStrokeWidth}
                     fill={colorsArray[index % colorsArray.length]}
                     fillOpacity={0.6}
+                    onClick={() => onBarClick?.(data[index])}
+                    cursor={onBarClick ? "pointer" : "default"}
                   />
                 ))}
               </Bar>
