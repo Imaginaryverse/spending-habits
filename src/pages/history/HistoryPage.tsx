@@ -63,11 +63,11 @@ export function HistoryPage() {
       case "years":
         return "At min. level";
       case "year":
-        return "To years level";
+        return "Back (years)";
       case "month":
-        return "To year level";
+        return "Back (year)";
       case "day":
-        return "To month level";
+        return "Back (month)";
       default:
         return "";
     }
@@ -129,9 +129,9 @@ export function HistoryPage() {
       case "year":
         return dateKey;
       case "month":
-        return dayjs(dateKey).format("MMM YYYY");
+        return dayjs(dateKey).format("MMMM YYYY");
       case "day":
-        return dayjs(dateKey).format("MMM D YYYY");
+        return dayjs(dateKey).format("ddd, MMM D YYYY");
       default:
         return null;
     }
@@ -154,11 +154,7 @@ export function HistoryPage() {
       />
 
       <PaperStack>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
+        <Stack justifyContent="space-between" spacing={2}>
           <Button
             size="small"
             startIcon={
@@ -166,12 +162,16 @@ export function HistoryPage() {
             }
             onClick={handlePrevClick}
             disabled={currentResolution === "years"}
+            sx={{ alignSelf: "flex-start" }}
           >
             {prevButtonLabel}
           </Button>
 
           {!!formattedDateKey && (
-            <Typography variant="h3">{formattedDateKey}</Typography>
+            <Typography variant="h3" textTransform="capitalize">
+              {currentResolution === "years" ? null : `${currentResolution}: `}
+              {formattedDateKey}
+            </Typography>
           )}
         </Stack>
 
