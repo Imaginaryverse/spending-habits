@@ -109,13 +109,13 @@ export function SnackbarProvider({ children }: PropsWithChildren) {
       value={{ openSnackbar, closeSnackbar: handleClose }}
     >
       {children}
-      <Slide in={open} direction="up">
-        <Snackbar
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          open={open}
-          autoHideDuration={snackbarDuration}
-          onClose={handleClose}
-        >
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        open={open}
+        autoHideDuration={snackbarDuration}
+        onClose={handleClose}
+      >
+        <Slide in={open} direction="up" mountOnEnter unmountOnExit>
           <Alert
             variant={alertVariant}
             severity={snackbarType}
@@ -125,8 +125,8 @@ export function SnackbarProvider({ children }: PropsWithChildren) {
           >
             {snackbarMessage}
           </Alert>
-        </Snackbar>
-      </Slide>
+        </Slide>
+      </Snackbar>
     </SnackbarContext.Provider>
   );
 }
