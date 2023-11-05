@@ -15,6 +15,7 @@ import { getAmountPerCategory } from "@src/utils/data-utils";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
+import { useNavigate } from "react-router-dom";
 
 type VisualizationOption = "amount" | "accumulated";
 
@@ -64,6 +65,8 @@ function getDayChartData(items: SpendingItem[]) {
 }
 
 export function SevenDaysSummary() {
+  const navigate = useNavigate();
+
   const { user } = useAuth();
   const { spendingCategories } = useFetchSpendingCategories();
   const { spendingItems = [], isLoadingSpendingItems } = useFetchSpendingItems(
@@ -148,6 +151,7 @@ export function SevenDaysSummary() {
 
           <CustomChart
             data={dayChartData}
+            onBarClick={(data) => navigate(`/history/?dateKey=${data.date}`)}
             type={selectedVisualization === "amount" ? "bar" : "area"}
             lineDot={true}
             xAxisKey={"date"}

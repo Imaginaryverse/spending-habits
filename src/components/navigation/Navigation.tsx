@@ -32,7 +32,7 @@ const navigationLinks: NavigationLink[] = [
   {
     label: "History",
     href: "/history",
-    defaultParam: `?dateKey=${dayjs().format("YYYY-MM")}`,
+    defaultParam: `?dateKey=${dayjs().format("YYYY")}`,
   },
   {
     label: "Profile",

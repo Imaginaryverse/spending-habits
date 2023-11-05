@@ -83,7 +83,7 @@ export function TwentyFourHourSummary() {
             <CustomChart
               height={250}
               data={hourChartData}
-              xAxisKey="date"
+              xAxisKey="label"
               yAxisKey="amount"
               yAxisUnit=" kr"
               cartesianGrid={{ horizontal: true }}

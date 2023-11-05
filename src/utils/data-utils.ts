@@ -1,12 +1,39 @@
 import { SpendingCategory, SpendingItem } from "@src/types";
 import dayjs from "dayjs";
-import { getNumDaysInMonth } from "./date-utils";
 import { getCategoryAbbreviation } from "./string-utils";
 
-type ChartData = {
-  date: string;
+export type ChartData = {
+  label: string;
+  dateKey: string;
   amount: number;
 };
+
+/**
+ * Returns the total amount spent per year
+ * @param spendingItems - array of spending items
+ * @returns array of chart data
+ */
+export function getYearsChartData(spendingItems: SpendingItem[]): ChartData[] {
+  const years = Array.from({ length: 3 }, (_, i) =>
+    dayjs().subtract(i, "year").format("YYYY")
+  );
+  const chartData: ChartData[] = [];
+
+  years.forEach((year) => {
+    const amount = spendingItems
+      .filter(
+        (spendingItem) => dayjs(spendingItem.created_at).format("YYYY") === year
+      )
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const label = year;
+    const dateKey = year;
+
+    chartData.push({ label, dateKey, amount });
+  });
+
+  return chartData.reverse();
+}
 
 /**
  * Returns the total amount spent per month of the year
@@ -14,19 +41,23 @@ type ChartData = {
  * @returns array of chart data
  */
 export function getYearChartData(spendingItems: SpendingItem[]): ChartData[] {
-  const months = Array.from({ length: 12 }, (_, i) =>
-    dayjs().month(i).format("MMM")
+  const monthKeys = Array.from({ length: 12 }, (_, i) =>
+    dayjs().month(i).format("YYYY-MM")
   );
   const chartData: ChartData[] = [];
 
-  months.forEach((month) => {
+  monthKeys.forEach((monthKey) => {
     const amount = spendingItems
       .filter(
-        (spendingItem) => dayjs(spendingItem.created_at).format("MMM") === month
+        (spendingItem) =>
+          dayjs(spendingItem.created_at).format("YYYY-MM") === monthKey
       )
       .reduce((acc, curr) => acc + curr.amount, 0);
 
-    chartData.push({ date: month, amount });
+    const label = dayjs(monthKey).format("MMM");
+    const dateKey = monthKey;
+
+    chartData.push({ label, dateKey, amount });
   });
 
   return chartData;
@@ -40,26 +71,32 @@ export function getYearChartData(spendingItems: SpendingItem[]): ChartData[] {
  */
 export function getMonthChartData(
   spendingItems: SpendingItem[],
-  dateKey: string
+  dateKey: string | null
 ): ChartData[] {
-  const daysInMonth = getNumDaysInMonth(new Date(dateKey));
+  if (!dateKey) {
+    return [];
+  }
+
+  const daysInMonth = dayjs(dateKey).daysInMonth();
+  const month = dayjs(dateKey).format("YYYY-MM");
 
   const chartData: ChartData[] = [];
 
   for (let i = 1; i <= daysInMonth; i++) {
-    const date = dayjs().date(i).format("DD");
+    const day = dayjs(month).date(i).format("DD");
 
-    const amount = spendingItems.reduce((acc, item) => {
-      const itemDate = dayjs(item.created_at).format("DD");
+    const amount = spendingItems
+      .filter(
+        (spendingItem) =>
+          dayjs(spendingItem.created_at).format("YYYY-MM") === month &&
+          dayjs(spendingItem.created_at).format("DD") === day
+      )
+      .reduce((acc, curr) => acc + curr.amount, 0);
 
-      if (itemDate === date) {
-        return acc + item.amount;
-      }
+    const label = day;
+    const dateKey = dayjs(month).date(+day).format("YYYY-MM-DD");
 
-      return acc;
-    }, 0);
-
-    chartData.push({ date, amount });
+    chartData.push({ label, dateKey, amount });
   }
 
   return chartData;
@@ -83,7 +120,10 @@ export function getDayChartData(spendingItems: SpendingItem[]): ChartData[] {
       )
       .reduce((acc, curr) => acc + curr.amount, 0);
 
-    chartData.push({ date: hour, amount });
+    const label = hour;
+    const dateKey = dayjs().hour(+hour).format("YYYY-MM-DD HH:00");
+
+    chartData.push({ label, dateKey, amount });
   });
 
   return chartData;
@@ -113,9 +153,10 @@ export function get24HourChartData(spendingItems: SpendingItem[]): ChartData[] {
       )
       .reduce((acc, curr) => acc + curr.amount, 0);
 
-    const hourOfDay = hour.split(" ")[1];
+    const label = hour.split(" ")[1];
+    const dateKey = dayjs().hour(+label).format("YYYY-MM-DD HH:00");
 
-    chartData.push({ date: `${hourOfDay}`, amount });
+    chartData.push({ label, dateKey, amount });
   }
 
   return chartData.reverse();
