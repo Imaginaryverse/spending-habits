@@ -14,6 +14,7 @@ import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { useQueryClient } from "react-query";
 import { QUERY_KEY } from "@src/types";
 import { useSignInOut } from "@src/api/auth";
+import { useSnackbar } from "@src/features/snackbars/useSnackbar";
 
 type ProfileFormValues = {
   name: string;
@@ -24,6 +25,7 @@ export function ProfilePage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { signOut } = useSignInOut();
+  const { openSnackbar } = useSnackbar();
 
   const {
     userProfile,
@@ -45,6 +47,7 @@ export function ProfilePage() {
   function onUpdateProfileSuccess() {
     queryClient.invalidateQueries(QUERY_KEY.user_profiles);
     setIsEditing(false);
+    openSnackbar("Profile updated", "success", 4000);
   }
 
   function updateInput(key: keyof ProfileFormValues, value: string) {

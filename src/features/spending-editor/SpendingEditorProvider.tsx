@@ -9,6 +9,7 @@ import { CreateSpendingForm } from "@src/components/spending-editor-dialog/Creat
 import { UpdateSpendingForm } from "@src/components/spending-editor-dialog/UpdateSpendingForm";
 import { DeleteSpendingConfirmation } from "@src/components/spending-editor-dialog/DeleteSpendingConfirmation";
 import { useQueryClient } from "react-query";
+import { useSnackbar } from "../snackbars/useSnackbar";
 
 type DialogMode = "add" | "edit" | "delete" | null;
 
@@ -30,6 +31,8 @@ export const SpendingEditorContext = createContext<SpendingEditorContextType>({
 
 export function SpendingEditorProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
+  const { openSnackbar } = useSnackbar();
+
   const [dialogMode, setDialogMode] = useState<DialogMode>(null);
   const [spendingEditItem, setSpendingEditItem] = useState<SpendingItem | null>(
     null
@@ -37,7 +40,7 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
   const [spendingDeleteItem, setSpendingDeleteItem] =
     useState<SpendingItem | null>(null);
 
-  function onMutationSuccess() {
+  function invalidateQueryAndClose() {
     queryClient.invalidateQueries(QUERY_KEY.spending_items);
     closeDialog();
   }
@@ -62,15 +65,33 @@ export function SpendingEditorProvider({ children }: PropsWithChildren) {
   }
 
   const { createSpendingItem, isCreatingSpendingItem } = useCreateSpendingItem({
-    onSuccess: onMutationSuccess,
+    onSuccess: () => {
+      invalidateQueryAndClose();
+      openSnackbar("Item created", "success", 4000);
+    },
+    onError: () => {
+      openSnackbar("Error creating item", "error");
+    },
   });
 
   const { updateSpendingItem, isUpdatingSpendingItem } = useUpdateSpendingItem({
-    onSuccess: onMutationSuccess,
+    onSuccess: () => {
+      invalidateQueryAndClose();
+      openSnackbar("Item updated", "success", 4000);
+    },
+    onError: () => {
+      openSnackbar("Error updating item", "error");
+    },
   });
 
   const { deleteSpendingItem, isDeletingSpendingItem } = useDeleteSpendingItem({
-    onSuccess: onMutationSuccess,
+    onSuccess: () => {
+      invalidateQueryAndClose();
+      openSnackbar("Item deleted", "success", 4000);
+    },
+    onError: () => {
+      openSnackbar("Error deleting item", "error");
+    },
   });
 
   return (

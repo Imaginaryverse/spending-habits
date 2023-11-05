@@ -3,6 +3,7 @@ import { AuthProvider } from "./features/auth/AuthProvider";
 import { SpendingEditorProvider } from "./features/spending-editor/SpendingEditorProvider";
 import { Layout } from "./components/layout/Layout";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { SnackbarProvider } from "./features/snackbars/SnackbarProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,11 +17,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SpendingEditorProvider>
-          <Layout>
-            <Outlet />
-          </Layout>
-        </SpendingEditorProvider>
+        <SnackbarProvider>
+          <SpendingEditorProvider>
+            <Layout>
+              <Outlet />
+            </Layout>
+          </SpendingEditorProvider>
+        </SnackbarProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

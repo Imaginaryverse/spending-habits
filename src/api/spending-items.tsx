@@ -129,7 +129,6 @@ export function useFetchSpendingItems(
   const { isDemo, demoData } = useDemo();
 
   async function fetchDemoData(params?: Partial<FetchSpendingItemsParams>) {
-    console.log("fetching demo data");
     if (!params?.user_id) {
       throw new Error("User not found");
     }
@@ -208,10 +207,9 @@ export function useCreateSpendingItem(
     mutateAsync,
     isLoading: isCreatingSpendingItem,
     isSuccess: isSpendingItemCreated,
-  } = useMutation(
-    isDemo ? createDemoSpendingItem : createSpendingItem,
-    options
-  );
+  } = useMutation(isDemo ? createDemoSpendingItem : createSpendingItem, {
+    ...options,
+  });
 
   return {
     createSpendingItem: mutateAsync,
@@ -246,10 +244,9 @@ export function useUpdateSpendingItem(
     mutateAsync,
     isLoading: isUpdatingSpendingItem,
     isSuccess: isSpendingItemUpdated,
-  } = useMutation(
-    isDemo ? updateDemoSpendingItem : updateSpendingItem,
-    options
-  );
+  } = useMutation(isDemo ? updateDemoSpendingItem : updateSpendingItem, {
+    ...options,
+  });
 
   return {
     updateSpendingItem: mutateAsync,
@@ -277,10 +274,9 @@ export function useDeleteSpendingItem(
     mutateAsync,
     isLoading: isDeletingSpendingItem,
     isSuccess: isSpendingItemDeleted,
-  } = useMutation(
-    isDemo ? deleteDemoSpendingItem : deleteSpendingItem,
-    options
-  );
+  } = useMutation(isDemo ? deleteDemoSpendingItem : deleteSpendingItem, {
+    ...options,
+  });
 
   return {
     deleteSpendingItem: mutateAsync,
