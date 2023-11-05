@@ -37,3 +37,21 @@ export function getDateRangeFromDateKey(dateKey: string | null): {
 
   return { from, to };
 }
+
+type DateFormatTemplate =
+  | "YYYY"
+  | "YYYY-MM"
+  | "YYYY-MM-DD"
+  | "YYYY-MM-DD HH:mm"
+  | "YYYY-MM-DD HH:mm:ss"
+  | "ddd, MMM D YYYY"
+  | "ddd, MMM D YYYY, HH:mm"
+  | "ddd, MMM D YYYY, HH:mm:ss"
+  | "MMM D YYYY"
+  | "MMM D YYYY, HH:mm"
+  | "MMM D YYYY, HH:mm:ss";
+
+export function formatDate(date: Date, template?: DateFormatTemplate): string {
+  const parsedDate = new Date(date);
+  return dayjs(parsedDate).format(template || "YYYY-MM-DD HH:mm");
+}

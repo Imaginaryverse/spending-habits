@@ -5,6 +5,7 @@ import { SpendingEditorDialog } from "./SpendingEditorDialog";
 import {
   Button,
   CircularProgress,
+  DialogActions,
   FormGroup,
   MenuItem,
   Stack,
@@ -110,8 +111,8 @@ export const UpdateSpendingForm = ({
         onSubmit={handleSave}
         autoComplete="off"
         spacing={2}
-        px={2}
-        pb={2}
+        p={2}
+        pb={0}
       >
         <TextField
           label="Title"
@@ -186,14 +187,29 @@ export const UpdateSpendingForm = ({
           size="small"
         />
 
-        <Button
-          type="submit"
-          variant={isUpdatingSpendingItem ? "text" : "contained"}
-          disabled={disableSubmit}
-          fullWidth
-        >
-          {isUpdatingSpendingItem ? <CircularProgress size="1.5rem" /> : "Save"}
-        </Button>
+        <DialogActions>
+          <Button
+            size="small"
+            onClick={() => handleClose()}
+            disabled={isUpdatingSpendingItem}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            size="small"
+            color="primary"
+            type="submit"
+            disabled={disableSubmit}
+          >
+            {isUpdatingSpendingItem ? (
+              <CircularProgress size="1.5rem" />
+            ) : (
+              "Save"
+            )}
+          </Button>
+        </DialogActions>
       </Stack>
     </SpendingEditorDialog>
   );

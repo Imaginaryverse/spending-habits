@@ -7,6 +7,7 @@ import {
   MenuItem,
   Button,
   CircularProgress,
+  DialogActions,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import {
@@ -111,8 +112,8 @@ export const CreateSpendingForm = ({
         onSubmit={handleSubmit}
         autoComplete="off"
         spacing={2}
-        px={2}
-        pb={2}
+        p={2}
+        pb={0}
       >
         <TextField
           id="title"
@@ -187,14 +188,29 @@ export const CreateSpendingForm = ({
           size="small"
         />
 
-        <Button
-          type="submit"
-          variant={isCreatingSpendingItem ? "text" : "contained"}
-          disabled={disableSubmit}
-          fullWidth
-        >
-          {isCreatingSpendingItem ? <CircularProgress size="1.5rem" /> : "Add"}
-        </Button>
+        <DialogActions>
+          <Button
+            size="small"
+            onClick={() => handleClose()}
+            disabled={isCreatingSpendingItem}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            size="small"
+            color="primary"
+            type="submit"
+            disabled={disableSubmit}
+          >
+            {isCreatingSpendingItem ? (
+              <CircularProgress size="1.5rem" />
+            ) : (
+              "Add"
+            )}
+          </Button>
+        </DialogActions>
       </Stack>
     </SpendingEditorDialog>
   );

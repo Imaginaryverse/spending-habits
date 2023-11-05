@@ -16,7 +16,7 @@ const DEMO_USER: User = {
   id: "demo",
   aud: "authenticated",
   role: "authenticated",
-  email: "demo@trackmacash.io",
+  email: "demo@trackmacash.dev",
   created_at: new Date().toISOString(),
   app_metadata: {},
   user_metadata: {},

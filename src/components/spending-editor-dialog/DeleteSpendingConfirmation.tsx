@@ -2,12 +2,13 @@ import {
   Button,
   CircularProgress,
   DialogActions,
-  DialogContent,
-  Stack,
+  DialogContentText,
+  Paper,
   Typography,
 } from "@mui/material";
 import { SpendingItem } from "@src/types";
 import { SpendingEditorDialog } from "./SpendingEditorDialog";
+import { formatDate } from "@src/utils/date-utils";
 
 type DeleteSpendingConfirmationProps = {
   isOpen: boolean;
@@ -34,21 +35,32 @@ export function DeleteSpendingConfirmation({
       title="Delete spending?"
       onClose={onClose}
     >
-      <DialogContent>
-        <Stack spacing={2}>
-          <Typography>Are you sure you want to delete this item?</Typography>
+      <DialogContentText>
+        Are you sure you want to delete this item?
+      </DialogContentText>
 
-          <Typography>
-            {spendingItem.title} ({spendingItem.amount} kr)
-          </Typography>
-        </Stack>
-      </DialogContent>
+      <Paper elevation={1} sx={{ p: 2, my: 3 }}>
+        <Typography fontWeight="bold">
+          {spendingItem.title} - {spendingItem.amount} kr
+        </Typography>
+
+        <Typography variant="caption">
+          {formatDate(spendingItem.created_at, "ddd, MMM D YYYY, HH:mm")}
+        </Typography>
+      </Paper>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={isDeletingSpendingItem}>
+        <Button
+          size="small"
+          onClick={onClose}
+          disabled={isDeletingSpendingItem}
+        >
           Cancel
         </Button>
+
         <Button
+          variant="contained"
+          size="small"
           color="error"
           onClick={() => onConfirm(spendingItem)}
           disabled={isDeletingSpendingItem}

@@ -49,28 +49,21 @@ const themeAlt = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      // main: "hsl(200, 85%, 50%)",
       main: createHsl(primaryHue, baseSaturation, baseLightness),
     },
     secondary: {
-      // main: "hsl(40, 85%, 50%)",
       main: createHsl(primaryHue - 160, baseSaturation, baseLightness),
     },
     background: {
-      // default: "hsl(200, 85%, 5%)",
-      // paper: "hsl(200, 85%, 6%)",
       default: createHsl(primaryHue, baseSaturation, baseLightness - 45),
       paper: createHsl(primaryHue, baseSaturation, baseLightness - 40),
     },
     text: {
-      // primary: "rgba(255, 255, 255, 0.85)",
-      // secondary: "rgba(255, 255, 255, 0.7)",
       primary: createHsl(0, 0, 100, 0.85),
       secondary: createHsl(0, 0, 100, 0.7),
     },
     error: {
-      // main: "hsl(0, 75%, 50%)",
-      main: createHsl(0, 75, 50),
+      main: createHsl(355, 60, 53.5),
     },
   },
   typography: {
