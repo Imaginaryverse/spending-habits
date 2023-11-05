@@ -48,7 +48,7 @@ export function InfoCard({
         </Stack>
 
         <ExpandMoreIcon
-          fontSize="inherit"
+          fontSize="small"
           sx={{
             transform: expanded ? "rotate(180deg)" : undefined,
             transition: "transform 0.3s ease",
