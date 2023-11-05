@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useAuth } from "@src/features/auth/useAuth";
-import { RouterLink } from "@src/components/router-link/RouterLink";
+// import { RouterLink } from "@src/components/router-link/RouterLink";
 import { AuthError } from "@supabase/supabase-js";
 import { isValidEmail } from "@src/utils/string-utils";
 import { Page } from "@src/components/page/Page";
@@ -49,16 +49,16 @@ export function SignInPage() {
           />
         )}
 
-        <Button variant="text" size="small" onClick={() => setIsDemo(true)}>
+        <Button variant="text" onClick={() => setIsDemo(true)}>
           Try the demo
         </Button>
 
-        {!isAuthenticated && (
+        {/* {!isAuthenticated && (
           <Typography variant="body2">
             Don't have an account?{" "}
             <RouterLink to="/register">Register</RouterLink> a new account.
           </Typography>
-        )}
+        )} */}
       </PaperStack>
     </Page>
   );
