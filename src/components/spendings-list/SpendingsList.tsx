@@ -6,12 +6,12 @@ import {
   IconButton,
   List,
   ListItem,
-  Paper,
   Stack,
   Typography,
   Menu,
   MenuItem,
   ListItemIcon,
+  Card,
 } from "@mui/material";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -33,7 +33,6 @@ type SpendingsListProps = {
 export function SpendingsList({
   spendingItems,
   dense = true,
-  itemElevation = 0,
   maxHeight,
 }: SpendingsListProps) {
   const { openEditDialog, openDeleteDialog } = useSpendingEditor();
@@ -57,7 +56,6 @@ export function SpendingsList({
           item={item}
           onEditClick={openEditDialog}
           onDeleteClick={openDeleteDialog}
-          elevation={itemElevation}
         />
       ))}
     </List>
@@ -68,14 +66,12 @@ type SpendingsListItemProps = {
   item: SpendingItem;
   onEditClick: (item: SpendingItem) => void;
   onDeleteClick: (item: SpendingItem) => void;
-  elevation?: number;
 };
 
 function SpendingsListItem({
   item,
   onEditClick,
   onDeleteClick,
-  elevation,
 }: SpendingsListItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -91,7 +87,7 @@ function SpendingsListItem({
 
   return (
     <ListItem sx={{ width: "100%" }} disableGutters>
-      <Paper component={Stack} elevation={elevation} sx={{ width: "100%" }}>
+      <Card variant="outlined" sx={{ width: "100%" }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -174,7 +170,7 @@ function SpendingsListItem({
             </Typography>
           </Stack>
         </Collapse>
-      </Paper>
+      </Card>
     </ListItem>
   );
 }

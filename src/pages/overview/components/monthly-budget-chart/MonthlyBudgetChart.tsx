@@ -5,7 +5,7 @@ import {
   sumValueOfObjects,
 } from "@src/utils/number-utils";
 import dayjs, { Dayjs } from "dayjs";
-import { Grid, Paper, Stack, Typography } from "@mui/material";
+import { Card, Grid, Stack, Typography } from "@mui/material";
 import { CustomChart } from "@src/components/charts/CustomChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import BalanceIcon from "@mui/icons-material/Balance";
@@ -115,16 +115,9 @@ export function MonthlyBudgetChart() {
         </Grid>
         <Grid item xs={12} md={5.9}>
           <Stack spacing={1} alignItems="center">
-            <Paper
-              elevation={0}
-              component={Stack}
-              width="98%"
-              py={1}
-              px={2}
-              spacing={0.5}
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
+            <Card
+              variant="outlined"
+              sx={{ width: "99%", p: 1, textAlign: "center" }}
             >
               <Typography
                 color={remainingBudget < 0 ? "error.light" : "text.primary"}
@@ -132,7 +125,7 @@ export function MonthlyBudgetChart() {
                 {formattedPercentageRemaining}%{" "}
                 {remainingBudget < 0 ? "over budget" : "remaining"}
               </Typography>
-            </Paper>
+            </Card>
 
             <CustomChart
               data={[{ name: "Remaining", amount: remainingBudget }]}
@@ -272,10 +265,15 @@ function SpendingRateInfo({
   ]);
 
   return (
-    <PaperStack elevation={0}>
+    <Card variant="outlined" sx={{ width: "100%", p: 2 }}>
       <Grid container gap={1}>
         <Grid item xs={12} md={5.85}>
-          <Stack spacing={1} justifyContent="center" alignItems="center">
+          <Stack
+            height="100%"
+            spacing={1}
+            justifyContent="center"
+            alignItems="center"
+          >
             <SentimentIcon
               fontSize="large"
               percentage={spendingRatePercent}
@@ -309,7 +307,7 @@ function SpendingRateInfo({
           <Typography>{message}</Typography>
         </Grid>
       </Grid>
-    </PaperStack>
+    </Card>
   );
 }
 
