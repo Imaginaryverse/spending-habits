@@ -170,7 +170,7 @@ export function SevenDaysSummary() {
         <Typography>
           Your most expensive purchase overall (<b>{mostExpensiveItem.title}</b>
           , <b>{formatNumber(mostExpensiveItem.amount)} kr</b>) occurred on{" "}
-          <b>{dayjs(mostExpensiveItem.created_at).format("MMMM DD")}</b> in the{" "}
+          <b>{dayjs(mostExpensiveItem.created_at).format("MMMM D")}</b> in the{" "}
           <b>{mostExpensiveItem.category_name}</b> category.
         </Typography>
       )}
