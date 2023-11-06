@@ -87,10 +87,12 @@ export function DemoProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (!isDemo) {
-      return;
+      // reset state
+      setDemoData([]);
+      setDemoUserProfile(DEMO_USER_PROFILE);
+    } else {
+      setDemoData(generateDemoData());
     }
-
-    setDemoData(generateDemoData());
   }, [isDemo]);
 
   return (
