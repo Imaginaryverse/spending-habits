@@ -151,7 +151,7 @@ export function SevenDaysSummary() {
 
           <CustomChart
             data={dayChartData}
-            onBarClick={(data) => navigate(`/history/?dateKey=${data.date}`)}
+            onBarClick={(data) => navigate(`/history?dateKey=${data.date}`)}
             type={selectedVisualization === "amount" ? "bar" : "area"}
             lineDot={true}
             xAxisKey={"date"}
