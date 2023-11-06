@@ -61,19 +61,13 @@ export function SnackbarProvider({ children }: PropsWithChildren) {
     [snackbarType, snackbarDuration, alertVariant]
   );
 
-  const handleClose = useCallback(
-    (
-      e?: Event | React.SyntheticEvent<unknown, Event>,
-      reason?: SnackbarCloseReason
-    ) => {
-      if (reason === "clickaway") {
-        return;
-      }
+  const handleClose = useCallback((reason?: SnackbarCloseReason) => {
+    if (reason === "clickaway") {
+      return;
+    }
 
-      setOpen(false);
-    },
-    []
-  );
+    setOpen(false);
+  }, []);
 
   const resetSnackbar = useCallback(async () => {
     // short delay to allow the snackbar to close
@@ -113,14 +107,14 @@ export function SnackbarProvider({ children }: PropsWithChildren) {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         open={open}
         autoHideDuration={snackbarDuration}
-        onClose={handleClose}
+        onClose={(_, reason) => handleClose(reason)}
       >
         <Slide in={open} direction="up" mountOnEnter unmountOnExit>
           <Alert
             variant={alertVariant}
             severity={snackbarType}
             elevation={6}
-            onClose={handleClose}
+            onClose={() => handleClose()}
             sx={{ width: "100%", maxWidth: 360 }}
           >
             {snackbarMessage}

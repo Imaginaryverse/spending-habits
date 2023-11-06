@@ -42,7 +42,7 @@ export function ConfirmDialog({
   closeOnEscapeKeyPress = true,
 }: ConfirmDialogProps) {
   const handleClose = useCallback(
-    (e: object, reason: string) => {
+    (reason: string) => {
       if (reason === "backdropClick" && !closeOnOutsideClick) {
         return;
       } else if (reason === "escapeKeyDown" && !closeOnEscapeKeyPress) {
@@ -55,7 +55,7 @@ export function ConfirmDialog({
   );
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={(_, reason) => handleClose(reason)}>
       <DialogTitle>{title}</DialogTitle>
 
       <DialogContent>

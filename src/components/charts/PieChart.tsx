@@ -81,7 +81,8 @@ export function PieChart<T extends ValidPieChartDataItem>({
         {showLegend && (
           <Legend
             iconSize={10}
-            formatter={(value, entry, index) => {
+            formatter={(props) => {
+              const index = props.index;
               const dataItem = data[index as number];
               const label = dataItem[labelKey as string];
               return label;
