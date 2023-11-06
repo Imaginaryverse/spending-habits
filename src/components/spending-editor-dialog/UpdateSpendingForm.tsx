@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { sortSpendingCategories } from "@src/utils/data-utils";
 
 type UpdateSpendingFormProps = {
   isOpen: boolean;
@@ -30,7 +31,9 @@ export const UpdateSpendingForm = ({
   onClose,
   isUpdatingSpendingItem,
 }: UpdateSpendingFormProps) => {
-  const { spendingCategories } = useFetchSpendingCategories();
+  const { spendingCategories } = useFetchSpendingCategories({
+    select: (data) => sortSpendingCategories(data),
+  });
 
   const initialInput: SpendingItemInput = {
     title: spendingItem?.title ?? "",

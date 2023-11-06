@@ -14,9 +14,18 @@ export type UserProfile = {
   monthly_spending_limit: number;
 };
 
+type SpendingCategoryName =
+  | "Other"
+  | "Food"
+  | "Commuting"
+  | "Shopping"
+  | "Groceries"
+  | "Entertainment"
+  | "Health";
+
 export type SpendingCategory = {
   id: number;
-  name: string;
+  name: SpendingCategoryName;
   description: string;
 };
 

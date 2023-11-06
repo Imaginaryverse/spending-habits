@@ -55,6 +55,16 @@ const DEMO_CATEGORIES: SpendingCategory[] = [
     name: "Entertainment",
     description: "",
   },
+  {
+    id: 6,
+    name: "Health",
+    description: "",
+  },
+  {
+    id: 7,
+    name: "Groceries",
+    description: "",
+  },
 ];
 
 type DemoContextType = {

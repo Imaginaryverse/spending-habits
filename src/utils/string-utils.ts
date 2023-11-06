@@ -27,6 +27,10 @@ export function getCategoryAbbreviation(category: SpendingCategory): string {
       return "Ent.";
     case "Food":
       return category.name;
+    case "Health":
+      return "Hlth.";
+    case "Groceries":
+      return "Gro.";
     case "Other":
       return category.name;
     default:

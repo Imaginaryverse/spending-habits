@@ -18,6 +18,7 @@ import {
 import dayjs from "dayjs";
 import { SpendingEditorDialog } from "./SpendingEditorDialog";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { sortSpendingCategories } from "@src/utils/data-utils";
 
 type CreateSpendingFormProps = {
   isOpen: boolean;
@@ -32,7 +33,9 @@ export const CreateSpendingForm = ({
   onClose,
   isCreatingSpendingItem,
 }: CreateSpendingFormProps) => {
-  const { spendingCategories } = useFetchSpendingCategories();
+  const { spendingCategories } = useFetchSpendingCategories({
+    select: (data) => sortSpendingCategories(data),
+  });
 
   const initialInput: SpendingItemInput = {
     title: "",

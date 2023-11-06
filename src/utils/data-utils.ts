@@ -193,3 +193,35 @@ export function getAmountPerCategory(
 
   return data;
 }
+
+/**
+ * Sorts spending categories by the order in which they appear in the spendingCategoriesSortOrder array
+ * @param categories - array of spending categories
+ * @returns sorted array of spending categories
+ */
+export function sortSpendingCategories(categories: SpendingCategory[]) {
+  const spendingCategoriesSortOrder: SpendingCategory["name"][] = [
+    "Other",
+    "Commuting",
+    "Food",
+    "Entertainment",
+    "Groceries",
+    "Health",
+    "Shopping",
+  ];
+
+  return categories.sort((a, b) => {
+    const aIndex = spendingCategoriesSortOrder.indexOf(a.name);
+    const bIndex = spendingCategoriesSortOrder.indexOf(b.name);
+
+    if (aIndex === -1) {
+      return 1;
+    }
+
+    if (bIndex === -1) {
+      return -1;
+    }
+
+    return aIndex - bIndex;
+  });
+}
