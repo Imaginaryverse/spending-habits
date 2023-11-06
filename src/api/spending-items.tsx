@@ -68,7 +68,8 @@ async function createSpendingItem(
 
   const { data: spendingItem, error } = await supabase
     .from(QUERY_KEY.spending_items)
-    .insert(spending)
+    .insert({ ...spending, user_id: user.id })
+    .eq("user_id", user.id)
     .single();
 
   if (error) {
