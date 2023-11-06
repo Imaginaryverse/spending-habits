@@ -5,7 +5,7 @@ import { Button, Stack, Typography } from "@mui/material";
 import { Page } from "@src/components/page/Page";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { useAuth } from "@src/features/auth/useAuth";
-import { SpendingItem } from "@src/types";
+import { SpendingCategory, SpendingItem } from "@src/types";
 import { CustomChart } from "@src/components/charts/CustomChart";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import {
@@ -19,6 +19,8 @@ import { sumValueOfObjects } from "@src/utils/number-utils";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { AnimatedCounter } from "@src/components/animated-counter/AnimatedCounter";
 import { InfoCard } from "@src/components/info-card/InfoCard";
+import { useFetchSpendingCategories } from "@src/api/spending-categories";
+import { TooltipWithCategories } from "@src/components/charts/TooltipWithCategories";
 
 function selectItemsPerDateKey(
   items: SpendingItem[],
@@ -104,6 +106,7 @@ export function HistoryPage() {
     setParams({ dateKey: newDateKey });
   }, [currentResolution, dateKey, setParams]);
 
+  const { spendingCategories } = useFetchSpendingCategories();
   const { spendingItems, isLoadingSpendingItems } = useFetchSpendingItems(
     { user_id: user?.id },
     {
@@ -118,8 +121,8 @@ export function HistoryPage() {
   );
 
   const chartData = useMemo(
-    () => parseChartData(spendingItems, dateKey),
-    [spendingItems, dateKey]
+    () => parseChartData(spendingItems, dateKey, spendingCategories),
+    [spendingItems, dateKey, spendingCategories]
   );
 
   const formattedDateKey = useMemo(() => {
@@ -195,6 +198,15 @@ export function HistoryPage() {
           cartesianGrid={{ horizontal: true }}
           emptyDataText={`No data for ${dateKey}`}
           loading={isLoadingSpendingItems}
+          tooltipRenderFn={(data) => (
+            <TooltipWithCategories
+              data={data}
+              valueKey="amount"
+              dateKeyFormatter={(dateKey) =>
+                formatTooltipDateKey(dateKey, currentResolution)
+              }
+            />
+          )}
         />
       </PaperStack>
 
@@ -237,6 +249,21 @@ function getResolutionFromDateKey(dateKey: string | null): DataResolution {
   }
 }
 
+function formatTooltipDateKey(dateKey: string, resolution: DataResolution) {
+  switch (resolution) {
+    case "years":
+      return dayjs(dateKey).format("YYYY");
+    case "year":
+      return dayjs(dateKey).format("MMM YYYY");
+    case "month":
+      return dayjs(dateKey).format("D MMM YYYY");
+    case "day":
+      return dayjs(dateKey).format("HH:mm");
+    default:
+      return "";
+  }
+}
+
 function formatXAxisLabel(dateKey: string, resolution: DataResolution) {
   switch (resolution) {
     case "years":
@@ -252,7 +279,11 @@ function formatXAxisLabel(dateKey: string, resolution: DataResolution) {
   }
 }
 
-function parseChartData(spendingItems: SpendingItem[], dateKey: string | null) {
+function parseChartData(
+  spendingItems: SpendingItem[],
+  dateKey: string | null,
+  categories: SpendingCategory[] = []
+) {
   const resolution = getResolutionFromDateKey(dateKey);
 
   if (!spendingItems.length) {
@@ -261,13 +292,13 @@ function parseChartData(spendingItems: SpendingItem[], dateKey: string | null) {
 
   switch (resolution) {
     case "years":
-      return getYearsChartData(spendingItems);
+      return getYearsChartData(spendingItems, categories);
     case "year":
-      return getYearChartData(spendingItems);
+      return getYearChartData(spendingItems, categories);
     case "month":
-      return getMonthChartData(spendingItems, dateKey);
+      return getMonthChartData(spendingItems, dateKey, categories);
     case "day":
-      return getDayChartData(spendingItems);
+      return getDayChartData(spendingItems, categories);
     default:
       return [];
   }

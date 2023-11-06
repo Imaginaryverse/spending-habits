@@ -14,6 +14,7 @@ import {
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useFetchSpendingItems } from "@src/api/spending-items";
+import { TooltipWithCategories } from "@src/components/charts/TooltipWithCategories";
 
 function selectItemsOfLast24Hours(spendingItems: SpendingItem[]) {
   const end = dayjs().endOf("hour").toDate();
@@ -42,8 +43,8 @@ export function TwentyFourHourSummary() {
       return [];
     }
 
-    return get24HourChartData(spendingItems);
-  }, [spendingItems]);
+    return get24HourChartData(spendingItems, spendingCategories);
+  }, [spendingItems, spendingCategories]);
 
   const categoryChartData = useMemo(() => {
     if (!spendingItems.length) {
@@ -88,6 +89,12 @@ export function TwentyFourHourSummary() {
               yAxisUnit=" kr"
               cartesianGrid={{ horizontal: true }}
               loading={isLoadingSpendingItems}
+              tooltipRenderFn={(data) => (
+                <TooltipWithCategories
+                  data={data}
+                  dateKeyFormatter={(dateKey) => dayjs(dateKey).format("HH:mm")}
+                />
+              )}
             />
           </Grid>
           <Grid item xs={12} md={5.9}>

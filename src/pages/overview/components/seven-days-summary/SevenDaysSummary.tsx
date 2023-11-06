@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { SpendingItem } from "@src/types";
 import dayjs from "dayjs";
-import { CustomChart } from "../../../../components/charts/CustomChart";
+import { CustomChart } from "@src/components/charts/CustomChart";
 import { Grid, Stack, Switch, Typography } from "@mui/material";
 import { formatNumber, sumValueOfObjects } from "@src/utils/number-utils";
 import {
@@ -11,13 +11,17 @@ import {
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import { PaperStack } from "@src/components/paper-stack/PaperStack";
 import { useFetchSpendingCategories } from "@src/api/spending-categories";
-import { getAmountPerCategory } from "@src/utils/data-utils";
+import {
+  getAmountPerCategory,
+  getSevenDaysChartData,
+} from "@src/utils/data-utils";
 import { useAuth } from "@src/features/auth/useAuth";
 import { useFetchSpendingItems } from "@src/api/spending-items";
 import { SpendingsList } from "@src/components/spendings-list/SpendingsList";
 import { useNavigate } from "react-router-dom";
+import { TooltipWithCategories } from "@src/components/charts/TooltipWithCategories";
 
-type VisualizationOption = "amount" | "accumulated";
+type VisualizationOption = "amount" | "accumulatedAmount";
 
 function selectItemsOfLastSevenDays(spendingItems: SpendingItem[]) {
   const end = dayjs().toDate();
@@ -29,39 +33,6 @@ function selectItemsOfLastSevenDays(spendingItems: SpendingItem[]) {
   });
 
   return filteredItems;
-}
-
-function getDayChartData(items: SpendingItem[]) {
-  if (!items.length) {
-    return [];
-  }
-
-  const today = dayjs().endOf("day");
-
-  const sevenDays = Array.from({ length: 7 }, (_, i) =>
-    today.subtract(i, "day").format("YYYY-MM-DD")
-  ).reverse();
-
-  const data = sevenDays.map((day) => {
-    const itemsOnDay = items.filter((item) =>
-      dayjs(item.created_at).isSame(day, "day")
-    );
-
-    const dailyAmount = sumValueOfObjects(itemsOnDay, "amount");
-
-    const accumulatedTotal = sumValueOfObjects(
-      items.filter((item) => dayjs(item.created_at).isBefore(day)),
-      "amount"
-    );
-
-    return {
-      date: day,
-      amount: dailyAmount,
-      accumulated: accumulatedTotal,
-    };
-  });
-
-  return data;
 }
 
 export function SevenDaysSummary() {
@@ -81,7 +52,7 @@ export function SevenDaysSummary() {
 
   function toggleVisualization() {
     setSelectedVisualization((prev) =>
-      prev === "amount" ? "accumulated" : "amount"
+      prev === "amount" ? "accumulatedAmount" : "amount"
     );
   }
 
@@ -91,8 +62,8 @@ export function SevenDaysSummary() {
   );
 
   const dayChartData = useMemo(
-    () => getDayChartData(spendingItems),
-    [spendingItems]
+    () => getSevenDaysChartData(spendingItems, spendingCategories),
+    [spendingItems, spendingCategories]
   );
 
   const categoryChartData = useMemo(
@@ -142,7 +113,7 @@ export function SevenDaysSummary() {
               <Typography variant="caption">Daily amount</Typography>
               <Switch
                 size="small"
-                checked={selectedVisualization === "accumulated"}
+                checked={selectedVisualization === "accumulatedAmount"}
                 onChange={toggleVisualization}
               />
               <Typography variant="caption">Accumulated</Typography>
@@ -151,16 +122,25 @@ export function SevenDaysSummary() {
 
           <CustomChart
             data={dayChartData}
-            onBarClick={(data) => navigate(`/history?dateKey=${data.date}`)}
+            onBarClick={(data) => navigate(`/history?dateKey=${data.dateKey}`)}
             type={selectedVisualization === "amount" ? "bar" : "area"}
             lineDot={true}
-            xAxisKey={"date"}
-            xAxisFormatter={(date) => dayjs(date).format("ddd")}
+            xAxisKey="dateKey"
+            xAxisFormatter={(dateKey) => dayjs(dateKey).format("ddd")}
             yAxisKey={selectedVisualization}
             yAxisUnit=" kr"
             cartesianGrid={{ horizontal: true }}
             height={250}
             loading={isLoadingSpendingItems}
+            tooltipRenderFn={(data) => (
+              <TooltipWithCategories
+                data={data}
+                valueKey={selectedVisualization}
+                dateKeyFormatter={(dateKey) =>
+                  dayjs(dateKey).format("D MMM YYYY")
+                }
+              />
+            )}
           />
         </Grid>
         <Grid item xs={12} md={5.9}>

@@ -1,4 +1,4 @@
-import { ComponentProps, useMemo, useRef } from "react";
+import { ComponentProps, PropsWithChildren, useMemo, useRef } from "react";
 import { CircularProgress, Stack, Typography, useTheme } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -17,7 +17,7 @@ import { PaperStack } from "../paper-stack/PaperStack";
 import { useElementDimensions } from "@src/hooks/useElementDimensions";
 
 type ValidChartDataItem = {
-  [key: string]: string | number | Date;
+  [key: string]: unknown;
 };
 
 type CartesianGridProps = {
@@ -131,6 +131,10 @@ type ChartProps<T extends ValidChartDataItem> = {
    */
   legendIconSize?: number;
   /**
+   * Function to render the tooltip. Defaults to undefined, which will render the default tooltip.
+   */
+  tooltipRenderFn?: (data?: T) => React.ReactNode;
+  /**
    * If true, the tooltip will be shown. Defaults to true.
    */
   showTooltip?: boolean;
@@ -196,6 +200,7 @@ export function CustomChart<T extends ValidChartDataItem>({
   legendKey,
   legendIconType,
   legendIconSize = 12,
+  tooltipRenderFn,
   showTooltip = true,
   cartesianGrid,
   orientation = "horizontal",
@@ -282,7 +287,18 @@ export function CustomChart<T extends ValidChartDataItem>({
             />
 
             {!!data.length && showTooltip && (
-              <Tooltip content={<CustomTooltip unit={yAxisUnit} />} />
+              <Tooltip
+                content={({ active, payload, label }) =>
+                  tooltipRenderFn?.(payload?.[0]?.payload as T | undefined) ?? (
+                    <DefaultTooltip
+                      active={active}
+                      payload={payload as DefaultTooltipProps["payload"]}
+                      label={label}
+                      unit={yAxisUnit}
+                    />
+                  )
+                }
+              />
             )}
 
             {!!showLegend && (
@@ -396,30 +412,12 @@ export function CustomChart<T extends ValidChartDataItem>({
   );
 }
 
-type CustomTooltipProps = {
-  active?: boolean;
-  payload?: {
-    name: string;
-    value: string | number | Date;
-    formatter?: (value: string | number | Date) => string;
-  }[];
-  label?: string;
-  unit?: string;
-};
-
-export function CustomTooltip({
-  active,
-  payload,
-  label,
-  unit,
-}: CustomTooltipProps) {
+export function CustomTooltipContainer({ children }: PropsWithChildren) {
   const theme = useTheme();
 
-  if (!active || !payload || !payload.length) {
+  if (!children) {
     return null;
   }
-
-  const { name, value, formatter } = payload[0];
 
   return (
     <PaperStack
@@ -434,7 +432,33 @@ export function CustomTooltip({
         borderColor: theme.palette.action.disabledBackground,
       }}
     >
-      <Typography variant="body2" fontWeight="bold">
+      {children}
+    </PaperStack>
+  );
+}
+
+type DefaultTooltipProps<T extends ValidChartDataItem = ValidChartDataItem> = {
+  active?: boolean;
+  payload?: {
+    name: string;
+    value: string | number | Date;
+    formatter?: (value: string | number | Date) => string;
+    payload: T;
+  }[];
+  label?: string;
+  unit?: string;
+};
+
+function DefaultTooltip({ active, payload, label, unit }: DefaultTooltipProps) {
+  if (!active || !payload || !payload.length) {
+    return null;
+  }
+
+  const { name, value, formatter } = payload[0];
+
+  return (
+    <CustomTooltipContainer>
+      <Typography variant="body2" fontWeight="bold" textTransform="capitalize">
         {label}
       </Typography>
 
@@ -444,7 +468,7 @@ export function CustomTooltip({
           {String(formatter ? formatter(value) : value)} {unit}
         </b>
       </Typography>
-    </PaperStack>
+    </CustomTooltipContainer>
   );
 }
 
