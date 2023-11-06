@@ -46,6 +46,11 @@ export function ProfilePage() {
   );
   const [showSignOutDialog, setShowSignOutDialog] = useState<boolean>(false);
 
+  function handleSignOut() {
+    setShowSignOutDialog(false);
+    signOut();
+  }
+
   function onUpdateProfileSuccess() {
     queryClient.invalidateQueries(QUERY_KEY.user_profiles);
     setIsEditing(false);
@@ -122,7 +127,7 @@ export function ProfilePage() {
         title="Sign out"
         message="Are you sure you want to sign out?"
         open={showSignOutDialog}
-        onConfirm={() => signOut()}
+        onConfirm={handleSignOut}
         confirmBtnLabel="Sign out"
         onCancel={() => setShowSignOutDialog(false)}
         cancelBtnLabel="Cancel"
