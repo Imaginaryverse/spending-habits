@@ -135,6 +135,7 @@ export const UpdateSpendingForm = ({
           disabled={isUpdatingSpendingItem}
           InputLabelProps={{ shrink: true }}
           size="small"
+          inputProps={{ inputMode: "numeric" }}
         />
 
         {!!spendingCategories.length && (

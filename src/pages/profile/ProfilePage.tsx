@@ -174,6 +174,7 @@ export function ProfilePage() {
                   updateInput("monthlySpendingLimit", e.target.value)
                 }
                 disabled={!isEditing}
+                inputProps={{ inputMode: "numeric" }}
               />
             ) : (
               <Typography sx={{ py: 1, px: 1.75 }}>

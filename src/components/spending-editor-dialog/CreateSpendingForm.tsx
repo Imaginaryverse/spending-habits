@@ -136,6 +136,7 @@ export const CreateSpendingForm = ({
           disabled={isCreatingSpendingItem}
           InputLabelProps={{ shrink: true }}
           size="small"
+          inputProps={{ inputMode: "numeric" }}
         />
 
         {!!spendingCategories.length && (
